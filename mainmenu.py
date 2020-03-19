@@ -23,6 +23,15 @@ def configParsing():
 
     return configs
 
+def updateConfig(configs):
+    config = configparser.ConfigParser()
+    config.read("haukiposticonfig.ini")
+    configs[1] = config["haukiposti"]["accountnumber"]
+    configs[2] = config["haukiposti"]["memberclasses"]
+
+    return configs
+
+
 def main():
 
     configs = configParsing()
@@ -58,6 +67,7 @@ def main():
         elif event == "Asetukset":
             window1.Hide()
             settings.settings(configs)
+            configs = updateConfig(configs)
             window1.UnHide()
         elif event in (None, "Poistu"):
             break

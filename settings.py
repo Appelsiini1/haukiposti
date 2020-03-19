@@ -58,24 +58,27 @@ def settings(configs):
             break
 
         elif event == "Tallenna":
-            if values["themelight"]:
-                theme = "reddit"
-            else:
-                theme = "darkblue14"
-            
-            writeString = ''
-            string = values["memberClasses"].split("\n")
-            i = 0
-            while string[i] != "":
-                k = string[i].split(":")
-                writeString = writeString + '"' + k[0] + ',' + k[1].strip() + '"'
-                i = i + 1
-                if string[i] != "":
-                    writeString = writeString + ','
+            try:
+                if values["themelight"]:
+                    theme = "reddit"
+                else:
+                    theme = "darkblue14"
+                
+                writeString = ''
+                string = values["memberClasses"].split("\n")
+                i = 0
+                while string[i] != "":
+                    k = string[i].split(":")
+                    writeString = writeString + '"' + k[0] + ',' + k[1].strip() + '"'
+                    i = i + 1
+                    if string[i] != "":
+                        writeString = writeString + ','
 
-            createSettingFile(theme, values["accnum"], writeString)
-            sg.PopupOK("Tallennettu")
-            break
+                createSettingFile(theme, values["accnum"], writeString)
+                sg.PopupOK("Tallennettu")
+                break
+            except:
+                sg.PopupOK("Jokin meni pieleen tallennettaessa, todennäköisesti jäsenluokissa.\nTarkista, että ne ovat kirjoitettu oikeassa muodossa.")
 
         elif event in (None, "Poistu"):
             exit()
