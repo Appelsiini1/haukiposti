@@ -18,6 +18,9 @@ def configParsing():
         configs.append("")
         configs.append("")
 
+        sg.PopupOK("Ohjelma ei pystynyt löytämään asetustiedostoa.\nViemme sinut ensin asetuksiin, jotta voit laittaa ne kuntoon.")
+        settings.settings(configs)
+
     return configs
 
 def main():

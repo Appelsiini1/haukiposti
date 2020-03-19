@@ -74,8 +74,8 @@ def settings(configs):
                     writeString = writeString + ','
 
             createSettingFile(theme, values["accnum"], writeString)
-            #sg.PopupOK("Tallennettu")
-            #break
+            sg.PopupOK("Tallennettu")
+            break
 
         elif event in (None, "Poistu"):
             exit()
