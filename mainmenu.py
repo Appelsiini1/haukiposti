@@ -1,12 +1,31 @@
 import PySimpleGUI as sg
 import masspost
+import settings
+import configparser
+
+def configParsing():
+    configs = []
+    # 0 = theme, 1 = account number, 2 = member classes
+
+    config = configparser.ConfigParser()
+    try:
+        config.read("haukiposticonfig.ini")
+        configs.append(config["haukiposti"]["theme"])
+        configs.append(config["haukiposti"]["accountnumber"])
+        configs.append(config["haukiposti"]["memberclasses"])
+    except:
+        configs.append("reddit")
+        configs.append("")
+        configs.append("")
+
+    return configs
 
 def main():
 
-    # -- Theme --
-    theme = "DarkBlue14"
+    configs = configParsing()
 
-    sg.theme(theme)
+    # -- Theme --
+    sg.theme(configs[0])
 
     # -- Menu definition --
     menu_def = [["Tiedosto", ["Poistu"]],
@@ -15,10 +34,10 @@ def main():
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti")],
-                [sg.Button("Kirjaudu")],
+                [sg.Button("Kirjaudu"), sg.Text("ei toiminnallisuutta")],
                 [sg.Button("Massaposti")],
-                [sg.Button("Laskutus")],
-                [sg.Button("Tarra-arkit")],
+                [sg.Button("Laskutus"), sg.Text("ei toiminnallisuutta")],
+                [sg.Button("Tarra-arkit"), sg.Text("ei toiminnallisuutta")],
                 [sg.Button("Asetukset")],
                 [sg.Button("Poistu")]]
 
@@ -31,7 +50,11 @@ def main():
 
         if event == "Massaposti":
             window1.Hide()
-            masspost.massPost()
+            masspost.massPost(configs)
+            window1.UnHide()
+        elif event == "Asetukset":
+            window1.Hide()
+            settings.settings(configs)
             window1.UnHide()
         elif event in (None, "Poistu"):
             break

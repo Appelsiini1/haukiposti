@@ -1,11 +1,9 @@
 import PySimpleGUI as sg
 
-def massPost():
+def massPost(configs):
 
     # -- Theme --
-    theme = "DarkBlue14"
-
-    sg.theme(theme)
+    sg.theme(configs[0])
 
     # -- Menu definition --
     menu_def = [["Tiedosto", ["Poistu"]],
