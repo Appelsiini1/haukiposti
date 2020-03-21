@@ -2,14 +2,17 @@ import PySimpleGUI as sg
 import masspost
 import settings
 import configparser
+import os
 
 def configParsing():
     configs = []
     # 0 = theme, 1 = account number, 2 = member classes
+    save_path = os.getenv("APPDATA") + "\\Haukiposti"
+    completeName = os.path.join(save_path, "haukiposticonfig.ini")
 
     config = configparser.ConfigParser()
     try:
-        config.read("haukiposticonfig.ini")
+        config.read(completeName)
         configs.append(config["haukiposti"]["theme"])
         configs.append(config["haukiposti"]["accountnumber"])
         configs.append(config["haukiposti"]["memberclasses"])
@@ -41,7 +44,7 @@ def main():
 
     # -- Menu definition --
     menu_def = [["Tiedosto", ["Poistu"]],
-                ["Apua", ["a PU a"]]]
+                ["Tietoa", ["Apua", "Tietoa"]]]
 
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
@@ -69,6 +72,10 @@ def main():
             settings.settings(configs)
             configs = updateConfig(configs)
             window1.UnHide()
+        elif event == "Apua":
+            sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.")
+        elif event == "Tietoa":
+            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020")
         elif event in (None, "Poistu"):
             break
 

@@ -1,6 +1,8 @@
 import PySimpleGUI as sg
 import csv
 import configparser
+import os
+from pathlib import Path
 
 def createSettingFile(theme, accnum, writeString):
     config = configparser.ConfigParser()
@@ -8,7 +10,11 @@ def createSettingFile(theme, accnum, writeString):
                             "accountnumber": accnum,
                             "memberclasses": writeString}
     
-    with open("haukiposticonfig.ini", "w") as configfile:
+    save_path = os.getenv("APPDATA") + "\\Haukiposti"
+    Path(save_path).mkdir(exist_ok=True)
+    completeName = os.path.join(save_path, "haukiposticonfig.ini")
+    
+    with open(completeName, "w") as configfile:
         config.write(configfile)
     configfile.close()
 
@@ -35,7 +41,7 @@ def settings(configs):
 
     # -- Menu definition --
     menu_def = [["Tiedosto", ["Poistu"]],
-                ["Apua", ["a PU a"]]]
+                ["Tietoa", ["Apua", "Tietoa"]]]
 
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
@@ -46,6 +52,10 @@ def settings(configs):
                 [sg.Text("Tilinumero"), sg.InputText(configs[1], key="accnum")],
                 [sg.Text("Jäsenlajit")],
                 [sg.Multiline(memberString, key="memberClasses", size=(60,6))],
+                [sg.Text("Kirjoita jäsenlajit muodossa (jäsenlaji): (hinta)")],
+                [sg.Text("Esim")],
+                [sg.Text("Perusjäsen: 10")],
+                [sg.Text("Erikoisjäsen: 20")],
                 [sg.Button("Tallenna"), sg.Button("Peruuta")]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
@@ -80,6 +90,10 @@ def settings(configs):
             except:
                 sg.PopupOK("Jokin meni pieleen tallennettaessa, todennäköisesti jäsenluokissa.\nTarkista, että ne ovat kirjoitettu oikeassa muodossa.")
 
+        elif event == "Apua":
+            sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nEsim\nPerusjäsen: 10\nErikoisjäsen: 20")
+        elif event == "Tietoa":
+            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020")
         elif event in (None, "Poistu"):
             exit()
 
