@@ -7,6 +7,8 @@ try:
 except Exception:
     exit(-1)
 
+SCOPES = "https://www.googleapis.com/auth/gmail.send"
+
 def authenticate():
     #google auth
     pass
