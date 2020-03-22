@@ -27,8 +27,10 @@ def configParsing():
     return configs
 
 def updateConfig(configs):
+    save_path = os.getenv("APPDATA") + "\\Haukiposti"
+    completeName = os.path.join(save_path, "haukiposticonfig.ini")
     config = configparser.ConfigParser()
-    config.read("haukiposticonfig.ini")
+    config.read(completeName)
     configs[1] = config["haukiposti"]["accountnumber"]
     configs[2] = config["haukiposti"]["memberclasses"]
 
