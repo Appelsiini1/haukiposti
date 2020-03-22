@@ -37,6 +37,7 @@ def updateConfig(configs):
     config.read("haukiposticonfig.ini")
     configs[1] = config["haukiposti"]["accountnumber"]
     configs[2] = config["haukiposti"]["memberclasses"]
+    logging.info("Config updated.")
 
     return configs
 
