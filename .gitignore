@@ -1,3 +1,5 @@
 test.py
 /__pycache__
 *config.ini
+credentials.json
+haukilog.log
