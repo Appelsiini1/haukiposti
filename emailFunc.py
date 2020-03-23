@@ -15,16 +15,13 @@ except Exception:
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
-def credentialsInit(credPath):
-    pass
-    #TODO window to get initial creds path
-    #shutil.copy(credentials, credPath)
 
-
-
-def authenticate():
+def authenticate(theme):
     """Authenticate user. Returns authorized service object.
     On first run, this will copy the credentials to working directory for future use.
+
+    Args:
+        theme: UI theme ("reddit" or "darkblue14")
     """
     logging.info("Begin authentication")
     credPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "credentials.json")
@@ -45,9 +42,21 @@ def authenticate():
             logging.info("Credentials refreshed.")
         else:
             if os.path.exists(credPath) == False:
-                #TODO
-                #credentialsInit(credPath)
-                credPath = "credentials.json"
+            
+                sg.theme(theme)
+                while True:
+                    values = sg.PopupGetFile(file_types=(('JSON tiedostot', '*.json*'),))
+                    if values != None:
+                        try:
+                            shutil.copy(values[0], credPath)
+                        except Exception:
+                            logging.error("Error copying 'credentials.json' to Roaming.")
+                            sg.PopupOK("Jokin meni vikaan tiedostoa kopiodessa.")
+                        break
+                    else:
+                        sg.PopupOK("Et antanut tiedostoa.")
+
+                #credPath = "credentials.json"
             flow = InstalledAppFlow.from_client_secrets_file(credPath, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
