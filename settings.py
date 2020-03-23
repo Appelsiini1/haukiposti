@@ -4,6 +4,7 @@ import configparser
 import os
 from pathlib import Path
 
+# (Re)writes the config file to /AppData/Roaming/Haukiposti (Haukiposti folder is created if needed)
 def createSettingFile(theme, accnum, writeString):
     config = configparser.ConfigParser()
     config["haukiposti"] = {"theme": theme,
@@ -74,6 +75,8 @@ def settings(configs):
                 else:
                     theme = "darkblue14"
                 
+                #Parses the member classes input field and creates a string to be writed to the configs file,
+                #passing the string to createSettingFile
                 writeString = ''
                 string = values["memberClasses"].split("\n")
                 i = 0

@@ -4,6 +4,7 @@ import settings
 import configparser
 import os
 
+# Reads the config file from /AppData/Roaming/Haukiposti and saves the information to a configs list
 def configParsing():
     configs = []
     # 0 = theme, 1 = account number, 2 = member classes
@@ -26,15 +27,21 @@ def configParsing():
 
     return configs
 
+# Updates the configs list's accountnumber and memberclasses info by reading the configs file after quitting the settings
 def updateConfig(configs):
-    save_path = os.getenv("APPDATA") + "\\Haukiposti"
-    completeName = os.path.join(save_path, "haukiposticonfig.ini")
-    config = configparser.ConfigParser()
-    config.read(completeName)
-    configs[1] = config["haukiposti"]["accountnumber"]
-    configs[2] = config["haukiposti"]["memberclasses"]
+    try:
+        save_path = os.getenv("APPDATA") + "\\Haukiposti"
+        completeName = os.path.join(save_path, "haukiposticonfig.ini")
+        config = configparser.ConfigParser()
+        config.read(completeName)
+        configs[1] = config["haukiposti"]["accountnumber"]
+        configs[2] = config["haukiposti"]["memberclasses"]
 
-    return configs
+        return configs
+
+    except:
+        sg.PopupOK("Virhe asetustiedoston päivittämisessä.")
+
 
 
 def main():
