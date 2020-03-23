@@ -13,7 +13,7 @@ try:
 except Exception:
     exit(-1)
 
-SCOPES = "https://www.googleapis.com/auth/gmail.readonly"
+SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 def credentialsInit(credPath):
     pass
@@ -45,6 +45,7 @@ def authenticate():
             logging.info("Credentials refreshed.")
         else:
             if os.path.exists(credPath) == False:
+                #TODO
                 #credentialsInit(credPath)
                 credPath = "credentials.json"
             flow = InstalledAppFlow.from_client_secrets_file(credPath, SCOPES)
@@ -82,7 +83,7 @@ def createMail(sender, to, subject, message_text, file):
     An object containing a base64url encoded email object.
   """
     message = MIMEMultipart()
-    message['to'] = to
+    message['bcc'] = to
     message['from'] = sender
     message['subject'] = subject
 
@@ -131,7 +132,7 @@ def sendMail(service, user_id, message):
     Sent Message.
   """
     try:
-        message = (service.users().messages().send(userId=user_id, body=message).execute())
+        message = (service.users().messages().send(userId='me', body=message).execute())
         logging.info('Message Id: %s' % message['id'])
         return message
     except Exception as e:

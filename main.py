@@ -1,4 +1,4 @@
-#Haukiposti V0.0
+#Haukiposti V0.2
 #15.3.2020
 # (c) Rami Saarivuori & Aarne Savolainen
 
