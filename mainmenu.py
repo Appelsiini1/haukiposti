@@ -7,7 +7,7 @@ import os
 # Reads the config file from /AppData/Roaming/Haukiposti and saves the information to a configs list
 def configParsing():
     configs = []
-    # 0 = theme, 1 = account number, 2 = member classes
+    # 0 = theme, 1 = sender email, 2 = payment receiver, 3 = account number, 4 = member classes
     save_path = os.getenv("APPDATA") + "\\Haukiposti"
     completeName = os.path.join(save_path, "haukiposticonfig.ini")
 
@@ -15,10 +15,14 @@ def configParsing():
     try:
         config.read(completeName)
         configs.append(config["haukiposti"]["theme"])
+        configs.append(config["haukiposti"]["email"])
+        configs.append(config["haukiposti"]["paymentreceiver"])
         configs.append(config["haukiposti"]["accountnumber"])
         configs.append(config["haukiposti"]["memberclasses"])
     except:
         configs.append("reddit")
+        configs.append("")
+        configs.append("")
         configs.append("")
         configs.append("")
 
@@ -34,8 +38,10 @@ def updateConfig(configs):
         completeName = os.path.join(save_path, "haukiposticonfig.ini")
         config = configparser.ConfigParser()
         config.read(completeName)
-        configs[1] = config["haukiposti"]["accountnumber"]
-        configs[2] = config["haukiposti"]["memberclasses"]
+        configs[1] = config["haukiposti"]["email"]
+        configs[2] = config["haukiposti"]["paymentreceiver"]
+        configs[3] = config["haukiposti"]["accountnumber"]
+        configs[4] = config["haukiposti"]["memberclasses"]
 
         return configs
 
