@@ -58,7 +58,7 @@ def main():
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti")],
-                [sg.Button("Kirjaudu"), sg.Text("ei toiminnallisuutta")],
+                [sg.Button("Kirjaudu")],
                 [sg.Button("Massaposti")],
                 [sg.Button("Laskutus"), sg.Text("ei toiminnallisuutta")],
                 [sg.Button("Tarra-arkit"), sg.Text("ei toiminnallisuutta")],
