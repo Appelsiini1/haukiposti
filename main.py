@@ -81,6 +81,10 @@ def main():
             settings.settings(configs)
             configs = updateConfig(configs)
             window1.UnHide()
+        elif event == "Kirjaudu":
+            service = mail.authenticate()
+            if service:
+                sg.PopupOK("Authentication succesful")
         elif event == "Apua":
             sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.")
         elif event == "Tietoa":

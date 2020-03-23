@@ -1,5 +1,5 @@
 try:
-    import smtplib, base64, os, pickle, shutil
+    import smtplib, base64, os, pickle, shutil, logging
     from googleapiclient.discovery import build
     from google_auth_oauthlib.flow import InstalledAppFlow
     from google.auth.transport.requests import Request
@@ -8,12 +8,12 @@ try:
 except Exception:
     exit(-1)
 
-SCOPES = "https://www.googleapis.com/auth/gmail.send"
+SCOPES = "https://www.googleapis.com/auth/gmail.readonly"
 
 def credentialsInit(credPath):
-
+    pass
     #TODO window to get initial creds path
-    shutil.copy(credentials, credPath)
+    #shutil.copy(credentials, credPath)
 
 
 
@@ -40,7 +40,8 @@ def authenticate():
             logging.info("Credentials refreshed.")
         else:
             if os.path.exists(credPath) == False:
-                credentialsInit(credPath)
+                #credentialsInit(credPath)
+                credPath = "credentials.json"
             flow = InstalledAppFlow.from_client_secrets_file(credPath, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
@@ -49,6 +50,17 @@ def authenticate():
         logging.info("Credentials saved.")
 
     service = build('gmail', 'v1', credentials=creds)
+
+    results = service.users().labels().list(userId='me').execute()
+    labels = results.get('labels', [])
+
+    if not labels:
+        print('No labels found.')
+    else:
+        print('Labels:')
+        for label in labels:
+            print(label['name'])
+
     return service
 
 def createMail():
