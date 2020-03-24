@@ -43,9 +43,10 @@ def updateConfig(configs):
 
 
 def main():
-    logname = "haukilog.log"
+    logname = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "haukilog.log")
     logging.basicConfig(filename=logname, level=logging.DEBUG, format='%(asctime)s %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
+    logging.info("HaukiPosti V0.2 - Rami Saarivuori & Aarne Savolainen (c) 2020")
     configs = configParsing()
 
     # -- Theme --
