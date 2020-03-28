@@ -1,6 +1,4 @@
-test.py
-/__pycache__
-*config.ini
-credentials.json
 haukilog.log
+/__pycache__
+credentials.json
 token.pickle

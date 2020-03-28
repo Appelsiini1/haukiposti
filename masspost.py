@@ -1,5 +1,8 @@
 import PySimpleGUI as sg
 
+import emailFunc as mail
+import logging
+
 def massPost(configs):
 
     # -- Theme --
@@ -30,7 +33,7 @@ def massPost(configs):
         if event == "Peruuta":
             break
         elif event == "Apua":
-            sg.PopupOK("Massaposti. Täältä voit lähettää massapostia.\nValitse vastaanottajat sisältä CSV tiedosto, kirjoita heille viesti ja lähetä.")
+            sg.PopupOK("Massaposti. Täältä voit lähettää massapostia.\nValitse vastaanottajat sisältävä CSV tiedosto, kirjoita heille viesti ja lähetä.")
         elif event == "Tietoa":
             sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020")
         elif event in (None, "Poistu"):
