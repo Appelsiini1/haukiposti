@@ -9,9 +9,10 @@ try:
 except Exception:
     exit(-1)
     
+# Reads the config file from /AppData/Roaming/Haukiposti and saves the information to a configs list
 def configParsing():
     configs = []
-    # 0 = theme, 1 = account number, 2 = member classes
+    # 0 = theme, 1 = sender email, 2 = payment receiver, 3 = account number, 4 = member classes
     save_path = os.getenv("APPDATA") + "\\Haukiposti"
     completeName = os.path.join(save_path, "haukiposticonfig.ini")
 
@@ -19,11 +20,15 @@ def configParsing():
     try:
         config.read(completeName)
         configs.append(config["haukiposti"]["theme"])
+        configs.append(config["haukiposti"]["email"])
+        configs.append(config["haukiposti"]["paymentreceiver"])
         configs.append(config["haukiposti"]["accountnumber"])
         configs.append(config["haukiposti"]["memberclasses"])
         logging.info("Settings retrieved succesfully.")
     except:
         configs.append("reddit")
+        configs.append("")
+        configs.append("")
         configs.append("")
         configs.append("")
         logging.error("No settings file.")
@@ -32,14 +37,22 @@ def configParsing():
 
     return configs
 
+# Updates the configs list's accountnumber and memberclasses info by reading the configs file after quitting the settings
 def updateConfig(configs):
-    config = configparser.ConfigParser()
-    config.read("haukiposticonfig.ini")
-    configs[1] = config["haukiposti"]["accountnumber"]
-    configs[2] = config["haukiposti"]["memberclasses"]
-    logging.info("Config updated.")
+    try:
+        save_path = os.getenv("APPDATA") + "\\Haukiposti"
+        completeName = os.path.join(save_path, "haukiposticonfig.ini")
+        config = configparser.ConfigParser()
+        config.read(completeName)
+        configs[1] = config["haukiposti"]["email"]
+        configs[2] = config["haukiposti"]["paymentreceiver"]
+        configs[3] = config["haukiposti"]["accountnumber"]
+        configs[4] = config["haukiposti"]["memberclasses"]
 
-    return configs
+        return configs
+
+    except:
+        sg.PopupOK("Virhe asetustiedoston päivittämisessä.")
 
 
 def main():
@@ -58,13 +71,13 @@ def main():
 
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
-                [sg.Text("Haukiposti")],
-                [sg.Button("Kirjaudu")],
-                [sg.Button("Massaposti")],
-                [sg.Button("Laskutus"), sg.Text("ei toiminnallisuutta")],
-                [sg.Button("Tarra-arkit"), sg.Text("ei toiminnallisuutta")],
-                [sg.Button("Asetukset")],
-                [sg.Button("Poistu")]]
+                [sg.Text("Haukiposti", size=(15, 1), justification="center")],
+                [sg.Button("Kirjaudu", size=(15, 1))],
+                [sg.Button("Massaposti", size=(15, 1))],
+                [sg.Button("Laskutus", size=(15, 1)), sg.Text("ei toiminnallisuutta")],
+                [sg.Button("Tarra-arkit", size=(15, 1)), sg.Text("ei toiminnallisuutta")],
+                [sg.Button("Asetukset", size=(15, 1))],
+                [sg.Button("Poistu", size=(15, 1))]]
 
     # -- Window creation --
     window1 = sg.Window("Haukiposti", layout)
