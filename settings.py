@@ -4,9 +4,12 @@ import configparser
 import os
 from pathlib import Path
 
-def createSettingFile(theme, accnum, writeString):
+# (Re)writes the config file to /AppData/Roaming/Haukiposti (Haukiposti folder is created if needed)
+def createSettingFile(theme, email, paymentreceiver, accnum, writeString):
     config = configparser.ConfigParser()
     config["haukiposti"] = {"theme": theme,
+                            "email": email,
+                            "paymentreceiver": paymentreceiver,
                             "accountnumber": accnum,
                             "memberclasses": writeString}
     
@@ -31,7 +34,7 @@ def settings(configs):
         dark = True
 
     # -- List of member classes converted to a string --
-    memberList = [configs[2]]
+    memberList = [configs[4]]
     parser = csv.reader(memberList)
     memberString = ""
     for fields in parser:
@@ -49,10 +52,13 @@ def settings(configs):
                 [sg.Text("Teema"), sg.Radio("Vaalea", "THEME", key="themelight", default=light), sg.Radio("Tumma", "THEME", key="themedark", default=dark)],
                 [sg.Text("Huom! Vaatii uudelleenkäynnistyksen")],
                 [sg.Text("")], # some space between stuff
-                [sg.Text("Tilinumero"), sg.InputText(configs[1], key="accnum")],
+                [sg.Text("Lähettäjän sähköposti"), sg.InputText(configs[1], key="senderemail")],
+                [sg.Text("Maksunsaaja"), sg.InputText(configs[2], key="paymentreceiver")],
+                [sg.Text("Tilinumero"), sg.InputText(configs[3], key="accnum")],
                 [sg.Text("Jäsenlajit")],
                 [sg.Multiline(memberString, key="memberClasses", size=(60,6))],
                 [sg.Text("Kirjoita jäsenlajit muodossa (jäsenlaji): (hinta)")],
+                [sg.Text("Erota jäsenlajit toisistaan rivin vaihdolla (enter)")],
                 [sg.Text("Esim")],
                 [sg.Text("Perusjäsen: 10")],
                 [sg.Text("Erikoisjäsen: 20")],
@@ -74,6 +80,8 @@ def settings(configs):
                 else:
                     theme = "darkblue14"
                 
+                #Parses the member classes input field and creates a string to be writed to the configs file,
+                #passing the string to createSettingFile
                 writeString = ''
                 string = values["memberClasses"].split("\n")
                 i = 0
@@ -84,14 +92,14 @@ def settings(configs):
                     if string[i] != "":
                         writeString = writeString + ','
 
-                createSettingFile(theme, values["accnum"], writeString)
+                createSettingFile(theme, values["senderemail"], values["paymentreceiver"], values["accnum"], writeString)
                 sg.PopupOK("Tallennettu")
                 break
             except:
                 sg.PopupOK("Jokin meni pieleen tallennettaessa, todennäköisesti jäsenluokissa.\nTarkista, että ne ovat kirjoitettu oikeassa muodossa.")
 
         elif event == "Apua":
-            sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nEsim\nPerusjäsen: 10\nErikoisjäsen: 20")
+            sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nErota jäsenlajit toisistaan rivin vaihdolla (enter)\nEsim\nPerusjäsen: 10\nErikoisjäsen: 20")
         elif event == "Tietoa":
             sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020")
         elif event in (None, "Poistu"):
