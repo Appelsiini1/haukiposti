@@ -3,6 +3,72 @@ import PySimpleGUI as sg
 import emailFunc as mail
 import logging
 
+def TagsToHTML(text):
+    # **text** = <b></b> bolding
+    # __text__ = <i></i> italic
+    # ||text|| = <u></u> underlined
+    # @@link@@text@@ = <a href="">*text*</a> link
+    # $$img$$ = <p><img src="cid:0"></p> embedded image (cid:x number of image)
+    # Font is spesified to 'Calibri'
+
+    start = '<html><body><font face="Calibri">'
+    end = '</font></body></html>'
+
+    #bolding
+    tempText = text
+    while True:
+        text = text.replace('**', '<b>', 1)
+        text = text.replace('**', '</b>', 1)
+        if text == tempText:
+            break
+        else:
+            tempText = text
+
+    #italic
+    tempText = text
+    while True:
+        text = text.replace('__', '<i>', 1)
+        text = text.replace('__', '</i>', 1)
+        if text == tempText:
+            break
+        else:
+            tempText = text
+    
+    #underlined
+    tempText = text
+    while True:
+        text = text.replace('||', '<u>', 1)
+        text = text.replace('||', '</u>', 1)
+        if text == tempText:
+            break
+        else:
+            tempText = text
+
+    #links
+    tempText = text
+    while True:
+        text = text.replace('@@', '<a href="', 1)
+        text = text.replace('@@', '">', 1)
+        text = text.replace('@@', '</a>', 1)
+        if text == tempText:
+            break
+        else:
+            tempText = text
+    
+    #embedded image
+    tempText = text
+    i = 0
+    while True:
+        text = text.replace('$$img$$', ('<p><img src="cid:'+i+ '"></p>'), 1)
+        if text == tempText:
+            break
+        else:
+            tempText = text
+            i = i + 1
+
+    text = start + text + end
+    return text
+
 def massPost(configs):
 
     # -- Theme --
@@ -20,7 +86,7 @@ def massPost(configs):
                 [sg.Text("Aihe")],
                 [sg.InputText()],
                 [sg.Text("Viesti")],
-                [sg.Multiline(size=(60,10))],
+                [sg.Multiline(key="messageText", size=(60,10))],
                 [sg.Text("Liite"), sg.Input("", key="attachment"), sg.FileBrowse("Selaa...")],
                 [sg.Button("Lähetä"), sg.Button("Esikatsele"), sg.Button("Peruuta")]]
 
