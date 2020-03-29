@@ -92,7 +92,7 @@ def main():
             if service:
                 masspost.massPost(configs, service)
             else:
-                sg.PopupOK("Et ole kirjautunut. Ole hyvä ja kirjaudu ensin..")
+                sg.PopupOK("Et ole kirjautunut. Ole hyvä ja kirjaudu ensin.")
             window1.UnHide()
         elif event == "Asetukset":
             window1.Hide()
