@@ -83,12 +83,16 @@ def main():
     window1 = sg.Window("Haukiposti", layout)
 
     # -- Window functionality --
+    service = None
     while True:
         event, values = window1.read()
 
         if event == "Massaposti":
             window1.Hide()
-            masspost.massPost(configs)
+            if service:
+                masspost.massPost(configs, service)
+            else:
+                sg.PopupOK("Et ole kirjautunut. Ole hyvä ja kirjaudu ensin..")
             window1.UnHide()
         elif event == "Asetukset":
             window1.Hide()

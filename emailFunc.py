@@ -14,6 +14,7 @@ except Exception:
     exit(-1)
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+#SCOPES should be gmail.readonly for debugging, otherwise gmail.send
 
 
 def authenticate(theme):
