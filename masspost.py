@@ -1,14 +1,25 @@
 import PySimpleGUI as sg
-
 import emailFunc as mail
 import logging
+#from PIL import Image
 
-def TagsToHTML(text):
+# def getRes(imagePath):
+#     try:
+#         image = Image.open(imagePath)
+#     except Exception as e:
+#         logging.error(e)
+#         return -1
+#     size = image.size # returns tuple (x,y)
+#     # TODO: resize image based on original and size option
+    
+
+def TagsToHTML(text, images):
     # **text** = <b></b> bolding
     # __text__ = <i></i> italic
     # ||text|| = <u></u> underlined
     # @@link@@text@@ = <a href="">*text*</a> link
     # $$img$$ = <p><img src="cid:0"></p> embedded image (cid:x number of image)
+    # TODO: Size option to images??
     # Font is spesified to 'Calibri'
 
     start = '<html><body><font face="Calibri">'
@@ -59,7 +70,10 @@ def TagsToHTML(text):
     tempText = text
     i = 0
     while True:
-        text = text.replace('$$img$$', ('<p><img src="cid:'+i+ '"></p>'), 1)
+        # resolution = getRes(images[i])
+        # if resolution == -1:
+        #     return
+        text = text.replace('$$img$$', ('<p><img src="cid:'+i+'" alt="image" height="700" width="700"></p>'), 1)
         if text == tempText:
             break
         else:
