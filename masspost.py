@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import emailFunc as mail
-import logging
+import logging, os, shutil
 #from PIL import Image #FUTURE FEATURE
 
 # def getRes(imagePath):
@@ -13,7 +13,7 @@ import logging
 #     # TODO: resize image based on original and size option
     
 
-def TagsToHTML(text, images):
+def TagsToHTML(text, images, preview):
     # **text** = <b></b> bolding
     # __text__ = <i></i> italic
     # ||text|| = <u></u> underlined
@@ -78,7 +78,11 @@ def TagsToHTML(text, images):
         # resolution = getRes(images[i])
         # if resolution == -1:
         #     return
-        text = text.replace('$$img$$', ('<img src="cid:'+i+'" alt="image" height="700" width="700">'), 1)
+        if preview == 1:
+            text = text.replace('$$img$$', ('<img src="'+images[i]+'" alt="image" height="700" width="700">'), 1)
+        else:
+            text = text.replace('$$img$$', ('<img src="cid:'+i+'" alt="image" height="700" width="700">'), 1)
+            
         if text == tempText:
             break
         else:
@@ -87,6 +91,38 @@ def TagsToHTML(text, images):
 
     text = start + text + end
     return text
+
+def preview(text, images):
+    folder = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "images")
+    path = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html")
+    paths = []
+    try:
+        os.mkdir(folder)
+    except FileExistsError as e:
+        logging.error(e)
+        pass
+    i = 0
+    for item in images:
+        if images[i][-4:].lower() == 'jpeg' or images[i][-4:].lower() == '.png' or images[i][-4:].lower() == '.jpg' or images[i][-4:].lower() == '.gif' or images[i][-4:] == '.png':
+            shutil.copy(images[i], folder)
+            temp = images[i].split('/')
+            tempf = "images/" + temp[len(temp)-1]
+            paths.append(tempf)
+            i = i + 1
+            
+
+    htmlText = TagsToHTML(text, paths, preview=1)
+    if htmlText == -1:
+        return -1
+    try:
+        html = open(path, "w")
+        html.write(htmlText)
+        html.close()
+        command = 'cmd /c "start "" "' + path + '"'
+        os.system(command)
+    except Exception as e:
+        logging.error(e)
+        sg.PopupOK("Jokin meni vikaan esikatselua avatessa.")
 
 def massPost(configs, service):
 
@@ -106,7 +142,7 @@ def massPost(configs, service):
                 [sg.InputText()],
                 [sg.Text("Viesti", font=("Verdana", 12))],
                 [sg.Multiline(key="messageText", size=(60,10))],
-                [sg.Text("Liite", font=("Verdana", 12)), sg.Input("", key="attachment"), sg.FileBrowse("Selaa...", font=("Verdana", 12))],
+                [sg.Text("Liite", font=("Verdana", 12)), sg.Input("", key="attachment"), sg.FilesBrowse("Selaa...", font=("Verdana", 12))],
                 [sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
@@ -117,6 +153,11 @@ def massPost(configs, service):
 
         if event == "Peruuta":
             break
+        elif event == "Esikatsele":
+            attachements = values["attachment"].split(';')
+            text = values["messageText"]
+            if preview(text, attachements) == -1:
+                sg.PopupOK("Tekstin muunnos epäonnistui")
         elif event == "Apua":
             sg.PopupOK("Massaposti. Täältä voit lähettää massapostia.\nValitse vastaanottajat sisältävä CSV tiedosto, kirjoita heille viesti ja lähetä.", font=("Verdana", 12))
         elif event == "Tietoa":

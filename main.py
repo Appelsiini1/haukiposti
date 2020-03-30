@@ -116,7 +116,12 @@ def main():
             sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
         elif event in (None, "Poistu"):
             break
-
+    if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html")):
+        os.remove(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html"))
+        folderpath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "images")
+        for i in os.listdir(folderpath):
+            os.remove(folderpath+ "/"+i)
+        os.rmdir(folderpath)
     window1.close()
 
 
