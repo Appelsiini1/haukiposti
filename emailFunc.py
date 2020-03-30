@@ -3,6 +3,7 @@ try:
     from googleapiclient.discovery import build
     from google_auth_oauthlib.flow import InstalledAppFlow
     from google.auth.transport.requests import Request
+    from google.auth.exceptions import RefreshError
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
     from email.mime.base import MIMEBase
@@ -27,8 +28,8 @@ def authenticate(theme):
     logging.info("Begin authentication")
     credPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "credentials.json")
     tokenPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "token.pickle")
-
     creds = None
+    sg.theme(theme)
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -39,12 +40,17 @@ def authenticate(theme):
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            logging.info("Credentials refreshed.")
+            try:
+                creds.refresh(Request())
+                logging.info("Credentials refreshed.")
+            except RefreshError as e:
+                logging.error(e)
+                if os.path.exists(credPath):
+                    flow = InstalledAppFlow.from_client_secrets_file(credPath, SCOPES)
+                    creds = flow.run_local_server(port=0)
+                
         else:
             if os.path.exists(credPath) == False:
-            
-                sg.theme(theme)
                 values = sg.PopupGetFile(message = "Valitse credentials.json tiedosto todennusta varten.", file_types=(('JSON tiedostot', '*.json*'),))
                 if values != None:
                     try:
