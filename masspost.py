@@ -81,14 +81,14 @@ def massPost(configs, service):
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti - massaposti", font=("Verdana", 12, "bold"))],
-                [sg.Text("Vastaanottajat", font=("Verdana", 10))],
+                [sg.Text("Vastaanottajat", font=("Verdana", 12))],
                 [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat")],
-                [sg.Text("Aihe", font=("Verdana", 10))],
+                [sg.Text("Aihe", font=("Verdana", 12))],
                 [sg.InputText()],
-                [sg.Text("Viesti", font=("Verdana", 10))],
+                [sg.Text("Viesti", font=("Verdana", 12))],
                 [sg.Multiline(key="messageText", size=(60,10))],
-                [sg.Text("Liite", font=("Verdana", 10)), sg.Input("", key="attachment"), sg.FileBrowse("Selaa...", font=("Verdana", 10))],
-                [sg.Button("Lähetä", font=("Verdana", 10)), sg.Button("Esikatsele", font=("Verdana", 10)), sg.Button("Peruuta", font=("Verdana", 10))]]
+                [sg.Text("Liite", font=("Verdana", 12)), sg.Input("", key="attachment"), sg.FileBrowse("Selaa...", font=("Verdana", 12))],
+                [sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
 
@@ -99,9 +99,9 @@ def massPost(configs, service):
         if event == "Peruuta":
             break
         elif event == "Apua":
-            sg.PopupOK("Massaposti. Täältä voit lähettää massapostia.\nValitse vastaanottajat sisältävä CSV tiedosto, kirjoita heille viesti ja lähetä.", font=("Verdana", 10))
+            sg.PopupOK("Massaposti. Täältä voit lähettää massapostia.\nValitse vastaanottajat sisältävä CSV tiedosto, kirjoita heille viesti ja lähetä.", font=("Verdana", 12))
         elif event == "Tietoa":
-            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 10))
+            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
         elif event in (None, "Poistu"):
             exit()
 

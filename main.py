@@ -71,14 +71,14 @@ def main():
 
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
-                #[sg.Image(r"assets/haukiposti.png")],
-                [sg.Text("Haukiposti", font=("Verdana", 12, "bold"), size=(10,1), justification="center")],
-                [sg.Button("Kirjaudu", font=("Verdana", 10), size=(15, 1))],
-                [sg.Button("Massaposti", font=("Verdana", 10), size=(15, 1))],
-                [sg.Button("Laskutus", font=("Verdana", 10, "italic"), size=(15, 1)), sg.Text("ei toiminnallisuutta")],
-                [sg.Button("Tarra-arkit", font=("Verdana", 10, "italic"), size=(15, 1)), sg.Text("ei toiminnallisuutta")],
-                [sg.Button("Asetukset", font=("Verdana", 10), size=(15, 1))],
-                [sg.Button("Poistu", font=("Verdana", 10), size=(15, 1))]]
+                [sg.Image(r"assets/haukiposti_small.png", pad=(26,0))],
+                [sg.Text("Haukiposti", font=("Verdana", 15, "bold"), size=(10,1), justification="center")],
+                [sg.Button("Kirjaudu", font=("Verdana", 12), size=(15, 1))],
+                [sg.Button("Massaposti", font=("Verdana", 12), size=(15, 1))],
+                [sg.Button("Laskutus", font=("Verdana", 12, "italic"), size=(15, 1))],
+                [sg.Button("Tarra-arkit", font=("Verdana", 12, "italic"), size=(15, 1))],
+                [sg.Button("Asetukset", font=("Verdana", 12), size=(15, 1))],
+                [sg.Button("Poistu", font=("Verdana", 12), size=(15, 1))]]
 
     # -- Window creation --
     window1 = sg.Window("Haukiposti", layout)
@@ -93,8 +93,12 @@ def main():
             if service:
                 masspost.massPost(configs, service)
             else:
-                sg.PopupOK("Et ole kirjautunut. Ole hyvä ja kirjaudu ensin.", font=("Verdana", 10))
+                sg.PopupOK("Et ole kirjautunut. Ole hyvä ja kirjaudu ensin.", font=("Verdana", 12))
             window1.UnHide()
+        elif event == "Laskutus":
+            sg.PopupOK("Ei toiminnallisuutta.", font=("Verdana", 12))
+        elif event == "Tarra-arkit":
+            sg.PopupOK("Ei toiminnallisuutta.", font=("Verdana", 12))
         elif event == "Asetukset":
             window1.Hide()
             settings.settings(configs)
@@ -103,13 +107,13 @@ def main():
         elif event == "Kirjaudu":
             service = mail.authenticate(configs[0])
             if service:
-                sg.PopupOK("Todennus onnistui.", font=("Verdana", 10))
+                sg.PopupOK("Todennus onnistui.", font=("Verdana", 12))
             else:
-                sg.PopupOK("Todennus epäonnistui.", font=("Verdana", 10))
+                sg.PopupOK("Todennus epäonnistui.", font=("Verdana", 12))
         elif event == "Apua":
-            sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.", font=("Verdana", 10))
+            sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.", font=("Verdana", 12))
         elif event == "Tietoa":
-            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 10))
+            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
         elif event in (None, "Poistu"):
             break
 
