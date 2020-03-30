@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import emailFunc as mail
 import logging
-#from PIL import Image
+#from PIL import Image #FUTURE FEATURE
 
 # def getRes(imagePath):
 #     try:
@@ -24,6 +24,11 @@ def TagsToHTML(text, images):
 
     start = '<html><body><font face="Calibri">'
     end = '</font></body></html>'
+
+    # newline
+    text = "<p>" + text
+    text = text.replace('\n', '</p><p>')
+    text = "</p>" + text
 
     #bolding
     tempText = text
@@ -69,11 +74,11 @@ def TagsToHTML(text, images):
     #embedded image
     tempText = text
     i = 0
-    while True:
+    for j in images:
         # resolution = getRes(images[i])
         # if resolution == -1:
         #     return
-        text = text.replace('$$img$$', ('<p><img src="cid:'+i+'" alt="image" height="700" width="700"></p>'), 1)
+        text = text.replace('$$img$$', ('<img src="cid:'+i+'" alt="image" height="700" width="700">'), 1)
         if text == tempText:
             break
         else:
