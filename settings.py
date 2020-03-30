@@ -48,21 +48,21 @@ def settings(configs):
 
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
-                [sg.Text("Haukiposti - asetukset", font=("Verdana", 12, "bold"))],
-                [sg.Text("Teema", font=("Verdana", 10)), sg.Radio("Vaalea", "THEME", key="themelight", font=("Verdana", 10), default=light), sg.Radio("Tumma", "THEME", key="themedark", font=("Verdana", 10), default=dark)],
-                [sg.Text("Huom! Vaatii uudelleenkäynnistyksen", font=("Verdana", 10))],
+                [sg.Text("Haukiposti - asetukset", font=("Verdana", 14, "bold"))],
+                [sg.Text("Teema", font=("Verdana", 12)), sg.Radio("Vaalea", "THEME", key="themelight", font=("Verdana", 12), default=light), sg.Radio("Tumma", "THEME", key="themedark", font=("Verdana", 12), default=dark)],
+                [sg.Text("Huom! Vaatii uudelleenkäynnistyksen", font=("Verdana", 12))],
                 [sg.Text("")], # some space between stuff
-                [sg.Text("Lähettäjän sähköposti", font=("Verdana", 10), size=(20,1)), sg.InputText(configs[1], key="senderemail")],
-                [sg.Text("Maksunsaaja", font=("Verdana", 10), size=(20,1)), sg.InputText(configs[2], key="paymentreceiver")],
-                [sg.Text("Tilinumero", font=("Verdana", 10), size=(20,1)), sg.InputText(configs[3], key="accnum")],
-                [sg.Text("Jäsenlajit", font=("Verdana", 10))],
+                [sg.Text("Lähettäjän sähköposti", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[1], key="senderemail")],
+                [sg.Text("Maksunsaaja", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[2], key="paymentreceiver")],
+                [sg.Text("Tilinumero", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[3], key="accnum")],
+                [sg.Text("Jäsenlajit", font=("Verdana", 12))],
                 [sg.Multiline(memberString, key="memberClasses", size=(60,6))],
-                [sg.Text("Kirjoita jäsenlajit muodossa (jäsenlaji): (hinta)", font=("Verdana", 10))],
-                [sg.Text("Erota jäsenlajit toisistaan rivin vaihdolla (enter)", font=("Verdana", 10))],
-                [sg.Text("Esim", font=("Verdana", 10))],
-                [sg.Text("Perusjäsen: 10", font=("Verdana", 10))],
-                [sg.Text("Erikoisjäsen: 20", font=("Verdana", 10))],
-                [sg.Button("Tallenna", font=("Verdana", 10)), sg.Button("Peruuta", font=("Verdana", 10))]]
+                [sg.Text("Kirjoita jäsenlajit muodossa (jäsenlaji): (hinta)", font=("Verdana", 12))],
+                [sg.Text("Erota jäsenlajit toisistaan rivin vaihdolla (enter)", font=("Verdana", 12))],
+                [sg.Text("Esim", font=("Verdana", 12))],
+                [sg.Text("Perusjäsen: 10", font=("Verdana", 12))],
+                [sg.Text("Erikoisjäsen: 20", font=("Verdana", 12))],
+                [sg.Button("Tallenna", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
 
@@ -93,7 +93,7 @@ def settings(configs):
                         writeString = writeString + ','
 
                 createSettingFile(theme, values["senderemail"], values["paymentreceiver"], values["accnum"], writeString)
-                sg.PopupOK("Tallennettu", font=("Verdana", 10))
+                sg.PopupOK("Tallennettu", font=("Verdana", 12))
                 break
             except:
                 sg.PopupOK("Jokin meni pieleen tallennettaessa, todennäköisesti jäsenluokissa.\nTarkista, että ne ovat kirjoitettu oikeassa muodossa.", font=("Verdana", 10))
@@ -101,7 +101,7 @@ def settings(configs):
         elif event == "Apua":
             sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nErota jäsenlajit toisistaan rivin vaihdolla (enter)\nEsim\nPerusjäsen: 10\nErikoisjäsen: 20", font=("Verdana", 10))
         elif event == "Tietoa":
-            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 10))
+            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
         elif event in (None, "Poistu"):
             exit()
 
