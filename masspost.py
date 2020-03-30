@@ -69,7 +69,7 @@ def TagsToHTML(text):
     text = start + text + end
     return text
 
-def massPost(configs):
+def massPost(configs, service):
 
     # -- Theme --
     sg.theme(configs[0])
@@ -80,15 +80,15 @@ def massPost(configs):
 
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
-                [sg.Text("Haukiposti - massaposti")],
-                [sg.Text("Vastaanottajat")],
+                [sg.Text("Haukiposti - massaposti", font=("Verdana", 12, "bold"))],
+                [sg.Text("Vastaanottajat", font=("Verdana", 10))],
                 [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat")],
-                [sg.Text("Aihe")],
+                [sg.Text("Aihe", font=("Verdana", 10))],
                 [sg.InputText()],
-                [sg.Text("Viesti")],
+                [sg.Text("Viesti", font=("Verdana", 10))],
                 [sg.Multiline(key="messageText", size=(60,10))],
-                [sg.Text("Liite"), sg.Input("", key="attachment"), sg.FileBrowse("Selaa...")],
-                [sg.Button("Lähetä"), sg.Button("Esikatsele"), sg.Button("Peruuta")]]
+                [sg.Text("Liite", font=("Verdana", 10)), sg.Input("", key="attachment"), sg.FileBrowse("Selaa...", font=("Verdana", 10))],
+                [sg.Button("Lähetä", font=("Verdana", 10)), sg.Button("Esikatsele", font=("Verdana", 10)), sg.Button("Peruuta", font=("Verdana", 10))]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
 
@@ -99,9 +99,9 @@ def massPost(configs):
         if event == "Peruuta":
             break
         elif event == "Apua":
-            sg.PopupOK("Massaposti. Täältä voit lähettää massapostia.\nValitse vastaanottajat sisältävä CSV tiedosto, kirjoita heille viesti ja lähetä.")
+            sg.PopupOK("Massaposti. Täältä voit lähettää massapostia.\nValitse vastaanottajat sisältävä CSV tiedosto, kirjoita heille viesti ja lähetä.", font=("Verdana", 10))
         elif event == "Tietoa":
-            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020")
+            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 10))
         elif event in (None, "Poistu"):
             exit()
 
