@@ -14,7 +14,7 @@ try:
 except Exception:
     exit(-1)
 
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 #SCOPES should be gmail.readonly for debugging, otherwise gmail.send
 
 
