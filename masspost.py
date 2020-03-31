@@ -131,6 +131,13 @@ def preview(text, images):
         logging.error(e)
         sg.PopupOK("Jokin meni vikaan esikatselua avatessa.")
 
+def CSVparser(file):
+    try:
+        fil = open(file, "r")
+    except Exception as e:
+        logging.error(e)
+        return None
+
 def massPost(configs, service):
 
     # -- Theme --
@@ -144,7 +151,7 @@ def massPost(configs, service):
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti - massaposti", font=("Verdana", 12, "bold"))],
                 [sg.Text("Vastaanottajat", font=("Verdana", 12))],
-                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat")],
+                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat", file_types=(('CSV taulukot', '*.csv*'),))],
                 [sg.Text("Aihe", font=("Verdana", 12))],
                 [sg.InputText()],
                 [sg.Text("Viesti", font=("Verdana", 12))],
@@ -165,10 +172,35 @@ def massPost(configs, service):
             text = values["messageText"]
             if preview(text, attachements) == -1:
                 sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
+        elif event == "Lähetä":
+            attachements = values["attachment"].split(';')
+            text = values["messageText"]
+            htmlText = TagsToHTML(text, attachements, preview=0)
+            receivers = CSVparser(values["receivers"])
+            if receivers:
+                encMsg = mail.createMail(configs[1], receivers, htmlText, attachements)
+                if encMsg:
+                    msg = mail.sendMail(service, 'me', encMsg)
+                    if msg:
+                        sg.PopupOK("Viestin lähetys onnistui.")
+                else:
+                    sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
+            else:
+                sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
+
         elif event == "Apua":
-            sg.PopupOK("Massaposti. Täältä voit lähettää massapostia.\nValitse vastaanottajat sisältävä CSV tiedosto, kirjoita heille viesti ja lähetä.", font=("Verdana", 12))
+            apua = """Massaposti. Täältä voit lähettää massapostia.\n
+            Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
+            Tekstin erikoismerkit:\n
+            **tekstiä** == Lihavoitu\n
+            __tekstiä__ == Kursivoitu\n
+            ||tekstiä|| == Alleviivattu\n
+            @@linkki@@tekstiä@@ == Tekstin seassa oleva linkki. Mikäli haluat linkin näkyvän linkkinä, kopioi linkki myös tekstin paikalle.\n
+            $$img$$ == Tekstin seassa olevat kuvat määritetään tällä tagilla. Valitse kuvat liitteeksi siinä järjestyksessä, jossa haluat että ne esiintyvät. \n(Paina CTRL-näppäin pohjaan kun valitset kuvat.) Muut kuin kuvatiedostot voivat olla missä tahansa järjestyksessä, kuitenkin suositeltavaa on valita ne kuvien jälkeen.\n
+            Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)"""
+            sg.PopupOK(apua, title="Apua", font=("Verdana", 12))
         elif event == "Tietoa":
-            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
+            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
         elif event in (None, "Poistu"):
             exit()
 

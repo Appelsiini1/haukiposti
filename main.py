@@ -59,7 +59,7 @@ def main():
     logname = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "haukilog.log")
     logging.basicConfig(filename=logname, level=logging.DEBUG, format='%(asctime)s %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
-    logging.info("HaukiPosti V0.2 - Rami Saarivuori & Aarne Savolainen (c) 2020")
+    logging.info("HaukiPosti V0.5 - Rami Saarivuori & Aarne Savolainen (c) 2020")
     configs = configParsing()
 
     # -- Theme --
@@ -113,7 +113,7 @@ def main():
         elif event == "Apua":
             sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.", font=("Verdana", 12))
         elif event == "Tietoa":
-            sg.PopupOK("Rami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
+            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
         elif event in (None, "Poistu"):
             break
     if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html")):

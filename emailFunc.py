@@ -163,3 +163,4 @@ def sendMail(service, user_id, message):
         return message
     except Exception as e:
         logging.error("Error: " +e)
+        return None
