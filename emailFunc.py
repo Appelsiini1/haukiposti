@@ -14,7 +14,7 @@ try:
 except Exception:
     exit(-1)
 
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 #SCOPES should be gmail.readonly for debugging, otherwise gmail.send
 
 
@@ -89,16 +89,15 @@ def authenticate(theme):
 
     return service
 
-def createMail(sender, to, subject, message_text, files):
+def createMail(sender, to, subject, message_html, files):
     """Create a message for an email.
 
   Args:
     sender: Email address of the sender.
     to: Email address of the receiver.
     subject: The subject of the email message.
-    message_text: The text of the email message.
-    file: The path to the file to be attached.
-    *args = Additional images. Note: they should be given in the order of appearance in the email.
+    message_html: The text of the email message.
+    files: The paths to the files to be attached.
 
   Returns:
     An object containing a base64url encoded email object.
@@ -109,8 +108,7 @@ def createMail(sender, to, subject, message_text, files):
         message['from'] = sender
         message['subject'] = subject
 
-        msg = MIMEText(message_text, 'html', 'utf-8')
-        message.attach(msg)
+        message.attach(MIMEText(message_html, 'html', 'utf-8'))
 
         for file in files:
             content_type, encoding = mimetypes.guess_type(file)
@@ -119,7 +117,7 @@ def createMail(sender, to, subject, message_text, files):
                 content_type = 'application/octet-stream'
             main_type, sub_type = content_type.split('/', 1)
             if main_type == 'text':
-                fp = open(file, 'rb')
+                fp = open(file, 'r')
                 msg = MIMEText(fp.read(), _subtype=sub_type)
                 fp.close()
             elif main_type == 'image':
@@ -142,7 +140,10 @@ def createMail(sender, to, subject, message_text, files):
         logging.error(e)
         return -1
 
-    return {'raw': base64.urlsafe_b64encode(message.as_string())}
+    message_as_bytes = message.as_bytes() # the message should converted from string to bytes.
+    message_as_base64 = base64.urlsafe_b64encode(message_as_bytes) #encode in base64 (printable letters coding)
+    raw = message_as_base64.decode()  # need to JSON serializable (no idea what does it means)
+    return {'raw': raw} 
 
 
 def sendMail(service, user_id, message):
@@ -163,3 +164,4 @@ def sendMail(service, user_id, message):
         return message
     except Exception as e:
         logging.error("Error: " +e)
+        return None
