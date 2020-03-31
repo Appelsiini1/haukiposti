@@ -1,5 +1,5 @@
-#Haukiposti V0.2
-#15.3.2020
+#Haukiposti V0.5
+#31.3.2020
 # (c) Rami Saarivuori & Aarne Savolainen
 
 try:
@@ -113,7 +113,7 @@ def main():
         elif event == "Apua":
             sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.", font=("Verdana", 12))
         elif event == "Tietoa":
-            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
+            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020", font=("Verdana", 12))
         elif event in (None, "Poistu"):
             break
     if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html")):

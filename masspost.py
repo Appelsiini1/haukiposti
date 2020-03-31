@@ -21,7 +21,7 @@ def getRes(imagePath):
     return newSize
     
 
-def TagsToHTML(text, images, preview):
+def TagsToHTML(text, paths, preview, *args):
     # **text** = <b></b> bolding
     # __text__ = <i></i> italic
     # ||text|| = <u></u> underlined
@@ -30,6 +30,11 @@ def TagsToHTML(text, images, preview):
     # TODO: Size option to images??
     # Font is spesified to 'Calibri'
 
+    try:
+        images = args[0]
+    except IndexError as identifier:
+        pass
+    
     start = '<html><body><font face="Calibri">'
     end = '</font></body></html>'
 
@@ -82,15 +87,16 @@ def TagsToHTML(text, images, preview):
     #embedded image
     tempText = text
     i = 0
-    for j in images:
-        resolution = getRes(images[i])
+    for j in paths:
+        resolution = getRes(paths[i])
         if resolution == -1:
             return
         if preview == 1:
-            text = text.replace('$$img$$', ('<img src="'+images[i]+'" alt="image" height="' + resolution[1] + '" width="'+ resolution[0]+'">'), 1)
+            text = text.replace('$$img$$', ('<img src="'+images[i]+'" alt="image" height="' + str(resolution[1]) + '" width="'+ str(resolution[0])+'">'), 1)
         else:
-            text = text.replace('$$img$$', ('<img src="cid:'+i+'" alt="image" height="' + resolution[1] + '" width="'+ resolution[0]+'">'), 1)
-
+            kuva = j.split('/')
+            text = text.replace('$$img$$', ('<img src="cid:'+str(kuva[len(kuva)-1])+'" alt="kuva" height="' + str(resolution[1]) + '" width="'+ str(resolution[0])+'">'), 1)
+            logging.debug(text)
         if text == tempText:
             break
         else:
@@ -118,8 +124,8 @@ def preview(text, images):
             paths.append(tempf)
             i += 1
             
-
-    htmlText = TagsToHTML(text, paths, preview=1)
+    preview = 1
+    htmlText = TagsToHTML(text, images, preview, paths)
     if htmlText == -1:
         return -1
     try:
@@ -134,18 +140,24 @@ def preview(text, images):
 
 def CSVparser(file):
     try:
-        fil = open(file, "r")
+        fil = open(file, "r", encoding='utf-8')
     except Exception as e:
         logging.error(e)
         return None
     one = fil.readline().split(';')
+    logging.debug(one)
     i = 0
     pos = None
     for item in one:
         if one[i].lower() == "sähköpostiosoite":
             pos = i
+            logging.debug("OK")
+            logging.debug(pos)
+            break
         else: 
+            print(one[i].lower())
             i += 1
+    logging.debug(i)
     if pos == None:
         return None
     emails = ""
@@ -173,10 +185,10 @@ def massPost(configs, service):
                 [sg.Text("Vastaanottajat", font=("Verdana", 12))],
                 [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat", file_types=(('CSV taulukot', '*.csv*'),))],
                 [sg.Text("Aihe", font=("Verdana", 12))],
-                [sg.InputText()],
+                [sg.InputText("", key="subject")],
                 [sg.Text("Viesti", font=("Verdana", 12))],
                 [sg.Multiline(key="messageText", size=(60,10))],
-                [sg.Text("Liite", font=("Verdana", 12)), sg.Input("", key="attachment"), sg.FilesBrowse("Selaa...", font=("Verdana", 12))],
+                [sg.Text("Liitteet", font=("Verdana", 12)), sg.Input("", key="attachment"), sg.FilesBrowse("Selaa...", font=("Verdana", 12))],
                 [sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
@@ -194,33 +206,41 @@ def massPost(configs, service):
                 sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
         elif event == "Lähetä":
             attachements = values["attachment"].split(';')
-            text = values["messageText"]
-            htmlText = TagsToHTML(text, attachements, preview=0)
-            receivers = CSVparser(values["receivers"])
-            if receivers:
-                encMsg = mail.createMail(configs[1], receivers, htmlText, attachements)
-                if encMsg:
-                    msg = mail.sendMail(service, 'me', encMsg)
-                    if msg:
-                        sg.PopupOK("Viestin lähetys onnistui.")
-                else:
-                    sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
+            size = 0
+            for item in attachements:
+                size += os.path.getsize(item)
+            if size > 24000000:
+                sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
             else:
-                sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
+                text = values["messageText"]
+                htmlText = TagsToHTML(text, attachements, preview=0)
+                receivers = CSVparser(values["receivers"])
+                if receivers:
+                    encMsg = mail.createMail(configs[1], receivers, values["subject"], htmlText, attachements)
+                    if encMsg:
+                        msg = mail.sendMail(service, 'me', encMsg)
+                        if msg:
+                            sg.PopupOK("Viestin lähetys onnistui.")
+                            logging.debug(msg)
+                            logging.info("Message sent.")
+                    else:
+                        sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
+                else:
+                    sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
 
         elif event == "Apua":
             apua = """Massaposti. Täältä voit lähettää massapostia.\n
-            Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
-            Tekstin erikoismerkit:\n
-            **tekstiä** == Lihavoitu\n
-            __tekstiä__ == Kursivoitu\n
-            ||tekstiä|| == Alleviivattu\n
-            @@linkki@@tekstiä@@ == Tekstin seassa oleva linkki. Mikäli haluat linkin näkyvän linkkinä, kopioi linkki myös tekstin paikalle.\n
-            $$img$$ == Tekstin seassa olevat kuvat määritetään tällä tagilla. Valitse kuvat liitteeksi siinä järjestyksessä, jossa haluat että ne esiintyvät. \n(Paina CTRL-näppäin pohjaan kun valitset kuvat.) Muut kuin kuvatiedostot voivat olla missä tahansa järjestyksessä, kuitenkin suositeltavaa on valita ne kuvien jälkeen.\n
-            Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)"""
+    Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
+    Tekstin erikoismerkit:\n
+    **tekstiä** == Lihavoitu\n
+    __tekstiä__ == Kursivoitu\n
+    ||tekstiä|| == Alleviivattu\n
+    @@linkki@@tekstiä@@ == Tekstin seassa oleva linkki. Mikäli haluat linkin näkyvän linkkinä, kopioi linkki myös tekstin paikalle.\n
+    $$img$$ == Tekstin seassa olevat kuvat määritetään tällä tagilla. Valitse kuvat liitteeksi. Liitteiden järjestyksellä ei ole väliä.\n
+    Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)"""
             sg.PopupOK(apua, title="Apua", font=("Verdana", 12))
         elif event == "Tietoa":
-            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
+            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020", font=("Verdana", 12))
         elif event in (None, "Poistu"):
             exit()
 

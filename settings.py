@@ -101,7 +101,7 @@ def settings(configs):
         elif event == "Apua":
             sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nErota jäsenlajit toisistaan rivin vaihdolla (enter)\nEsim\nPerusjäsen: 10\nErikoisjäsen: 20", font=("Verdana", 10))
         elif event == "Tietoa":
-            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n2020", font=("Verdana", 12))
+            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020", font=("Verdana", 12))
         elif event in (None, "Poistu"):
             exit()
 
