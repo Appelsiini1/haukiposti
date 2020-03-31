@@ -68,6 +68,9 @@ def updateConfig(configs):
 def main():
     try:
         logname = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "haukilog.log")
+        logpath = (os.getenv("APPDATA") + "\\Haukiposti")
+        if os.path.exists(logpath) == False:
+            os.mkdir(logpath)
         logging.basicConfig(filename=logname, level=logging.DEBUG, format='%(asctime)s %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
         logging.info("HaukiPosti V0.5 - Rami Saarivuori & Aarne Savolainen (c) 2020")
