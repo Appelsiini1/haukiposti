@@ -10,6 +10,7 @@ def getRes(imagePath):
         logging.error(e)
         return -1
     size = image.size # returns tuple (x,y)
+    image.close()
     x = size[0]
     y = size[1]
     while x > 600 or y > 600:
@@ -115,7 +116,7 @@ def preview(text, images):
             temp = images[i].split('/')
             tempf = "images/" + temp[len(temp)-1]
             paths.append(tempf)
-            i = i + 1
+            i += 1
             
 
     htmlText = TagsToHTML(text, paths, preview=1)
@@ -137,6 +138,25 @@ def CSVparser(file):
     except Exception as e:
         logging.error(e)
         return None
+    one = fil.readline().split(';')
+    i = 0
+    pos = None
+    for item in one:
+        if one[i].lower() == "sähköpostiosoite":
+            pos = i
+        else: 
+            i += 1
+    if pos == None:
+        return None
+    emails = ""
+    line = fil.readline().split(';')
+    while len(line) > 1:
+        emails = emails + line[pos] + ";"
+        line = fil.readline().split(';')
+    fil.close()
+    return emails
+    
+
 
 def massPost(configs, service):
 
