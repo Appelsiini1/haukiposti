@@ -1,16 +1,23 @@
 import PySimpleGUI as sg
 import emailFunc as mail
 import logging, os, shutil
-#from PIL import Image #FUTURE FEATURE
+from PIL import Image
 
-# def getRes(imagePath):
-#     try:
-#         image = Image.open(imagePath)
-#     except Exception as e:
-#         logging.error(e)
-#         return -1
-#     size = image.size # returns tuple (x,y)
-#     # TODO: resize image based on original and size option
+def getRes(imagePath):
+    try:
+        image = Image.open(imagePath)
+    except Exception as e:
+        logging.error(e)
+        return -1
+    size = image.size # returns tuple (x,y)
+    x = size[0]
+    y = size[1]
+    while x > 600 or y > 600:
+        x -= 100
+        y -= 100
+    newSize = (x, y)
+
+    return newSize
     
 
 def TagsToHTML(text, images, preview):
@@ -75,14 +82,14 @@ def TagsToHTML(text, images, preview):
     tempText = text
     i = 0
     for j in images:
-        # resolution = getRes(images[i])
-        # if resolution == -1:
-        #     return
+        resolution = getRes(images[i])
+        if resolution == -1:
+            return
         if preview == 1:
-            text = text.replace('$$img$$', ('<img src="'+images[i]+'" alt="image" height="700" width="700">'), 1)
+            text = text.replace('$$img$$', ('<img src="'+images[i]+'" alt="image" height="' + resolution[1] + '" width="'+ resolution[0]+'">'), 1)
         else:
-            text = text.replace('$$img$$', ('<img src="cid:'+i+'" alt="image" height="700" width="700">'), 1)
-            
+            text = text.replace('$$img$$', ('<img src="cid:'+i+'" alt="image" height="' + resolution[1] + '" width="'+ resolution[0]+'">'), 1)
+
         if text == tempText:
             break
         else:
@@ -157,7 +164,7 @@ def massPost(configs, service):
             attachements = values["attachment"].split(';')
             text = values["messageText"]
             if preview(text, attachements) == -1:
-                sg.PopupOK("Tekstin muunnos epäonnistui")
+                sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
         elif event == "Apua":
             sg.PopupOK("Massaposti. Täältä voit lähettää massapostia.\nValitse vastaanottajat sisältävä CSV tiedosto, kirjoita heille viesti ja lähetä.", font=("Verdana", 12))
         elif event == "Tietoa":
