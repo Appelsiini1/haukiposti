@@ -210,10 +210,27 @@ def massPost(configs, service):
             if ok.lower() == "ok":
                 attachements = values["attachment"].split(';')
                 size = 0
-                for item in attachements:
-                    size += os.path.getsize(item)
-                if size > 24000000:
-                    sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
+                if attachements[0] != '':
+                    for item in attachements:
+                        size += os.path.getsize(item)
+                    if size > 24000000:
+                        sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
+                    else:
+                        text = values["messageText"]
+                        htmlText = TagsToHTML(text, attachements, preview=0)
+                        receivers = CSVparser(values["receivers"])
+                        if receivers:
+                            encMsg = mail.createMail(configs[1], receivers, values["subject"], htmlText, attachements)
+                            if encMsg:
+                                msg = mail.sendMail(service, 'me', encMsg)
+                                if msg:
+                                    sg.PopupOK("Viestin lähetys onnistui.")
+                                    logging.debug(msg)
+                                    logging.info("Message sent.")
+                            else:
+                                sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
+                        else:
+                            sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
                 else:
                     text = values["messageText"]
                     htmlText = TagsToHTML(text, attachements, preview=0)
