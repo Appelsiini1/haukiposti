@@ -84,24 +84,25 @@ def TagsToHTML(text, paths, preview, *args):
         else:
             tempText = text
     
-    #embedded image
-    tempText = text
-    i = 0
-    for j in paths:
-        resolution = getRes(paths[i])
-        if resolution == -1:
-            return
-        if preview == 1:
-            text = text.replace('$$img$$', ('<img src="'+images[i]+'" alt="image" height="' + str(resolution[1]) + '" width="'+ str(resolution[0])+'">'), 1)
-        else:
-            kuva = j.split('/')
-            text = text.replace('$$img$$', ('<img src="cid:'+str(kuva[len(kuva)-1])+'" alt="kuva" height="' + str(resolution[1]) + '" width="'+ str(resolution[0])+'">'), 1)
-            logging.debug(text)
-        if text == tempText:
-            break
-        else:
-            tempText = text
-            i = i + 1
+    if text.find("$$img$$") != -1:
+        #embedded image
+        tempText = text
+        i = 0
+        for j in paths:
+            resolution = getRes(paths[i])
+            if resolution == -1:
+                return
+            if preview == 1:
+                text = text.replace('$$img$$', ('<img src="'+images[i]+'" alt="image" height="' + str(resolution[1]) + '" width="'+ str(resolution[0])+'">'), 1)
+            else:
+                kuva = j.split('/')
+                text = text.replace('$$img$$', ('<img src="cid:'+str(kuva[len(kuva)-1])+'" alt="kuva" height="' + str(resolution[1]) + '" width="'+ str(resolution[0])+'">'), 1)
+                logging.debug(text)
+            if text == tempText:
+                break
+            else:
+                tempText = text
+                i = i + 1
 
     text = start + text + end
     return text
@@ -205,28 +206,30 @@ def massPost(configs, service):
             if preview(text, attachements) == -1:
                 sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
         elif event == "Lähetä":
-            attachements = values["attachment"].split(';')
-            size = 0
-            for item in attachements:
-                size += os.path.getsize(item)
-            if size > 24000000:
-                sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
-            else:
-                text = values["messageText"]
-                htmlText = TagsToHTML(text, attachements, preview=0)
-                receivers = CSVparser(values["receivers"])
-                if receivers:
-                    encMsg = mail.createMail(configs[1], receivers, values["subject"], htmlText, attachements)
-                    if encMsg:
-                        msg = mail.sendMail(service, 'me', encMsg)
-                        if msg:
-                            sg.PopupOK("Viestin lähetys onnistui.")
-                            logging.debug(msg)
-                            logging.info("Message sent.")
-                    else:
-                        sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
+            ok = sg.PopupOKCancel("Haluatko varmasti lähettää viestin?")
+            if ok.lower() == "ok":
+                attachements = values["attachment"].split(';')
+                size = 0
+                for item in attachements:
+                    size += os.path.getsize(item)
+                if size > 24000000:
+                    sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
                 else:
-                    sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
+                    text = values["messageText"]
+                    htmlText = TagsToHTML(text, attachements, preview=0)
+                    receivers = CSVparser(values["receivers"])
+                    if receivers:
+                        encMsg = mail.createMail(configs[1], receivers, values["subject"], htmlText, attachements)
+                        if encMsg:
+                            msg = mail.sendMail(service, 'me', encMsg)
+                            if msg:
+                                sg.PopupOK("Viestin lähetys onnistui.")
+                                logging.debug(msg)
+                                logging.info("Message sent.")
+                        else:
+                            sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
+                    else:
+                        sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
 
         elif event == "Apua":
             apua = """Massaposti. Täältä voit lähettää massapostia.\n
