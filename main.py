@@ -56,73 +56,76 @@ def updateConfig(configs):
 
 
 def main():
-    logname = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "haukilog.log")
-    logging.basicConfig(filename=logname, level=logging.DEBUG, format='%(asctime)s %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+    try:
+        logname = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "haukilog.log")
+        logging.basicConfig(filename=logname, level=logging.DEBUG, format='%(asctime)s %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
-    logging.info("HaukiPosti V0.5 - Rami Saarivuori & Aarne Savolainen (c) 2020")
-    configs = configParsing()
+        logging.info("HaukiPosti V0.5 - Rami Saarivuori & Aarne Savolainen (c) 2020")
+        configs = configParsing()
 
-    # -- Theme --
-    sg.theme(configs[0])
+        # -- Theme --
+        sg.theme(configs[0])
 
-    # -- Menu definition --
-    menu_def = [["Tiedosto", ["Poistu"]],
-                ["Tietoa", ["Apua", "Tietoa"]]]
+        # -- Menu definition --
+        menu_def = [["Tiedosto", ["Poistu"]],
+                    ["Tietoa", ["Apua", "Tietoa"]]]
 
-    # -- The layout --
-    layout = [ [sg.Menu(menu_def)],
-                [sg.Image(r"assets/haukiposti_small.png", pad=(26,0))],
-                [sg.Text("Haukiposti", font=("Verdana", 15, "bold"), size=(10,1), justification="center")],
-                [sg.Button("Kirjaudu", font=("Verdana", 12), size=(15, 1))],
-                [sg.Button("Massaposti", font=("Verdana", 12), size=(15, 1))],
-                [sg.Button("Laskutus", font=("Verdana", 12, "italic"), size=(15, 1))],
-                [sg.Button("Tarra-arkit", font=("Verdana", 12, "italic"), size=(15, 1))],
-                [sg.Button("Asetukset", font=("Verdana", 12), size=(15, 1))],
-                [sg.Button("Poistu", font=("Verdana", 12), size=(15, 1))]]
+        # -- The layout --
+        layout = [ [sg.Menu(menu_def)],
+                    [sg.Image(r"haukiposti_small.png", pad=(26,0))],
+                    [sg.Text("Haukiposti", font=("Verdana", 15, "bold"), size=(10,1), justification="center")],
+                    [sg.Button("Kirjaudu", font=("Verdana", 12), size=(15, 1))],
+                    [sg.Button("Massaposti", font=("Verdana", 12), size=(15, 1))],
+                    [sg.Button("Laskutus", font=("Verdana", 12, "italic"), size=(15, 1))],
+                    [sg.Button("Tarra-arkit", font=("Verdana", 12, "italic"), size=(15, 1))],
+                    [sg.Button("Asetukset", font=("Verdana", 12), size=(15, 1))],
+                    [sg.Button("Poistu", font=("Verdana", 12), size=(15, 1))]]
 
-    # -- Window creation --
-    window1 = sg.Window("Haukiposti", layout)
+        # -- Window creation --
+        window1 = sg.Window("Haukiposti", layout)
 
-    # -- Window functionality --
-    service = None
-    while True:
-        event, values = window1.read()
+        # -- Window functionality --
+        service = None
+        while True:
+            event, values = window1.read()
 
-        if event == "Massaposti":
-            window1.Hide()
-            if service:
-                masspost.massPost(configs, service)
-            else:
-                sg.PopupOK("Et ole kirjautunut. Ole hyvä ja kirjaudu ensin.", font=("Verdana", 12))
-            window1.UnHide()
-        elif event == "Laskutus":
-            sg.PopupOK("Ei toiminnallisuutta.", font=("Verdana", 12))
-        elif event == "Tarra-arkit":
-            sg.PopupOK("Ei toiminnallisuutta.", font=("Verdana", 12))
-        elif event == "Asetukset":
-            window1.Hide()
-            settings.settings(configs)
-            configs = updateConfig(configs)
-            window1.UnHide()
-        elif event == "Kirjaudu":
-            service = mail.authenticate(configs[0])
-            if service:
-                sg.PopupOK("Todennus onnistui.", font=("Verdana", 12))
-            else:
-                sg.PopupOK("Todennus epäonnistui.", font=("Verdana", 12))
-        elif event == "Apua":
-            sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.", font=("Verdana", 12))
-        elif event == "Tietoa":
-            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020", font=("Verdana", 12))
-        elif event in (None, "Poistu"):
-            break
-    if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html")):
-        os.remove(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html"))
-        folderpath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "images")
-        for i in os.listdir(folderpath):
-            os.remove(folderpath+ "/"+i)
-        os.rmdir(folderpath)
-    window1.close()
+            if event == "Massaposti":
+                window1.Hide()
+                if service:
+                    masspost.massPost(configs, service)
+                else:
+                    sg.PopupOK("Et ole kirjautunut. Ole hyvä ja kirjaudu ensin.", font=("Verdana", 12))
+                window1.UnHide()
+            elif event == "Laskutus":
+                sg.PopupOK("Ei toiminnallisuutta.", font=("Verdana", 12))
+            elif event == "Tarra-arkit":
+                sg.PopupOK("Ei toiminnallisuutta.", font=("Verdana", 12))
+            elif event == "Asetukset":
+                window1.Hide()
+                settings.settings(configs)
+                configs = updateConfig(configs)
+                window1.UnHide()
+            elif event == "Kirjaudu":
+                service = mail.authenticate(configs[0])
+                if service:
+                    sg.PopupOK("Todennus onnistui.", font=("Verdana", 12))
+                else:
+                    sg.PopupOK("Todennus epäonnistui.", font=("Verdana", 12))
+            elif event == "Apua":
+                sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.", font=("Verdana", 12))
+            elif event == "Tietoa":
+                sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020", font=("Verdana", 12))
+            elif event in (None, "Poistu"):
+                break
+        if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html")):
+            os.remove(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html"))
+            folderpath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "images")
+            for i in os.listdir(folderpath):
+                os.remove(folderpath+ "/"+i)
+            os.rmdir(folderpath)
+        window1.close()
+    except Exception as e:
+        logging.error(e)
 
 
 if __name__ == "__main__":
