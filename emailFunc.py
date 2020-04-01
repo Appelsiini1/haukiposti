@@ -1,5 +1,5 @@
 try:
-    import smtplib, base64, os, pickle, shutil, logging, mimetypes
+    import smtplib, base64, os, pickle, shutil, logging, mimetypes, common
     from googleapiclient.discovery import build
     from google_auth_oauthlib.flow import InstalledAppFlow
     from google.auth.transport.requests import Request
@@ -50,21 +50,8 @@ def authenticate(theme):
                     creds = flow.run_local_server(port=0)
                 
         else:
-            if os.path.exists(credPath) == False:
-                values = sg.PopupGetFile(message = "Valitse credentials.json tiedosto todennusta varten.", file_types=(('JSON tiedostot', '*.json*'),))
-                if values != None:
-                    try:
-                        shutil.copy(values, credPath)
-                    except Exception as e:
-                        logging.error(e)
-                        logging.error("Error copying 'credentials.json' to Roaming.")
-                        sg.PopupOK("Jokin meni vikaan tiedostoa kopiodessa.")
-                        return
-                else:
-                    sg.PopupOK("Et antanut tiedostoa.")
-                    return
-
-            flow = InstalledAppFlow.from_client_secrets_file(credPath, SCOPES)
+            json = common.resource_path("credentials.json")
+            flow = InstalledAppFlow.from_client_secrets_file(json, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         try:
@@ -110,32 +97,33 @@ def createMail(sender, to, subject, message_html, files):
 
         message.attach(MIMEText(message_html, 'html', 'utf-8'))
 
-        for file in files:
-            content_type, encoding = mimetypes.guess_type(file)
+        if files[0] != '':
+            for file in files:
+                content_type, encoding = mimetypes.guess_type(file)
 
-            if content_type is None or encoding is not None:
-                content_type = 'application/octet-stream'
-            main_type, sub_type = content_type.split('/', 1)
-            if main_type == 'text':
-                fp = open(file, 'r')
-                msg = MIMEText(fp.read(), _subtype=sub_type)
-                fp.close()
-            elif main_type == 'image':
-                fp = open(file, 'rb')
-                msg = MIMEImage(fp.read(), _subtype=sub_type)
-                fp.close()
-            elif main_type == 'audio':
-                fp = open(file, 'rb')
-                msg = MIMEAudio(fp.read(), _subtype=sub_type)
-                fp.close()
-            else:
-                fp = open(file, 'rb')
-                msg = MIMEBase(main_type, sub_type)
-                msg.set_payload(fp.read())
-                fp.close()
-            filename = os.path.basename(file)
-            msg.add_header('Content-Disposition', 'attachment', filename=filename)
-            message.attach(msg)
+                if content_type is None or encoding is not None:
+                    content_type = 'application/octet-stream'
+                main_type, sub_type = content_type.split('/', 1)
+                if main_type == 'text':
+                    fp = open(file, 'r')
+                    msg = MIMEText(fp.read(), _subtype=sub_type)
+                    fp.close()
+                elif main_type == 'image':
+                    fp = open(file, 'rb')
+                    msg = MIMEImage(fp.read(), _subtype=sub_type)
+                    fp.close()
+                elif main_type == 'audio':
+                    fp = open(file, 'rb')
+                    msg = MIMEAudio(fp.read(), _subtype=sub_type)
+                    fp.close()
+                else:
+                    fp = open(file, 'rb')
+                    msg = MIMEBase(main_type, sub_type)
+                    msg.set_payload(fp.read())
+                    fp.close()
+                filename = os.path.basename(file)
+                msg.add_header('Content-Disposition', 'attachment', filename=filename)
+                message.attach(msg)
     except Exception as e:
         logging.error(e)
         return -1
