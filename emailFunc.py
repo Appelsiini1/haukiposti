@@ -1,5 +1,5 @@
 try:
-    import smtplib, base64, os, pickle, shutil, logging, mimetypes
+    import smtplib, base64, os, pickle, shutil, logging, mimetypes, common
     from googleapiclient.discovery import build
     from google_auth_oauthlib.flow import InstalledAppFlow
     from google.auth.transport.requests import Request
@@ -51,20 +51,8 @@ def authenticate(theme):
                 
         else:
             if os.path.exists(credPath) == False:
-                values = sg.PopupGetFile(message = "Valitse credentials.json tiedosto todennusta varten.", file_types=(('JSON tiedostot', '*.json*'),))
-                if values != None:
-                    try:
-                        shutil.copy(values, credPath)
-                    except Exception as e:
-                        logging.error(e)
-                        logging.error("Error copying 'credentials.json' to Roaming.")
-                        sg.PopupOK("Jokin meni vikaan tiedostoa kopiodessa.")
-                        return
-                else:
-                    sg.PopupOK("Et antanut tiedostoa.")
-                    return
-
-            flow = InstalledAppFlow.from_client_secrets_file(credPath, SCOPES)
+                json = common.resource_path("credentials.json")
+            flow = InstalledAppFlow.from_client_secrets_file(json, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         try:
