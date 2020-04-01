@@ -50,8 +50,7 @@ def authenticate(theme):
                     creds = flow.run_local_server(port=0)
                 
         else:
-            if os.path.exists(credPath) == False:
-                json = common.resource_path("credentials.json")
+            json = common.resource_path("credentials.json")
             flow = InstalledAppFlow.from_client_secrets_file(json, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run

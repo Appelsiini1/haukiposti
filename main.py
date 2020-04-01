@@ -35,6 +35,7 @@ def configParsing():
         logging.error("No settings file.")
         sg.PopupOK("Ohjelma ei pystynyt löytämään asetustiedostoa.\nViemme sinut ensin asetuksiin, jotta voit laittaa ne kuntoon.")
         settings.settings(configs)
+        configs = updateConfig(configs)
 
     return configs
 
