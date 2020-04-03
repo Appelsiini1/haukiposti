@@ -3,21 +3,12 @@
 # (c) Rami Saarivuori & Aarne Savolainen
 
 try:
-    import logging, os, configparser, masspost, settings, sys
+    import logging, os, configparser, masspost, settings, common
     import emailFunc as mail
     import PySimpleGUI as sg
 except Exception:
     exit(-1)
 
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
     
 # Reads the config file from /AppData/Roaming/Haukiposti and saves the information to a configs list
 def configParsing():
@@ -44,6 +35,7 @@ def configParsing():
         logging.error("No settings file.")
         sg.PopupOK("Ohjelma ei pystynyt löytämään asetustiedostoa.\nViemme sinut ensin asetuksiin, jotta voit laittaa ne kuntoon.")
         settings.settings(configs)
+        configs = updateConfig(configs)
 
     return configs
 
@@ -68,6 +60,9 @@ def updateConfig(configs):
 def main():
     try:
         logname = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "haukilog.log")
+        logpath = (os.getenv("APPDATA") + "\\Haukiposti")
+        if os.path.exists(logpath) == False:
+            os.mkdir(logpath)
         logging.basicConfig(filename=logname, level=logging.DEBUG, format='%(asctime)s %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
         logging.info("HaukiPosti V0.5 - Rami Saarivuori & Aarne Savolainen (c) 2020")
@@ -82,7 +77,7 @@ def main():
 
         # -- The layout --
         layout = [ [sg.Menu(menu_def)],
-                    [sg.Image(resource_path(r"haukiposti_small.png"), pad=(26,0))],
+                    [sg.Image(common.resource_path(r"haukiposti_small.png"), pad=(26,0))],
                     [sg.Text("Haukiposti", font=("Verdana", 15, "bold"), size=(10,1), justification="center")],
                     [sg.Button("Kirjaudu", font=("Verdana", 12), size=(15, 1))],
                     [sg.Button("Massaposti", font=("Verdana", 12), size=(15, 1))],
