@@ -118,7 +118,7 @@ def preview(text, images):
         pass
     i = 0
     for item in images:
-        if images[i][-4:].lower() == 'jpeg' or images[i][-4:].lower() == '.png' or images[i][-4:].lower() == '.jpg' or images[i][-4:].lower() == '.gif' or images[i][-4:] == '.png':
+        if images[i][-4:].lower() == 'jpeg' or images[i][-4:].lower() == '.png' or images[i][-4:].lower() == '.jpg' or images[i][-4:].lower() == '.gif':
             shutil.copy(images[i], folder)
             temp = images[i].split('/')
             tempf = "images/" + temp[len(temp)-1]
