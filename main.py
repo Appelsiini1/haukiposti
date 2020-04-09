@@ -3,7 +3,7 @@
 # (c) Rami Saarivuori & Aarne Savolainen
 
 try:
-    import logging, os, configparser, masspost, settings, common
+    import logging, os, configparser, masspost, settings, common, billing
     import emailFunc as mail
     import PySimpleGUI as sg
 except Exception:
@@ -77,11 +77,11 @@ def main():
 
         # -- The layout --
         layout = [ [sg.Menu(menu_def)],
-                    [sg.Image(common.resource_path(r"haukiposti_small.png"), pad=(26,0))],
+                    [sg.Image(common.resource_path(r"assets/haukiposti_small.png"), pad=(26,0))],
                     [sg.Text("Haukiposti", font=("Verdana", 15, "bold"), size=(10,1), justification="center")],
-                    [sg.Button("Kirjaudu", font=("Verdana", 12), size=(15, 1))],
+                    [sg.Button("Kirjaudu", font=("Verdana", 12), size=(15, 1), key="login")],
                     [sg.Button("Massaposti", font=("Verdana", 12), size=(15, 1))],
-                    [sg.Button("Laskutus", font=("Verdana", 12, "italic"), size=(15, 1))],
+                    [sg.Button("Laskutus", font=("Verdana", 12), size=(15, 1))],
                     [sg.Button("Tarra-arkit", font=("Verdana", 12, "italic"), size=(15, 1))],
                     [sg.Button("Asetukset", font=("Verdana", 12), size=(15, 1))],
                     [sg.Button("Poistu", font=("Verdana", 12), size=(15, 1))]]
@@ -102,7 +102,9 @@ def main():
                     sg.PopupOK("Et ole kirjautunut. Ole hyvä ja kirjaudu ensin.", font=("Verdana", 12))
                 window1.UnHide()
             elif event == "Laskutus":
-                sg.PopupOK("Ei toiminnallisuutta.", font=("Verdana", 12))
+                window1.Hide()
+                billing.billing(configs)
+                window1.UnHide()
             elif event == "Tarra-arkit":
                 sg.PopupOK("Ei toiminnallisuutta.", font=("Verdana", 12))
             elif event == "Asetukset":
@@ -110,10 +112,11 @@ def main():
                 settings.settings(configs)
                 configs = updateConfig(configs)
                 window1.UnHide()
-            elif event == "Kirjaudu":
+            elif event == "login":
                 service = mail.authenticate(configs[0])
                 if service:
                     sg.PopupOK("Todennus onnistui.", font=("Verdana", 12))
+                    window1["login"].update("Kirjauduttu", disabled=True)
                 else:
                     sg.PopupOK("Todennus epäonnistui.", font=("Verdana", 12))
             elif event == "Apua":
