@@ -21,7 +21,7 @@ def billing(configs):
                 [sg.InputText("", key="subject")],
                 [sg.Text("Saate", font=("Verdana", 12))],
                 [sg.Multiline(key="messageText", size=(60,10))],
-                [sg.Text("Laskujen kohdekansio:", font=("Verdana", 12)), sg.Input(""), sg.FolderBrowse("Selaa...")],
+                [sg.Text("Laskujen kohdekansio:", font=("Verdana", 12)), sg.Input("", key="folder"), sg.FolderBrowse("Selaa...")],
                 [sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
@@ -36,6 +36,9 @@ def billing(configs):
             date = values["invisible"]
             formattedDate = date[8:10] + "." + date[5:7] + "." + date[:4]
             window["duedate"].update(value=formattedDate)
+        elif event == "Lähetä":
+            print(values["folder"])
+            print(configs[4])
         elif event == "Apua":
             apua = """Laskutus. Täältä voit lähettää laskuja.\n
     Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
