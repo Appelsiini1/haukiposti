@@ -1,6 +1,17 @@
 import sys, os, logging
 from PIL import Image
 
+class receiver():
+    def __init__(self, firstname, lastname, contant, address, postalno, city, membertype, paper):
+        self.firstname = firstname
+        self.lastname = lastname
+        self.contant = contant
+        self.address = address
+        self.postalno = postalno
+        self.city = city
+        self.membertype = membertype
+        self.paper = paper
+
 def version():
     return "V0.6"
 
