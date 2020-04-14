@@ -1,6 +1,9 @@
 import sys, os, logging
 from PIL import Image
 
+def version():
+    return "V0.6"
+
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:

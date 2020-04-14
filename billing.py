@@ -24,7 +24,7 @@ def billing(configs):
                 [sg.Text("Logo", font=("Verdana", 12)), sg.Input(""), sg.FileBrowse("Selaa...")],
                 [sg.Text("Saate", font=("Verdana", 12))],
                 [sg.Multiline(key="billText", size=(60,5))],
-                [sg.Text("Laskujen kohdekansio:", font=("Verdana", 12)), sg.Input(""), sg.FolderBrowse("Selaa...")],
+                [sg.Text("Laskujen kohdekansio:", font=("Verdana", 12)), sg.Input("", key=("folder")), sg.FolderBrowse("Selaa...")],
                 [sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12)), sg.Button("Luo laskut", font=("Verdana", 12))]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
@@ -42,6 +42,9 @@ def billing(configs):
         elif event == "Luo laskut":
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
             print(filesCombined)
+        elif event == "Lähetä":
+            print(values["folder"])
+            print(configs[4])
         elif event == "Apua":
             apua = """Laskutus. Täältä voit lähettää laskuja.\n
     Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
