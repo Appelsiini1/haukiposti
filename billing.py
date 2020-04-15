@@ -25,9 +25,12 @@ def billing(configs):
                 [sg.Text("Saate", font=("Verdana", 12))],
                 [sg.Multiline(key="billText", size=(60,5))],
                 [sg.Text("Laskujen kohdekansio:", font=("Verdana", 12)), sg.Input("", key=("folder")), sg.FolderBrowse("Selaa...")],
-                [sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12)), sg.Button("Luo laskut", font=("Verdana", 12))]]
+                [sg.Button("Luo laskut", font=("Verdana", 12)), sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
+
+    # reference number generation
+    ref = pdf.reference()
 
     # -- Window functionality --
     while True:
@@ -42,6 +45,7 @@ def billing(configs):
         elif event == "Luo laskut":
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
             print(filesCombined)
+            print(ref)
         elif event == "Lähetä":
             print(values["folder"])
             print(configs[4])

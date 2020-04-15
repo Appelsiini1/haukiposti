@@ -22,7 +22,37 @@ def virtualBarcode():
 
 def reference():
     """Create a reference number and check it's validity"""
-    pass
+
+    random.seed()
+    raw = random.randint(100000000, 999999999)
+    raw = str(raw)[::-1]
+    j = 1
+    res = 0
+    for i in range(0, len(raw)):
+        if j == 1:
+            res += int(raw[i])*7
+            j += 1
+        elif j == 2:
+            res += int(raw[i])*3
+            j += 1
+        elif j == 3:
+            res += int(raw[i])
+            j = 1
+
+    k = 0
+    res2 = res
+    while True:
+        res3 = str(res)
+        if res3[len(res3)-1] == "0":
+            break
+        else:
+            res += 1
+            k += 1
+
+    ref = raw[::-1] + str(k)
+    ref = ref[:5] + " " + ref[5:]
+        
+    return ref
 
 def createAllInvoices(config, receivers, subject, path, message, duedate, reference, logo=None):
     """Create multiple invoices to one PDF
@@ -59,15 +89,18 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
     c.setTitle(subject)
     c.setSubject(subject)
     c.setCreator(("Haukiposti "+common.version))
-    c.setFont("Helvetica", 11)
 
     i = 0
     for item in receivers:
         if logo:
-            c.drawImage(logo, 25, korkeus-100, width=100, height=100, preserveAspectRatio=True)
-        c.line(25, korkeus-95, leveys-25, korkeus-95)
+            c.drawImage(logo, 25, korkeus-110, width=110, height=110, preserveAspectRatio=True)
+        c.line(25, korkeus-100, leveys-25, korkeus-100)
         c.drawImage(base, 0, 0, width=(transSizeX*210), height=(transSizeY*101.6), preserveAspectRatio=True) # bank transfer base
         
+        c.setFont("Helvetica-Bold", 18)
+        c.drawString(250, korkeus-60, subject)
+        c.setFont("Helvetica", 11)
+
         c.drawString(margin, getY(5), config[3]) # receiver account number
         c.drawString(margin, getY(11), config[2]) # payment receiver
         c.setFontSize(15)
@@ -133,13 +166,16 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     c.setTitle(subject)
     c.setSubject(subject)
     c.setCreator(("Haukiposti "+common.version))
-    c.setFont("Helvetica", 11)
 
     if logo:
-        c.drawImage(logo, 25, korkeus-100, width=100, height=100, preserveAspectRatio=True)
-    c.line(25, korkeus-95, leveys-25, korkeus-95)
+        c.drawImage(logo, 25, korkeus-110, width=110, height=110, preserveAspectRatio=True)
+    c.line(25, korkeus-100, leveys-25, korkeus-100)
     c.drawImage(base, 0, 0, width=(transSizeX*210), height=(transSizeY*101.6), preserveAspectRatio=True) # bank transfer base
     
+    c.setFont("Helvetica-Bold", 18)
+    c.drawString(250, korkeus-60, subject)
+    c.setFont("Helvetica", 11)
+
     c.drawString(margin, getY(5), config[3]) # receiver account number
     c.drawString(margin, getY(11), config[2]) # payment receiver
     c.setFontSize(15)
