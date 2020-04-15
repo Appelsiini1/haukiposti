@@ -1,7 +1,5 @@
 import PySimpleGUI as sg
-import csv
-import configparser
-import os
+import csv, os, configparser, common
 from pathlib import Path
 
 # (Re)writes the config file to /AppData/Roaming/Haukiposti (Haukiposti folder is created if needed)
@@ -102,7 +100,7 @@ def settings(configs):
         elif event == "Apua":
             sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nErota jäsenlajit toisistaan rivin vaihdolla (enter)\nEsim\nPerusjäsen: 10\nErikoisjäsen: 20", font=("Verdana", 10))
         elif event == "Tietoa":
-            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020", font=("Verdana", 12))
+            sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
         elif event in (None, "Poistu"):
             exit()
 

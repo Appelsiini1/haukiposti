@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import pdf
+import pdf, common
 
 def billing(configs):
 
@@ -61,7 +61,7 @@ def billing(configs):
     Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)"""
             sg.PopupOK(apua, title="Apua", font=("Verdana", 12))
         elif event == "Tietoa":
-            sg.PopupOK("Haukiposti V0.5\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020", font=("Verdana", 12))
+            sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
         elif event in (None, "Poistu"):
             exit()
 
