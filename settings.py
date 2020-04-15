@@ -54,6 +54,7 @@ def settings(configs):
                 [sg.Text("")], # some space between stuff
                 [sg.Text("Lähettäjän sähköposti", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[1], key="senderemail")],
                 [sg.Text("Maksunsaaja", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[2], key="paymentreceiver")],
+                [sg.Text("Pankki", font=("Verdana", 12), size=(20,1)), sg.Combo(["Aktia", "POP", "Danske Bank", "Handelsbanken", "Nordea", "OP", "SEB", "S-Pankki", "Säästöpankki", "Ålandsbanken"])],
                 [sg.Text("Tilinumero", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[3], key="accnum")],
                 [sg.Text("Jäsenlajit", font=("Verdana", 12))],
                 [sg.Multiline(memberString, key="memberClasses", size=(60,6))],
