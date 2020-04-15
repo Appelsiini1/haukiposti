@@ -9,6 +9,7 @@ try:
     from email.mime.base import MIMEBase
     from email.mime.audio import MIMEAudio
     from email.mime.image import MIMEImage
+    from email.mime.application import MIMEApplication
     import PySimpleGUI as sg
 
 except Exception:
@@ -105,7 +106,7 @@ def createMail(sender, to, subject, message_html, files):
                     content_type = 'application/octet-stream'
                 main_type, sub_type = content_type.split('/', 1)
                 if main_type == 'text':
-                    fp = open(file, 'r')
+                    fp = open(file, 'rb')
                     msg = MIMEText(fp.read(), _subtype=sub_type)
                     fp.close()
                 elif main_type == 'image':
@@ -115,6 +116,10 @@ def createMail(sender, to, subject, message_html, files):
                 elif main_type == 'audio':
                     fp = open(file, 'rb')
                     msg = MIMEAudio(fp.read(), _subtype=sub_type)
+                    fp.close()
+                elif main_type == 'application':
+                    fp = open(file, 'rb')
+                    msg = MIMEApplication(fp.read(), _subtype=sub_type)
                     fp.close()
                 else:
                     fp = open(file, 'rb')
