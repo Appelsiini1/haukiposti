@@ -5,13 +5,14 @@ import os
 from pathlib import Path
 
 # (Re)writes the config file to /AppData/Roaming/Haukiposti (Haukiposti folder is created if needed)
-def createSettingFile(theme, email, paymentreceiver, accnum, writeString):
+def createSettingFile(theme, email, paymentreceiver, accnum, writeString, bankBIC):
     config = configparser.ConfigParser()
     config["haukiposti"] = {"theme": theme,
                             "email": email,
                             "paymentreceiver": paymentreceiver,
                             "accountnumber": accnum,
-                            "memberclasses": writeString}
+                            "memberclasses": writeString,
+                            "bank": bankBIC}
     
     save_path = os.getenv("APPDATA") + "\\Haukiposti"
     Path(save_path).mkdir(exist_ok=True)
@@ -20,6 +21,54 @@ def createSettingFile(theme, email, paymentreceiver, accnum, writeString):
     with open(completeName, "w") as configfile:
         config.write(configfile)
     configfile.close()
+
+def bankToBIC(bank):
+    if bank == "Aktia":
+        return "HELSFIHH"
+    elif bank == "POP":
+        return "POPFFI22"
+    elif bank == "Danske Bank":
+        return "DABAFIHH"
+    elif bank == "Handelsbanken":
+        return "HANDFIHH"
+    elif bank == "Nordea":
+        return "NDEAFIHH"
+    elif bank == "OP":
+        return "OKOYFIHH"
+    elif bank == "SEB":
+        return "ESSEFIHX"
+    elif bank == "S-Pankki":
+        return "SBANFIHH"
+    elif bank == "Säästöpankki":
+        return "ITELFIHH"
+    elif bank == "Ålandsbanken":
+        return "AABAFI22"
+    else:
+        return "Tuntematon"
+
+def BICToBank(BIC):
+    if BIC == "HELSFIHH":
+        return "Aktia"
+    elif BIC == "POPFFI22":
+        return "POP"
+    elif BIC == "DABAFIHH":
+        return "Danske Bank"
+    elif BIC == "HANDFIHH":
+        return "Handelsbanken"
+    elif BIC == "NDEAFIHH":
+        return "Nordea"
+    elif BIC == "OKOYFIHH":
+        return "OP"
+    elif BIC == "ESSEFIHX":
+        return "SEB"
+    elif BIC == "SBANFIHH":
+        return "S-Pankki"
+    elif BIC == "ITELFIHH":
+        return "Säästöpankki"
+    elif BIC == "AABAFI22":
+        return "Ålandsbanken"
+    else:
+        return "Tuntematon"
 
 def settings(configs):
 
@@ -54,7 +103,7 @@ def settings(configs):
                 [sg.Text("")], # some space between stuff
                 [sg.Text("Lähettäjän sähköposti", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[1], key="senderemail")],
                 [sg.Text("Maksunsaaja", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[2], key="paymentreceiver")],
-                [sg.Text("Pankki", font=("Verdana", 12), size=(20,1)), sg.Combo(["Aktia", "POP", "Danske Bank", "Handelsbanken", "Nordea", "OP", "SEB", "S-Pankki", "Säästöpankki", "Ålandsbanken"])],
+                [sg.Text("Pankki", font=("Verdana", 12), size=(20,1)), sg.Combo(["Aktia", "POP", "Danske Bank", "Handelsbanken", "Nordea", "OP", "SEB", "S-Pankki", "Säästöpankki", "Ålandsbanken"], key="bank", default_value=BICToBank(configs[5]))],
                 [sg.Text("Tilinumero", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[3], key="accnum")],
                 [sg.Text("Jäsenlajit", font=("Verdana", 12))],
                 [sg.Multiline(memberString, key="memberClasses", size=(60,6))],
@@ -81,7 +130,7 @@ def settings(configs):
                 else:
                     theme = "darkblue14"
                 
-                #Parses the member classes input field and creates a string to be writed to the configs file,
+                #Parses the member classes input field and creates a string to be written to the configs file,
                 #passing the string to createSettingFile
                 writeString = ''
                 string = values["memberClasses"].split("\n")
@@ -92,8 +141,9 @@ def settings(configs):
                     i = i + 1
                     if string[i] != "":
                         writeString = writeString + ','
-
-                createSettingFile(theme, values["senderemail"], values["paymentreceiver"], values["accnum"], writeString)
+                
+                bankBIC = bankToBIC(values["bank"])
+                createSettingFile(theme, values["senderemail"], values["paymentreceiver"], values["accnum"], writeString, bankBIC)
                 sg.PopupOK("Tallennettu", font=("Verdana", 12))
                 break
             except:

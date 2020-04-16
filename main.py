@@ -13,7 +13,7 @@ except Exception:
 # Reads the config file from /AppData/Roaming/Haukiposti and saves the information to a configs list
 def configParsing():
     configs = []
-    # 0 = theme, 1 = sender email, 2 = payment receiver, 3 = account number, 4 = member classes
+    # 0 = theme, 1 = sender email, 2 = payment receiver, 3 = account number, 4 = member classes, 5 = bank BIC
     save_path = os.getenv("APPDATA") + "\\Haukiposti"
     completeName = os.path.join(save_path, "haukiposticonfig.ini")
 
@@ -25,9 +25,11 @@ def configParsing():
         configs.append(config["haukiposti"]["paymentreceiver"])
         configs.append(config["haukiposti"]["accountnumber"])
         configs.append(config["haukiposti"]["memberclasses"])
+        configs.append(config["haukiposti"]["bank"])
         logging.info("Settings retrieved succesfully.")
     except:
         configs.append("reddit")
+        configs.append("")
         configs.append("")
         configs.append("")
         configs.append("")
@@ -50,6 +52,7 @@ def updateConfig(configs):
         configs[2] = config["haukiposti"]["paymentreceiver"]
         configs[3] = config["haukiposti"]["accountnumber"]
         configs[4] = config["haukiposti"]["memberclasses"]
+        configs[5] = config["haukiposti"]["bank"]
 
         return configs
 
