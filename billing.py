@@ -1,7 +1,9 @@
 import PySimpleGUI as sg
-import pdf, common
+import pdf, common, datetime
 
 def billing(configs):
+
+    year = datetime.date.today().strftime("%Y")
 
     # -- Theme --
     sg.theme(configs[0])
@@ -25,6 +27,7 @@ def billing(configs):
                 [sg.Text("Saate", font=("Verdana", 12))],
                 [sg.Multiline(key="billText", size=(60,5))],
                 [sg.Text("Laskujen kohdekansio:", font=("Verdana", 12)), sg.Input("", key=("folder")), sg.FolderBrowse("Selaa...")],
+                [sg.Checkbox('Älä luo laskuja jos maksuvuosi on {0}'.format(year), default=True, font=("Verdana", 12), key="paymentyear")],
                 [sg.Button("Luo laskut", font=("Verdana", 12)), sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
     window = sg.Window("Haukiposti - massaposti", layout)
@@ -46,9 +49,10 @@ def billing(configs):
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
             print(filesCombined)
             print(ref)
+            print(configs[4])
+            print(formattedDate)
         elif event == "Lähetä":
             print(values["folder"])
-            print(configs[4])
         elif event == "Apua":
             apua = """Laskutus. Täältä voit lähettää laskuja.\n
     Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
