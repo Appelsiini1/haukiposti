@@ -13,15 +13,47 @@ def getY(x):
     return unit
 
 def createBarcode():
-    """Create barcode image"""
+    """Create barcode image
+    Returns the path to the barcode image as string.
+    """
+
+    start = chr(205)
+    stop = chr(206)
     pass
 
-def virtualBarcode():
-    """Create virtual barcode number and return it as a string"""
-    pass
+def virtualBarcode(reference, account, amount, duedate):
+    """Create virtual barcode number. 
+    Returns it as a string
+    """
+    code = "4"
+    code = code + account[2:].replace(' ', '')
+    if len(amount.split('.')) > 1:
+        amount = amount.split('.')
+        euro = amount[0]
+        while len(euro) < 6:
+            euro = "0" + euro
+        cents = amount[1]
+    else:
+        euro = amount
+        while len(euro) < 6:
+            euro = "0" + euro
+        cents = "00"
+    code = code + euro + cents
+    code = code + "000"
+    while reference < 20:
+        reference = "0" + reference
+    due = duedate.split('.')
+    code = code + due[2][2:]
+    code = code + due[1]
+    code = code + due[0]
+
+    return code
 
 def reference():
-    """Create a reference number and check it's validity"""
+    """Create a reference number and check it's validity
+    
+    Returns reference number as string.
+    """
 
     random.seed()
     raw = random.randint(100000000, 999999999)
@@ -101,6 +133,7 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
         c.drawString(250, korkeus-60, subject)
         c.setFont("Helvetica", 11)
 
+        # Receiver information
         c.drawString(margin, getY(5), config[3]) # receiver account number
         c.drawString(margin, getY(11), config[2]) # payment receiver
         c.setFontSize(15)
@@ -119,9 +152,16 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
         c.drawText(textObject)
         c.setFontSize(11)
 
+        # Reference information
         c.drawString(margin2, getY(25), "Käytäthän maksaessasi viitenumeroa.")
         c.drawString(margin3, getY(30), reference)
         c.drawString(margin3, getY(34), duedate)
+
+        amount = None
+        # TODO Dynamic sum
+
+        # Barcodes
+        virtualbc = virtualBarcode(reference, config[3], amount, duedate)
         c.showPage() #Finish page
 
     try:
@@ -176,6 +216,7 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     c.drawString(250, korkeus-60, subject)
     c.setFont("Helvetica", 11)
 
+    # Receiver information
     c.drawString(margin, getY(5), config[3]) # receiver account number
     c.drawString(margin, getY(11), config[2]) # payment receiver
     c.setFontSize(15)
@@ -194,12 +235,16 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     c.drawText(textObject)
     c.setFontSize(11)
 
+    # Reference information
     c.drawString(margin2, getY(25), "Käytäthän maksaessasi viitenumeroa.")
     c.drawString(margin3, getY(30), reference)
     c.drawString(margin3, getY(34), duedate)
 
     #TODO dynamic sum
+    amount = None
     c.drawString((margin3+transSizeX*40), getY(34), "500,00€")
+
+    virtualbc = virtualBarcode(reference, config[3], amount, duedate)
 
     # save document
     c.showPage()
