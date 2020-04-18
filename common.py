@@ -42,6 +42,35 @@ def getRes(imagePath):
 
     return newSize
     
+def CSVparser(file):
+    try:
+        fil = open(file, "r", encoding='utf-8')
+    except Exception as e:
+        logging.error(e)
+        return None
+    one = fil.readline().split(';')
+    logging.debug(one)
+    i = 0
+    pos = None
+    for item in one:
+        if one[i].lower() == "sähköpostiosoite":
+            pos = i
+            logging.debug("OK")
+            logging.debug(pos)
+            break
+        else: 
+            print(one[i].lower())
+            i += 1
+    logging.debug(i)
+    if pos == None:
+        return None
+    emails = ""
+    line = fil.readline().split(';')
+    while len(line) > 1:
+        emails = emails + line[pos] + ";"
+        line = fil.readline().split(';')
+    fil.close()
+    return emails
 
 def TagsToHTML(text, paths, preview, *args):
     # **text** = <b></b> bolding

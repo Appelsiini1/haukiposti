@@ -35,38 +35,6 @@ def preview(text, images):
         logging.error(e)
         sg.PopupOK("Jokin meni vikaan esikatselua avatessa.")
 
-def CSVparser(file):
-    try:
-        fil = open(file, "r", encoding='utf-8')
-    except Exception as e:
-        logging.error(e)
-        return None
-    one = fil.readline().split(';')
-    logging.debug(one)
-    i = 0
-    pos = None
-    for item in one:
-        if one[i].lower() == "sähköpostiosoite":
-            pos = i
-            logging.debug("OK")
-            logging.debug(pos)
-            break
-        else: 
-            print(one[i].lower())
-            i += 1
-    logging.debug(i)
-    if pos == None:
-        return None
-    emails = ""
-    line = fil.readline().split(';')
-    while len(line) > 1:
-        emails = emails + line[pos] + ";"
-        line = fil.readline().split(';')
-    fil.close()
-    return emails
-    
-
-
 def massPost(configs, service):
 
     # -- Theme --
@@ -114,7 +82,7 @@ def massPost(configs, service):
                     else:
                         text = values["messageText"]
                         htmlText = common.TagsToHTML(text, attachements, preview=0)
-                        receivers = CSVparser(values["receivers"])
+                        receivers = common.CSVparser(values["receivers"])
                         if receivers:
                             encMsg = mail.createMail(configs[1], receivers, values["subject"], htmlText, attachements)
                             if encMsg:
@@ -130,7 +98,7 @@ def massPost(configs, service):
                 else:
                     text = values["messageText"]
                     htmlText = common.TagsToHTML(text, attachements, preview=0)
-                    receivers = CSVparser(values["receivers"])
+                    receivers = common.CSVparser(values["receivers"])
                     if receivers:
                         encMsg = mail.createMail(configs[1], receivers, values["subject"], htmlText, attachements)
                         if encMsg:
