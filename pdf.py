@@ -3,6 +3,7 @@ try:
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import inch
+    from pubcode import Code128
 except Exception as e:
     logging.error(e)
 
@@ -12,14 +13,14 @@ def getY(x):
     unit += inch*(1/12)*y
     return unit
 
-def createBarcode():
+def createBarcode(vcode):
     """Create barcode image
     Returns the path to the barcode image as string.
     """
 
-    start = chr(205)
-    stop = chr(206)
-    pass
+
+
+    return
 
 def virtualBarcode(reference, account, amount, duedate):
     """Create virtual barcode number. 
@@ -40,14 +41,20 @@ def virtualBarcode(reference, account, amount, duedate):
         cents = "00"
     code = code + euro + cents
     code = code + "000"
-    while reference < 20:
+    while len(reference) < 20:
         reference = "0" + reference
     due = duedate.split('.')
     code = code + due[2][2:]
     code = code + due[1]
     code = code + due[0]
 
-    return code
+    barcode = Code128(code, charset='C')
+    img = barcode.image()
+
+    imgPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "barcode.png")
+    img.save(imgPath, "PNG")
+
+    return code, imgPath
 
 def reference():
     """Create a reference number and check it's validity
@@ -161,7 +168,10 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
         # TODO Dynamic sum
 
         # Barcodes
-        virtualbc = virtualBarcode(reference, config[3], amount, duedate)
+        virtualbc, bc_img = virtualBarcode(reference, config[3], amount, duedate)
+        c.setFontSize(9.5)
+        c.drawString(37, 22+transSizeY*12, virtualbc)
+        c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
         c.showPage() #Finish page
 
     try:
@@ -244,7 +254,10 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     amount = None
     c.drawString((margin3+transSizeX*40), getY(34), "500,00€")
 
-    virtualbc = virtualBarcode(reference, config[3], amount, duedate)
+    virtualbc, bc_img = virtualBarcode(reference, config[3], amount, duedate)
+    c.setFontSize(9.5)
+    c.drawString(37, 22+transSizeY*12, virtualbc)
+    c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
 
     # save document
     c.showPage()
