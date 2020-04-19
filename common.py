@@ -29,7 +29,7 @@ def getRes(imagePath):
     try:
         image = Image.open(imagePath)
     except Exception as e:
-        logging.error(e)
+        logging.exception(e)
         return -1
     size = image.size # returns tuple (x,y)
     image.close()
@@ -46,7 +46,7 @@ def CSVparser(file):
     try:
         fil = open(file, "r", encoding='utf-8')
     except Exception as e:
-        logging.error(e)
+        logging.exception(e)
         return None
     one = fil.readline().split(';')
     logging.debug(one)

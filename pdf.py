@@ -5,7 +5,7 @@ try:
     from reportlab.lib.units import inch
     from pubcode import Code128
 except Exception as e:
-    logging.error(e)
+    logging.exception(e)
 
 def getY(x):
     y = 48-x
@@ -177,7 +177,7 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
     try:
         c.save()
     except PermissionError as e:
-        logging.error(e)
+        logging.exception(e)
         return -1
 
     return pdfPath
@@ -264,7 +264,7 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     try:
         c.save()
     except PermissionError as e:
-        logging.error(e)
+        logging.exception(e)
         return -1
 
     return pdfPath
