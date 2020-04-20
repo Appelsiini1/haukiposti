@@ -40,7 +40,11 @@ def billing(configs):
         event, values = window.read()
 
         if event == "Peruuta":
-            break
+            # TODO remove debug behaviour
+            mums = common.CSVparser(values["receivers"])
+            print(mums)
+            print(mums[0].firstname)
+            mums[0].debugPrint()
         elif event == "invisible":
             date = values["invisible"]
             formattedDate = date[8:10] + "." + date[5:7] + "." + date[:4]

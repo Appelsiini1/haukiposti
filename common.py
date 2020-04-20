@@ -1,16 +1,26 @@
 import sys, os, logging
 from PIL import Image
 
-class receiver():
-    def __init__(self, firstname, lastname, contant, address, postalno, city, membertype, paper):
+class receiverClass():
+    def __init__(self, firstname, lastname, contact, address, postalno, city, membertype, paper):
         self.firstname = firstname
         self.lastname = lastname
-        self.contant = contant
+        self.contact = contact
         self.address = address
         self.postalno = postalno
         self.city = city
         self.membertype = membertype
         self.paper = paper
+
+    def debugPrint(self):
+        print("Firstname: ", self.firstname)
+        print("Lastname: ", self.lastname)
+        print("Contact: ", self.contact)
+        print("Address: ", self.address)
+        print("Postalno: ", self.postalno)
+        print("City: ", self.city)
+        print("Membertype: ", self.membertype)
+        print("Paper: ", self.paper)
 
 def version():
     return "V0.6.1"
@@ -50,26 +60,38 @@ def CSVparser(file):
         return None
     one = fil.readline().split(';')
     logging.debug(one)
-    i = 0
-    pos = None
-    for item in one:
-        if one[i].lower() == "sähköpostiosoite":
-            pos = i
-            logging.debug("OK")
-            logging.debug(pos)
-            break
-        else: 
-            print(one[i].lower())
-            i += 1
-    logging.debug(i)
-    if pos == None:
-        return None
-    emails = ""
+    emails = []
+
     line = fil.readline().split(';')
     while len(line) > 1:
-        emails = emails + line[pos] + ";"
+        if line[21].strip() == "":
+            paper = False
+        else:
+            paper = True
+        receiver = receiverClass(line[0], line[1], line[3], line[6], line[7], line[8], line[10], paper)
+        emails.append(receiver)
         line = fil.readline().split(';')
-    fil.close()
+
+    # i = 0
+    # pos = None
+    # for item in one:
+    #     if one[i].lower() == "sähköpostiosoite":
+    #         pos = i
+    #         logging.debug("OK")
+    #         logging.debug(pos)
+    #         break
+    #     else: 
+    #         print(one[i].lower())
+    #         i += 1
+    # logging.debug(i)
+    # if pos == None:
+    #     return None
+    # emails = ""
+    # line = fil.readline().split(';')
+    # while len(line) > 1:
+    #     emails = emails + line[pos] + ";"
+    #     line = fil.readline().split(';')
+    # fil.close()
     return emails
 
 def TagsToHTML(text, paths, preview, *args):
