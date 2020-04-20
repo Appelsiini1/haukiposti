@@ -10,7 +10,7 @@ def preview(text, images):
     try:
         os.mkdir(folder)
     except FileExistsError as e:
-        logging.error(e)
+        logging.exception(e)
         pass
     i = 0
     for item in images:
@@ -32,7 +32,7 @@ def preview(text, images):
         command = 'cmd /c "start "" "' + path + '"'
         os.system(command)
     except Exception as e:
-        logging.error(e)
+        logging.exception(e)
         sg.PopupOK("Jokin meni vikaan esikatselua avatessa.")
 
 def massPost(configs, service):

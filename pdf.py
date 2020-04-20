@@ -3,8 +3,9 @@ try:
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import inch
+    from pubcode import Code128
 except Exception as e:
-    logging.error(e)
+    logging.exception(e)
 
 def getY(x):
     y = 48-x
@@ -12,16 +13,49 @@ def getY(x):
     unit += inch*(1/12)*y
     return unit
 
-def createBarcode():
-    """Create barcode image"""
-    pass
 
-def virtualBarcode():
-    """Create virtual barcode number and return it as a string"""
-    pass
+def createBarcode(reference, account, amount, duedate, i):
+    """Create virtual barcode number & barcode image. 
+    Return number as string and the path to barcode image.
+    """
+    code = "4"
+    code = code + account[2:].replace(' ', '')
+    if len(amount.split('.')) > 1:
+        amount = amount.split('.')
+        euro = amount[0]
+        while len(euro) < 6:
+            euro = "0" + euro
+        cents = amount[1]
+        while len(cents) < 2:
+            cents = cents + "0"
+    else:
+        euro = amount
+        while len(euro) < 6:
+            euro = "0" + euro
+        cents = "00"
+    code = code + euro + cents
+    code = code + "000"
+    while len(reference) < 20:
+        reference = "0" + reference
+    due = duedate.split('.')
+    code = code + due[2][2:]
+    code = code + due[1]
+    code = code + due[0]
+
+    barcode = Code128(code, charset='C')
+    img = barcode.image()
+
+    name = "barcode" + str(i) + ".png"
+    imgPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"+ "\\barcodes"), name)
+    img.save(imgPath, "PNG")
+
+    return code, imgPath
 
 def reference():
-    """Create a reference number and check it's validity"""
+    """Create a reference number and check it's validity
+    
+    Returns reference number as string.
+    """
 
     random.seed()
     raw = random.randint(100000000, 999999999)
@@ -101,6 +135,7 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
         c.drawString(250, korkeus-60, subject)
         c.setFont("Helvetica", 11)
 
+        # Receiver information
         c.drawString(margin, getY(5), config[3]) # receiver account number
         c.drawString(margin, getY(11), config[2]) # payment receiver
         c.setFontSize(15)
@@ -119,20 +154,31 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
         c.drawText(textObject)
         c.setFontSize(11)
 
+        # Reference information
         c.drawString(margin2, getY(25), "Käytäthän maksaessasi viitenumeroa.")
         c.drawString(margin3, getY(30), reference)
         c.drawString(margin3, getY(34), duedate)
+
+        amount = None
+        # TODO Dynamic sum
+
+        # Barcodes
+        virtualbc, bc_img = createBarcode(reference, config[3], amount, duedate, i)
+        c.setFontSize(9.5)
+        c.drawString(37, 22+transSizeY*12, virtualbc)
+        c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
         c.showPage() #Finish page
+        i += 1
 
     try:
         c.save()
     except PermissionError as e:
-        logging.error(e)
+        logging.exception(e)
         return -1
 
     return pdfPath
 
-def createInvoice(config, receiver, path, message, duedate, subject, reference, logo=None):
+def createInvoice(config, receiver, path, message, duedate, subject, reference, i, logo=None):
     """Create invoices for single receiver.
     Args:
     config = config list,
@@ -142,6 +188,7 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     duedate = due date of the invoice as a string
     subject = subject line of the invoice
     reference = Reference number for the invoice
+    i = index number for barcode
     logo = path to the logo file if spesified. Default None
 
     Returns the path to the created pdf.
@@ -176,6 +223,7 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     c.drawString(250, korkeus-60, subject)
     c.setFont("Helvetica", 11)
 
+    # Receiver information
     c.drawString(margin, getY(5), config[3]) # receiver account number
     c.drawString(margin, getY(11), config[2]) # payment receiver
     c.setFontSize(15)
@@ -194,19 +242,26 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     c.drawText(textObject)
     c.setFontSize(11)
 
+    # Reference information
     c.drawString(margin2, getY(25), "Käytäthän maksaessasi viitenumeroa.")
     c.drawString(margin3, getY(30), reference)
     c.drawString(margin3, getY(34), duedate)
 
     #TODO dynamic sum
+    amount = None
     c.drawString((margin3+transSizeX*40), getY(34), "500,00€")
+
+    virtualbc, bc_img = createBarcode(reference, config[3], amount, duedate, i)
+    c.setFontSize(9.5)
+    c.drawString(37, 22+transSizeY*12, virtualbc)
+    c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
 
     # save document
     c.showPage()
     try:
         c.save()
     except PermissionError as e:
-        logging.error(e)
+        logging.exception(e)
         return -1
 
     return pdfPath

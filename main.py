@@ -134,9 +134,14 @@ def main():
             for i in os.listdir(folderpath):
                 os.remove(folderpath+ "/"+i)
             os.rmdir(folderpath)
+        if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "barcodes")):
+            folderpath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "barcodes")
+            for i in os.listdir(folderpath):
+                os.remove(folderpath+ "/"+i)
+            os.rmdir(folderpath)
         window1.close()
     except Exception as e:
-        logging.error(e)
+        logging.exception(e)
 
 
 if __name__ == "__main__":

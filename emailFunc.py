@@ -59,7 +59,7 @@ def authenticate(theme):
             with open(tokenPath, 'wb') as token:
                 pickle.dump(creds, token)
         except Exception as e:
-            logging.error(e)
+            logging.exception(e)
             return
         logging.info("Credentials saved.")
 
@@ -130,7 +130,7 @@ def createMail(sender, to, subject, message_html, files):
                 msg.add_header('Content-Disposition', 'attachment', filename=filename)
                 message.attach(msg)
     except Exception as e:
-        logging.error(e)
+        logging.exception(e)
         return -1
 
     message_as_bytes = message.as_bytes() # the message should converted from string to bytes.
@@ -156,5 +156,5 @@ def sendMail(service, user_id, message):
         logging.info('Message Id: %s' % message['id'])
         return message
     except Exception as e:
-        logging.error("Error: " +e)
+        logging.exception("Error: " +e)
         return None
