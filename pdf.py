@@ -13,18 +13,10 @@ def getY(x):
     unit += inch*(1/12)*y
     return unit
 
-def createBarcode(vcode):
-    """Create barcode image
-    Returns the path to the barcode image as string.
-    """
 
-
-
-    return
-
-def virtualBarcode(reference, account, amount, duedate):
-    """Create virtual barcode number. 
-    Returns it as a string
+def createBarcode(reference, account, amount, duedate, i):
+    """Create virtual barcode number & barcode image. 
+    Return number as string and the path to barcode image.
     """
     code = "4"
     code = code + account[2:].replace(' ', '')
@@ -34,6 +26,8 @@ def virtualBarcode(reference, account, amount, duedate):
         while len(euro) < 6:
             euro = "0" + euro
         cents = amount[1]
+        while len(cents) < 2:
+            cents = cents + "0"
     else:
         euro = amount
         while len(euro) < 6:
@@ -51,7 +45,8 @@ def virtualBarcode(reference, account, amount, duedate):
     barcode = Code128(code, charset='C')
     img = barcode.image()
 
-    imgPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "barcode.png")
+    name = "barcode" + str(i) + ".png"
+    imgPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"+ "\\barcodes"), name)
     img.save(imgPath, "PNG")
 
     return code, imgPath
@@ -168,11 +163,12 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
         # TODO Dynamic sum
 
         # Barcodes
-        virtualbc, bc_img = virtualBarcode(reference, config[3], amount, duedate)
+        virtualbc, bc_img = createBarcode(reference, config[3], amount, duedate, i)
         c.setFontSize(9.5)
         c.drawString(37, 22+transSizeY*12, virtualbc)
         c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
         c.showPage() #Finish page
+        i += 1
 
     try:
         c.save()
@@ -182,7 +178,7 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
 
     return pdfPath
 
-def createInvoice(config, receiver, path, message, duedate, subject, reference, logo=None):
+def createInvoice(config, receiver, path, message, duedate, subject, reference, i, logo=None):
     """Create invoices for single receiver.
     Args:
     config = config list,
@@ -192,6 +188,7 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     duedate = due date of the invoice as a string
     subject = subject line of the invoice
     reference = Reference number for the invoice
+    i = index number for barcode
     logo = path to the logo file if spesified. Default None
 
     Returns the path to the created pdf.
@@ -254,7 +251,7 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     amount = None
     c.drawString((margin3+transSizeX*40), getY(34), "500,00€")
 
-    virtualbc, bc_img = virtualBarcode(reference, config[3], amount, duedate)
+    virtualbc, bc_img = createBarcode(reference, config[3], amount, duedate, i)
     c.setFontSize(9.5)
     c.drawString(37, 22+transSizeY*12, virtualbc)
     c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
