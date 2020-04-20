@@ -1,16 +1,30 @@
 import sys, os, logging
 from PIL import Image
 
-class receiver():
-    def __init__(self, firstname, lastname, contant, address, postalno, city, membertype, paper):
+class receiverClass():
+    def __init__(self, firstname, lastname, contact, email, address, postalno, city, paymentyear, membertype, paper):
         self.firstname = firstname
         self.lastname = lastname
-        self.contant = contant
+        self.contact = contact
+        self.email = email
         self.address = address
         self.postalno = postalno
         self.city = city
+        self.paymentyear = paymentyear
         self.membertype = membertype
         self.paper = paper
+
+    def debugPrint(self):
+        print("Firstname: ", self.firstname)
+        print("Lastname: ", self.lastname)
+        print("Contact: ", self.contact)
+        print("Email: ", self.email)
+        print("Address: ", self.address)
+        print("Postalno: ", self.postalno)
+        print("City: ", self.city)
+        print("Payment year: ", self.paymentyear)
+        print("Membertype: ", self.membertype)
+        print("Paper: ", self.paper)
 
 def version():
     return "V0.7.0"
@@ -44,32 +58,80 @@ def getRes(imagePath):
     
 def CSVparser(file):
     try:
-        fil = open(file, "r", encoding='utf-8')
+        fil = open(file, "r", encoding='utf-8-sig')
     except Exception as e:
         logging.exception(e)
         return None
+
+    firstnamePos = None
+    lastnamePos = None
+    contactPos = None
+    emailPos = None
+    addressPos = None
+    postalnoPos = None
+    cityPos = None
+    membertypePos = None
+    paperPos = None
+    paymentyearPos = None
+
+    i = 0
     one = fil.readline().split(';')
     logging.debug(one)
-    i = 0
-    pos = None
     for item in one:
-        if one[i].lower() == "sähköpostiosoite":
-            pos = i
-            logging.debug("OK")
-            logging.debug(pos)
-            break
-        else: 
-            print(one[i].lower())
-            i += 1
-    logging.debug(i)
-    if pos == None:
-        return None
-    emails = ""
+        if one[i].lower().strip() == "etunimi":
+            firstnamePos = i
+        elif one[i].lower().strip() == "sukunimi":
+            lastnamePos = i
+        elif one[i].lower().strip() == "yhteystieto":
+            contactPos = i
+        elif one[i].lower().strip() == "sähköpostiosoite":
+            emailPos = i
+        elif one[i].lower().strip() == "lähiosoite":
+            addressPos = i
+        elif one[i].lower().strip() == "postinumero":
+            postalnoPos = i
+        elif one[i].lower().strip() == "postitoimipaikka":
+            cityPos = i
+        elif one[i].lower().strip() == "jäsentyyppi":
+            membertypePos = i
+        elif one[i].lower().strip() == "paperikirje":
+            paperPos = i
+        elif one[i].lower().strip() == "maksuvuosi":
+            paymentyearPos = i
+        i += 1
+
+    emails = []
+
     line = fil.readline().split(';')
     while len(line) > 1:
-        emails = emails + line[pos] + ";"
+        if line[paperPos].strip() == "":
+            paper = False
+        else:
+            paper = True
+        receiver = receiverClass(line[firstnamePos], line[lastnamePos], line[contactPos], line[emailPos], line[addressPos], line[postalnoPos], line[cityPos], line[paymentyearPos], line[membertypePos], paper)
+        emails.append(receiver)
         line = fil.readline().split(';')
-    fil.close()
+
+    # i = 0
+    # pos = None
+    # for item in one:
+    #     if one[i].lower() == "sähköpostiosoite":
+    #         pos = i
+    #         logging.debug("OK")
+    #         logging.debug(pos)
+    #         break
+    #     else: 
+    #         print(one[i].lower())
+    #         i += 1
+    # logging.debug(i)
+    # if pos == None:
+    #     return None
+    # emails = ""
+    # line = fil.readline().split(';')
+    # while len(line) > 1:
+    #     emails = emails + line[pos] + ";"
+    #     line = fil.readline().split(';')
+    # fil.close()
     return emails
 
 def TagsToHTML(text, paths, preview, *args):
