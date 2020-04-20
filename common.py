@@ -13,7 +13,7 @@ class receiver():
         self.paper = paper
 
 def version():
-    return "V0.6.1"
+    return "V0.7.0"
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
