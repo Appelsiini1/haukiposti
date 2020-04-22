@@ -47,7 +47,6 @@ def billing(configs):
                 continue
             i = 0
             while i < len(mums):
-                print(mums[i].firstname + " " + mums[i].lastname)
                 mums[i].debugPrint()
                 i += 1
         elif event == "invisible":

@@ -74,9 +74,9 @@ def CSVparser(file):
     paperPos = None
     paymentyearPos = None
 
+    # Check the positions of information from the header row
     i = 0
     one = fil.readline().split(';')
-    logging.debug(one)
     for item in one:
         if one[i].lower().strip() == "etunimi":
             firstnamePos = i
@@ -99,19 +99,64 @@ def CSVparser(file):
         elif one[i].lower().strip() == "maksuvuosi":
             paymentyearPos = i
         i += 1
-
     emails = []
 
+    # Read the information rows
     line = fil.readline().split(';')
     while len(line) > 1:
-        if line[paperPos].strip() == "":
-            paper = False
+        # Check if any of the positions is None, meaning the program couldn't find the information from the file
+        # if yes then replace with an empty string, if no then get information from the row
+        if firstnamePos != None:
+            firstname = line[firstnamePos]
         else:
-            paper = True
-        receiver = receiverClass(line[firstnamePos], line[lastnamePos], line[contactPos], line[emailPos], line[addressPos], line[postalnoPos], line[cityPos], line[paymentyearPos], line[membertypePos], paper)
+            firstname = ""
+        if lastnamePos != None:
+            lastname = line[lastnamePos]
+        else:
+            lastname = ""
+        if contactPos != None:
+            contact = line[contactPos]
+        else:
+            contact = ""
+        if emailPos != None:
+            email = line[emailPos]
+        else:
+            email = ""
+        if addressPos != None:
+            address = line[addressPos]
+        else:
+            address = ""
+        if postalnoPos != None:
+            postalno = line[postalnoPos]
+        else:
+            postalno = ""
+        if cityPos != None:
+            city = line[cityPos]
+        else:
+            city = ""
+        if membertypePos != None:
+            membertype = line[membertypePos]
+        else:
+            membertype = ""
+        if paymentyearPos != None:
+            paymentyear = line[paymentyearPos]
+        else:
+            paymentyear = ""
+        if paperPos != None:
+            if line[paperPos].strip() != "":
+                paper = True
+            else:
+                paper = False
+        else:
+            paper = False
+
+        # Create an instance of receiverClass with read information and append it to a list
+        receiver = receiverClass(firstname, lastname, contact, email, address, postalno, city, paymentyear, membertype, paper)
         emails.append(receiver)
         line = fil.readline().split(';')
 
+    # old crap
+    
     # i = 0
     # pos = None
     # for item in one:
