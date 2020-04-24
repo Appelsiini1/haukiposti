@@ -3,7 +3,7 @@
 # (c) Rami Saarivuori & Aarne Savolainen
 
 try:
-    import logging, os, configparser, masspost, settings, common, billing
+    import logging, os, configparser, masspost, settings, common, billing, stickersheet
     import emailFunc as mail
     import PySimpleGUI as sg
 except Exception:
@@ -85,7 +85,7 @@ def main():
                     [sg.Button("Kirjaudu", font=("Verdana", 12), size=(15, 1), key="login")],
                     [sg.Button("Massaposti", font=("Verdana", 12), size=(15, 1))],
                     [sg.Button("Laskutus", font=("Verdana", 12), size=(15, 1))],
-                    [sg.Button("Tarra-arkit", font=("Verdana", 12, "italic"), size=(15, 1))],
+                    [sg.Button("Tarra-arkit", font=("Verdana", 12), size=(15, 1))],
                     [sg.Button("Asetukset", font=("Verdana", 12), size=(15, 1))],
                     [sg.Button("Poistu", font=("Verdana", 12), size=(15, 1))]]
 
@@ -109,7 +109,9 @@ def main():
                 billing.billing(configs)
                 window1.UnHide()
             elif event == "Tarra-arkit":
-                sg.PopupOK("Ei toiminnallisuutta.", font=("Verdana", 12))
+                window1.Hide()
+                stickersheet.stickersheet(configs)
+                window1.UnHide()
             elif event == "Asetukset":
                 window1.Hide()
                 settings.settings(configs)
