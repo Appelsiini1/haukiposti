@@ -48,7 +48,7 @@ def massPost(configs, service):
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti - massaposti", font=("Verdana", 12, "bold"))],
                 [sg.Text("Vastaanottajat", font=("Verdana", 12))],
-                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat", file_types=(('CSV taulukot', '*.csv*'),))],
+                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat", file_types=(('CSV taulukot', '*.csv'),))],
                 [sg.Text("Aihe", font=("Verdana", 12))],
                 [sg.InputText("", key="subject")],
                 [sg.Text("Viesti", font=("Verdana", 12))],
