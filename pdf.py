@@ -88,98 +88,8 @@ def reference():
         
     return ref
 
-def createAllInvoices(config, receivers, subject, path, message, duedate, reference, logo=None):
-    """Create multiple invoices to one PDF
-    Args:
-    config = config list,
-    receivers = list of receiver objects
-    path = path to output folder
-    message = message to be attached to the invoice
-    duedate = due date of the invoice as a string
-    subject = subject line of the invoice
-    logo = path to the logo file if spesified. Default None
-    
-    Returns path to file.
-    Returns -1 if PermissionError (file opened in a another application)
+def definePage(c, config, receiver, path, message, duedate, subject, reference, i, logo=None):
     """
-
-    date = datetime.date.today().strftime("%d-%m-%Y")
-    clock = time.strftime("%H-%M-%S")
-    name = "Laskut_" + date + "_" + clock + ".pdf"
-    pdfPath = os.path.join(path, name)
-    c = canvas.Canvas(pdfPath, pagesize=A4)
-
-    #measurements
-    leveys, korkeus = A4
-    transSizeX = leveys / 210
-    transSizeY = korkeus / 297
-    base = common.resource_path("assets/Tilisiirto_pohja.jpg")
-    margin = transSizeX*27
-    margin2 = transSizeX*119
-    margin3 = margin2+transSizeX*18
-
-    # Document settings
-    c.setAuthor(config[2])
-    c.setTitle(subject)
-    c.setSubject(subject)
-    c.setCreator(("Haukiposti "+common.version))
-
-    i = 0
-    for item in receivers:
-        if logo:
-            c.drawImage(logo, 25, korkeus-110, width=110, height=110, preserveAspectRatio=True)
-        c.line(25, korkeus-100, leveys-25, korkeus-100)
-        c.drawImage(base, 0, 0, width=(transSizeX*210), height=(transSizeY*101.6), preserveAspectRatio=True) # bank transfer base
-        
-        c.setFont("Helvetica-Bold", 18)
-        c.drawString(250, korkeus-60, subject)
-        c.setFont("Helvetica", 11)
-
-        # Receiver information
-        c.drawString(margin, getY(5), config[3]) # receiver account number
-        c.drawString(margin, getY(11), config[2]) # payment receiver
-        c.setFontSize(15)
-        c.drawString(margin2, getY(5), "OKOYFIHH") # TODO: dynamic BIC code
-
-        # Payer information
-        textObject = c.beginText()
-        textObject.setTextOrigin(margin, getY(16))
-        textObject.setFont("Helvetica", 11)
-        textObject.textLine((receivers[i].firstname+" "+receivers[i].lastname)) # payer name
-        if receivers[i].contact != None:
-            textObject.textLine(receivers[i].contact) # payer contact, if any
-        textObject.textLine(receivers[i].address) # payer address
-        textObject.textLine((receivers[i].postalno + " " + receivers[i].city)) # payer postalno and city
-
-        c.drawText(textObject)
-        c.setFontSize(11)
-
-        # Reference information
-        c.drawString(margin2, getY(25), "Käytäthän maksaessasi viitenumeroa.")
-        c.drawString(margin3, getY(30), reference)
-        c.drawString(margin3, getY(34), duedate)
-
-        amount = None
-        # TODO Dynamic sum
-
-        # Barcodes
-        virtualbc, bc_img = createBarcode(reference, config[3], amount, duedate, i)
-        c.setFontSize(9.5)
-        c.drawString(37, 22+transSizeY*12, virtualbc)
-        c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
-        c.showPage() #Finish page
-        i += 1
-
-    try:
-        c.save()
-    except PermissionError as e:
-        logging.exception(e)
-        return -1
-
-    return pdfPath
-
-def createInvoice(config, receiver, path, message, duedate, subject, reference, i, logo=None):
-    """Create invoices for single receiver.
     Args:
     config = config list,
     receivers = list of receiver objects
@@ -190,15 +100,7 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     reference = Reference number for the invoice
     i = index number for barcode
     logo = path to the logo file if spesified. Default None
-
-    Returns the path to the created pdf.
-    Returns -1 if PermissionError (file opened in a another application)
     """
-    #canvas settings
-    name = receiver.firstname + "_" + receiver.lastname + ".pdf"
-    pdfPath = os.path.join(path, name)
-    c = canvas.Canvas(pdfPath, pagesize=A4)
-
     #measurements
     leveys, korkeus = A4
     transSizeX = leveys / 210
@@ -255,6 +157,64 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     c.setFontSize(9.5)
     c.drawString(37, 22+transSizeY*12, virtualbc)
     c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
+
+
+def createAllInvoices(config, receivers, subject, path, message, duedate, reference, logo=None):
+    """Create multiple invoices to one PDF
+    Args:
+    config = config list,
+    receivers = list of receiver objects
+    path = path to output folder
+    message = message to be attached to the invoice
+    duedate = due date of the invoice as a string
+    subject = subject line of the invoice
+    logo = path to the logo file if spesified. Default None
+    
+    Returns path to file.
+    Returns -1 if PermissionError (file opened in a another application)
+    """
+
+    date = datetime.date.today().strftime("%d-%m-%Y")
+    clock = time.strftime("%H-%M-%S")
+    name = "Laskut_" + date + "_" + clock + ".pdf"
+    pdfPath = os.path.join(path, name)
+    c = canvas.Canvas(pdfPath, pagesize=A4)
+
+    i = 0
+    for item in receivers:
+        definePage(c, config, receivers[i], path, message, duedate, subject, reference, i, logo)
+        i += 1
+
+    try:
+        c.save()
+    except PermissionError as e:
+        logging.exception(e)
+        return -1
+
+    return pdfPath
+
+def createInvoice(config, receiver, path, message, duedate, subject, reference, i, logo=None):
+    """Create invoices for single receiver.
+    Args:
+    config = config list,
+    receivers = list of receiver objects
+    path = path to output folder
+    message = message to be attached to the invoice
+    duedate = due date of the invoice as a string
+    subject = subject line of the invoice
+    reference = Reference number for the invoice
+    i = index number for barcode
+    logo = path to the logo file if spesified. Default None
+
+    Returns the path to the created pdf.
+    Returns -1 if PermissionError (file opened in a another application)
+    """
+    #canvas settings
+    name = receiver.firstname + "_" + receiver.lastname + ".pdf"
+    pdfPath = os.path.join(path, name)
+    c = canvas.Canvas(pdfPath, pagesize=A4)
+
+    definePage(c, config, receiver, path, message, duedate, subject, reference, i, logo)
 
     # save document
     c.showPage()

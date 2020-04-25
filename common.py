@@ -27,7 +27,7 @@ class receiverClass():
         print("Paper: ", self.paper)
 
 def version():
-    return "V0.6.1"
+    return "V0.7.0"
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -42,11 +42,12 @@ def resource_path(relative_path):
 def getRes(imagePath):
     try:
         image = Image.open(imagePath)
+        size = image.size # returns tuple (x,y)
     except Exception as e:
         logging.exception(e)
         return -1
-    size = image.size # returns tuple (x,y)
-    image.close()
+    finally:
+        image.close()
     x = size[0]
     y = size[1]
     while x > 600 or y > 600:
@@ -58,102 +59,101 @@ def getRes(imagePath):
     
 def CSVparser(file):
     try:
-        fil = open(file, "r", encoding='utf-8-sig')
+        with open(file, "r", encoding='utf-8-sig') as fil:
+            firstnamePos = None
+            lastnamePos = None
+            contactPos = None
+            emailPos = None
+            addressPos = None
+            postalnoPos = None
+            cityPos = None
+            membertypePos = None
+            paperPos = None
+            paymentyearPos = None
+
+            # Check the positions of information from the header row
+            i = 0
+            one = fil.readline().split(';')
+            for item in one:
+                if one[i].lower().strip() == "etunimi":
+                    firstnamePos = i
+                elif one[i].lower().strip() == "sukunimi":
+                    lastnamePos = i
+                elif one[i].lower().strip() == "yhteystieto":
+                    contactPos = i
+                elif one[i].lower().strip() == "sähköpostiosoite":
+                    emailPos = i
+                elif one[i].lower().strip() == "lähiosoite":
+                    addressPos = i
+                elif one[i].lower().strip() == "postinumero":
+                    postalnoPos = i
+                elif one[i].lower().strip() == "postitoimipaikka":
+                    cityPos = i
+                elif one[i].lower().strip() == "jäsentyyppi":
+                    membertypePos = i
+                elif one[i].lower().strip() == "paperikirje":
+                    paperPos = i
+                elif one[i].lower().strip() == "maksuvuosi":
+                    paymentyearPos = i
+                i += 1
+            emails = []
+
+            # Read the information rows
+            line = fil.readline().split(';')
+            while len(line) > 1:
+                # Check if any of the positions is None, meaning the program couldn't find the information from the file
+                # if yes then replace with an empty string, if no then get information from the row
+                if firstnamePos != None:
+                    firstname = line[firstnamePos]
+                else:
+                    firstname = ""
+                if lastnamePos != None:
+                    lastname = line[lastnamePos]
+                else:
+                    lastname = ""
+                if contactPos != None:
+                    contact = line[contactPos]
+                else:
+                    contact = ""
+                if emailPos != None:
+                    email = line[emailPos]
+                else:
+                    email = ""
+                if addressPos != None:
+                    address = line[addressPos]
+                else:
+                    address = ""
+                if postalnoPos != None:
+                    postalno = line[postalnoPos]
+                else:
+                    postalno = ""
+                if cityPos != None:
+                    city = line[cityPos]
+                else:
+                    city = ""
+                if membertypePos != None:
+                    membertype = line[membertypePos]
+                else:
+                    membertype = ""
+                if paymentyearPos != None:
+                    paymentyear = line[paymentyearPos]
+                else:
+                    paymentyear = ""
+                if paperPos != None:
+                    if line[paperPos].strip() != "":
+                        paper = True
+                    else:
+                        paper = False
+                else:
+                    paper = False
+
+                # Create an instance of receiverClass with read information and append it to a list
+                receiver = receiverClass(firstname, lastname, contact, email, address, postalno, city, paymentyear, membertype, paper)
+                emails.append(receiver)
+                line = fil.readline().split(';')
     except Exception as e:
         logging.exception(e)
         return None
-
-    firstnamePos = None
-    lastnamePos = None
-    contactPos = None
-    emailPos = None
-    addressPos = None
-    postalnoPos = None
-    cityPos = None
-    membertypePos = None
-    paperPos = None
-    paymentyearPos = None
-
-    # Check the positions of information from the header row
-    i = 0
-    one = fil.readline().split(';')
-    for item in one:
-        if one[i].lower().strip() == "etunimi":
-            firstnamePos = i
-        elif one[i].lower().strip() == "sukunimi":
-            lastnamePos = i
-        elif one[i].lower().strip() == "yhteystieto":
-            contactPos = i
-        elif one[i].lower().strip() == "sähköpostiosoite":
-            emailPos = i
-        elif one[i].lower().strip() == "lähiosoite":
-            addressPos = i
-        elif one[i].lower().strip() == "postinumero":
-            postalnoPos = i
-        elif one[i].lower().strip() == "postitoimipaikka":
-            cityPos = i
-        elif one[i].lower().strip() == "jäsentyyppi":
-            membertypePos = i
-        elif one[i].lower().strip() == "paperikirje":
-            paperPos = i
-        elif one[i].lower().strip() == "maksuvuosi":
-            paymentyearPos = i
-        i += 1
-    emails = []
-
-    # Read the information rows
-    line = fil.readline().split(';')
-    while len(line) > 1:
-        # Check if any of the positions is None, meaning the program couldn't find the information from the file
-        # if yes then replace with an empty string, if no then get information from the row
-        if firstnamePos != None:
-            firstname = line[firstnamePos]
-        else:
-            firstname = ""
-        if lastnamePos != None:
-            lastname = line[lastnamePos]
-        else:
-            lastname = ""
-        if contactPos != None:
-            contact = line[contactPos]
-        else:
-            contact = ""
-        if emailPos != None:
-            email = line[emailPos]
-        else:
-            email = ""
-        if addressPos != None:
-            address = line[addressPos]
-        else:
-            address = ""
-        if postalnoPos != None:
-            postalno = line[postalnoPos]
-        else:
-            postalno = ""
-        if cityPos != None:
-            city = line[cityPos]
-        else:
-            city = ""
-        if membertypePos != None:
-            membertype = line[membertypePos]
-        else:
-            membertype = ""
-        if paymentyearPos != None:
-            paymentyear = line[paymentyearPos]
-        else:
-            paymentyear = ""
-        if paperPos != None:
-            if line[paperPos].strip() != "":
-                paper = True
-            else:
-                paper = False
-        else:
-            paper = False
-
-        # Create an instance of receiverClass with read information and append it to a list
-        receiver = receiverClass(firstname, lastname, contact, email, address, postalno, city, paymentyear, membertype, paper)
-        emails.append(receiver)
-        line = fil.readline().split(';')
 
     # old crap
     

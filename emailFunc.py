@@ -65,16 +65,6 @@ def authenticate(theme):
 
     service = build('gmail', 'v1', credentials=creds)
 
-    # results = service.users().labels().list(userId='me').execute()
-    # labels = results.get('labels', [])
-
-    # if not labels:
-    #     print('No labels found.')
-    # else:
-    #     print('Labels:')
-    #     for label in labels:
-    #         print(label['name'])
-
     return service
 
 def createMail(sender, to, subject, message_html, files):
