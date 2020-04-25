@@ -11,9 +11,10 @@ def stickersheet(configs):
                 ["Tietoa", ["Apua", "Tietoa"]]]
 
     # -- The layout --
-    frame_layout = [[sg.Text("Leveys", size=(8,1), font=("Verdana", 12)), sg.Slider(range=(1,1000), default_value=500, size=(20,15), orientation="horizontal", font=("Verdana", 9))],
-                     [sg.Text("Korkeus", size=(8,1), font=("Verdana", 12)), sg.Slider(range=(1,1000), default_value=500, size=(20,15), orientation="horizontal", font=("Verdana", 9))],
-                     [sg.Text("", font=("Verdana", 4))]]
+    frame_layout = [[sg.Text("Tarroja leveyssuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,11)], size=(2,1))],
+                    [sg.Text("Tarroja korkeussuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,11)], size=(2,1))],
+                    [sg.Text("Tarraväli (mm)", font=("Verdana", 12)), sg.Slider(range=(0,10), default_value=0, resolution=(0.1), size=(20,15), orientation="horizontal", font=("Verdana", 9))],
+                    [sg.Text("", font=("Verdana", 4))]]
 
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti - tarra-arkki", font=("Verdana", 15, "bold"))],
