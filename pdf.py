@@ -4,6 +4,7 @@ try:
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import inch
     from pubcode import Code128
+    import PySimpleGUI as sg
 except Exception as e:
     logging.exception(e)
 
@@ -116,7 +117,7 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     c.setSubject(subject)
     c.setCreator(("Haukiposti "+common.version))
 
-    if logo:
+    if logo != "":
         c.drawImage(logo, 25, korkeus-110, width=110, height=110, preserveAspectRatio=True)
     c.line(25, korkeus-100, leveys-25, korkeus-100)
     c.drawImage(base, 0, 0, width=(transSizeX*210), height=(transSizeY*101.6), preserveAspectRatio=True) # bank transfer base
@@ -125,18 +126,20 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     c.drawString(250, korkeus-60, subject)
     c.setFont("Helvetica", 11)
 
+    # TODO Saate
+
     # Receiver information
     c.drawString(margin, getY(5), config[3]) # receiver account number
     c.drawString(margin, getY(11), config[2]) # payment receiver
     c.setFontSize(15)
-    c.drawString(margin2, getY(5), "OKOYFIHH") # TODO: dynamic BIC code
+    c.drawString(margin2, getY(5), config[5])
 
     # Payer information
     textObject = c.beginText()
     textObject.setTextOrigin(margin, getY(16))
     textObject.setFont("Helvetica", 11)
     textObject.textLine((receiver.firstname+" "+receiver.lastname)) # payer name
-    if receiver.contact != None:
+    if receiver.contact != "":
         textObject.textLine(receiver.contact) # payer contact, if any
     textObject.textLine(receiver.address) # payer address
     textObject.textLine((receiver.postalno + " " + receiver.city)) # payer postalno and city
@@ -149,9 +152,19 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     c.drawString(margin3, getY(30), reference)
     c.drawString(margin3, getY(34), duedate)
 
-    #TODO dynamic sum
-    amount = None
-    c.drawString((margin3+transSizeX*40), getY(34), "500,00€")
+    classes = config[4]
+    for item in classes:
+        cl = item.split(',')
+        if cl[0].lower() == receiver.membertype.lower():
+            if len(cl[1].split('.')) > 1:
+                amount = cl[1]
+            else:
+                amount = cl[1] + ".00"
+
+    if amount == None:
+        amount = ""
+
+    c.drawString((margin3+transSizeX*40), getY(34), amount)
 
     virtualbc, bc_img = createBarcode(reference, config[3], amount, duedate, i)
     c.setFontSize(9.5)
@@ -159,7 +172,7 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
 
 
-def createAllInvoices(config, receivers, subject, path, message, duedate, reference, logo=None):
+def createAllInvoices(config, receivers, subject, path, message, duedate, reference, yearbool, logo=None):
     """Create multiple invoices to one PDF
     Args:
     config = config list,
@@ -174,16 +187,40 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
     Returns -1 if PermissionError (file opened in a another application)
     """
 
+    limit = len(receivers)
+    sg.theme(config[0])
+    layout = [[sg.Text("Luodaan laskuja...", font=("Verdana", 12))],
+            [sg.ProgressBar(limit, orientation='h', size=(30, 20), key='progressbar')],
+            [sg.Button('Peruuta', font=("Verdana", 12))]]
+
+    window = sg.Window('Laskujen luonti', layout)
+    progress_bar = window['progressbar']
+
     date = datetime.date.today().strftime("%d-%m-%Y")
     clock = time.strftime("%H-%M-%S")
+    year = datetime.date.today.strftime("%Y")
     name = "Laskut_" + date + "_" + clock + ".pdf"
     pdfPath = os.path.join(path, name)
     c = canvas.Canvas(pdfPath, pagesize=A4)
 
     i = 0
     for item in receivers:
-        definePage(c, config, receivers[i], path, message, duedate, subject, reference, i, logo)
+        event, values = window.read(timeout=1)
+        if event == 'Peruuta' or event is None:
+            return -2
+        if yearbool != True:
+            definePage(c, config, receivers[i], path, message, duedate, subject, reference, i, logo)
+            logging.debug("yearbool == False")
+        elif yearbool == True and receivers[i].paymentyear != year:
+            definePage(c, config, receivers[i], path, message, duedate, subject, reference, i, logo)
+            logging.debug("yearbool == True and paymentyear != year")
+        else:
+            logging.debug("Skipping invoice creation on condition; yearbool:{0}, year:{1}, payer:{2}".format(yearbool, year, receivers[i].paymentyear))
+            continue
         i += 1
+        progress_bar.UpdateBar(i)
+
+    window.close()
 
     try:
         c.save()

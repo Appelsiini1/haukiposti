@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
-import pdf, common, datetime
+import pdf, common, datetime, logging, emailFunc
 
-def billing(configs):
+def billing(configs, service=None):
 
     year = datetime.date.today().strftime("%Y")
 
@@ -44,27 +44,77 @@ def billing(configs):
         event, values = window.read()
 
         if event == "Peruuta":
-            # TODO remove debug behaviour
-            mums = common.CSVparser(values["receivers"])
-            if mums == None:
-                sg.PopupOK("Tuo ensin CSV-tiedosto")
-                continue
-            emailString = ""
-            for item in mums:
-                emailString = emailString + item.email + ";"
-            print(emailString)
+            break
         elif event == "invisible":
             date = values["invisible"]
             formattedDate = date[8:10] + "." + date[5:7] + "." + date[:4]
             window["duedate"].update(value=formattedDate)
         elif event == "Luo laskut":
+            receivers = common.CSVparser(values["receivers"])
+            if receivers == None:
+                sg.PopupOK("Tuo ensin CSV-tiedosto")
+                continue
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
-            print(filesCombined)
-            print(ref)
-            print(configs[4])
-            print(formattedDate)
+
+            if filesCombined == "Yhteen" and formattedDate and values['subject'] != "" and values['folder'] != "":
+                ret = pdf.createAllInvoices(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, values['paymentyear'], values['logo'])
+                if ret == -1:
+                    sg.PopupOK("Tiedostoa ei voitu luoda")
+                    
+            elif filesCombined == "Erikseen" and formattedDate and values['subject'] != "" and values['folder'] != "":
+                limit = len(receivers)
+                layout2 = [[sg.Text("Luodaan laskuja...", font=("Verdana", 12))],
+                        [sg.ProgressBar(limit, orientation='h', size=(30, 20), key='progressbar')],
+                        [sg.Button('Peruuta', font=("Verdana", 12))]]
+
+                window2 = sg.Window('Laskujen luonti', layout2)
+                progress_bar = window['progressbar']
+                
+                i = 0
+                k = 0
+                for receiver in receivers:
+                    event, values = window2.read(timeout=1)
+                    if event == 'Peruuta' or event is None:
+                        break
+                    if (values['paymentyear'] != True) or (values['paymentyear'] == True and receivers[i].paymentyear != year):
+                        ret = pdf.createInvoice(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, i, values['logo'])
+                        if ret == -1:
+                            sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
+                            break
+                        logging.debug("yearbool == False or (== True paymentyear != year)")
+                    else:
+                        logging.debug("Skipping invoice creation on condition; yearbool:{0}, year:{1}, payer:{2}".format(values['paymentyear'], year, receiver.paymentyear))
+                        k += 1
+                        continue
+                    i += 1
+                    progress_bar.UpdateBar(i)
+                if ret != -1 or event != 'Peruuta':
+                    sg.PopupOK("{0} laskua luotu kohdekansioon. Ohitettiin {1} vastaanottajaa.".format(i, k))
+                    logging.info("{0} invoices created to {1}. Skipped {2} receivers".format(i, values['folder'], k))
+            else:
+                sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
+
         elif event == "Lähetä":
-            print(values["folder"])
+            if service == None:
+                sg.PopupOK("Et ole kirjautunut. Sinut kirjataan nyt sisään.")
+                service = emailFunc.authenticate()
+
+            receivers = common.CSVparser(values["receivers"])
+            if receivers == None:
+                sg.PopupOK("Tuo ensin CSV-tiedosto")
+                continue
+
+            limit = len(receivers)
+            layout2 = [[sg.Text("Luodaan laskut ja lähetetään viestit...", font=("Verdana", 12))],
+                    [sg.ProgressBar(limit, orientation='h', size=(30, 20), key='progressbar')],
+                    [sg.Button('Peruuta', font=("Verdana", 12))]]
+
+            window2 = sg.Window('Laskujen luonti', layout2)
+            progress_bar = window['progressbar']
+            for receiver in receivers:
+                pass
+            
+
         elif event == "Apua":
             apua = """Laskutus. Täältä voit lähettää laskuja.\n
     Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
