@@ -106,7 +106,7 @@ def main():
                 window1.UnHide()
             elif event == "Laskutus":
                 window1.Hide()
-                billing.billing(configs)
+                billing.billing(configs, service)
                 window1.UnHide()
             elif event == "Tarra-arkit":
                 window1.Hide()
@@ -118,7 +118,7 @@ def main():
                 configs = updateConfig(configs)
                 window1.UnHide()
             elif event == "login":
-                service = mail.authenticate(configs[0])
+                service = mail.authenticate()
                 if service:
                     sg.PopupOK("Todennus onnistui.", font=("Verdana", 12))
                     window1["login"].update("Kirjauduttu", disabled=True)
