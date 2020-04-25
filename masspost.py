@@ -83,8 +83,11 @@ def massPost(configs, service):
                         text = values["messageText"]
                         htmlText = common.TagsToHTML(text, attachements, preview=0)
                         receivers = common.CSVparser(values["receivers"])
+                        emailString = ""
                         if receivers:
-                            encMsg = mail.createMail(configs[1], receivers, values["subject"], htmlText, attachements)
+                            for item in receivers:
+                                emailString = emailString + item.email + ";"
+                            encMsg = mail.createMail(configs[1], emailString, values["subject"], htmlText, attachements)
                             if encMsg:
                                 msg = mail.sendMail(service, 'me', encMsg)
                                 if msg:
@@ -99,8 +102,11 @@ def massPost(configs, service):
                     text = values["messageText"]
                     htmlText = common.TagsToHTML(text, attachements, preview=0)
                     receivers = common.CSVparser(values["receivers"])
+                    emailString = ""
                     if receivers:
-                        encMsg = mail.createMail(configs[1], receivers, values["subject"], htmlText, attachements)
+                        for item in receivers:
+                            emailString = emailString + item.email + ";"
+                        encMsg = mail.createMail(configs[1], emailString, values["subject"], htmlText, attachements)
                         if encMsg:
                             msg = mail.sendMail(service, 'me', encMsg)
                             if msg:
