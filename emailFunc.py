@@ -10,7 +10,6 @@ try:
     from email.mime.audio import MIMEAudio
     from email.mime.image import MIMEImage
     from email.mime.application import MIMEApplication
-    import PySimpleGUI as sg
 
 except Exception:
     exit(-1)
@@ -19,7 +18,7 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 #SCOPES should be gmail.readonly for debugging, otherwise gmail.send
 
 
-def authenticate(theme):
+def authenticate():
     """Authenticate user. Returns authorized service object.
     On first run, this will copy the credentials to working directory for future use.
 
@@ -30,7 +29,6 @@ def authenticate(theme):
     credPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "credentials.json")
     tokenPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "token.pickle")
     creds = None
-    sg.theme(theme)
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
