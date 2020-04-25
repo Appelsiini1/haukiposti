@@ -30,7 +30,7 @@ def billing(configs):
                 [sg.Checkbox('Älä luo laskuja jos maksuvuosi on {0}'.format(year), default=True, font=("Verdana", 12), key="paymentyear")],
                 [sg.Button("Luo laskut", font=("Verdana", 12)), sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
-    window = sg.Window("Haukiposti - massaposti", layout)
+    window = sg.Window("Haukiposti - laskutus", layout)
 
     # reference number generation
     ref = pdf.reference()
@@ -42,9 +42,11 @@ def billing(configs):
         if event == "Peruuta":
             # TODO remove debug behaviour
             mums = common.CSVparser(values["receivers"])
+            if mums == None:
+                sg.PopupOK("Tuo ensin CSV-tiedosto")
+                continue
             i = 0
             while i < len(mums):
-                print(mums[i].firstname + " " + mums[i].lastname)
                 mums[i].debugPrint()
                 i += 1
         elif event == "invisible":

@@ -113,7 +113,7 @@ def settings(configs):
                 [sg.Text("Käytä senttierottimena pistettä! Senttejä ei ole kuitenkaan pakko merkitä.", font=("Verdana", 12))],
                 [sg.Button("Tallenna", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
-    window = sg.Window("Haukiposti - massaposti", layout)
+    window = sg.Window("Haukiposti - asetukset", layout)
 
     # -- Window functionality --
     while True:
