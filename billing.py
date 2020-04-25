@@ -15,8 +15,8 @@ def billing(configs, service=None):
     # -- The layout --
     message_frame_layout = [[sg.Text("Aihe", font=("Verdana", 12))],
                             [sg.InputText("", key="subject")],
-                            [sg.Text("Viesti", font=("Verdana", 12), key="messageText")],
-                            [sg.Multiline(key=("messageText"), size=(60,9))],
+                            [sg.Text("Viesti", font=("Verdana", 12))],
+                            [sg.Multiline(key="messageText", size=(60,9))],
                             [sg.Text("Liitteet", font=("Verdana", 12)), sg.Input("", key="attachment"), sg.FilesBrowse("Selaa...", font=("Verdana", 12))]]
 
     bill_frame_layout = [[sg.Text("Eräpäivä", font=("Verdana", 12))],
@@ -30,7 +30,7 @@ def billing(configs, service=None):
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti - laskutus", font=("Verdana", 12, "bold"))],
                 [sg.Text("Vastaanottajat", font=("Verdana", 12))],
-                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat", font=("Verdana", 12), file_types=(('CSV taulukot', '*.csv*'),))],
+                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat", font=("Verdana", 12), file_types=(('CSV taulukot', '*.csv'),))],
                 [sg.Frame("Viesti", message_frame_layout, font=("Verdana", 12)), sg.Frame("Lasku", bill_frame_layout, font=("Verdana", 12))],
                 [sg.Button("Luo laskut", font=("Verdana", 12)), sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
