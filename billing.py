@@ -45,10 +45,10 @@ def billing(configs):
             if mums == None:
                 sg.PopupOK("Tuo ensin CSV-tiedosto")
                 continue
-            i = 0
-            while i < len(mums):
-                mums[i].debugPrint()
-                i += 1
+            emailString = ""
+            for item in mums:
+                emailString = emailString + item.email + ";"
+            print(emailString)
         elif event == "invisible":
             date = values["invisible"]
             formattedDate = date[8:10] + "." + date[5:7] + "." + date[:4]
