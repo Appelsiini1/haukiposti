@@ -42,11 +42,12 @@ def resource_path(relative_path):
 def getRes(imagePath):
     try:
         image = Image.open(imagePath)
+        size = image.size # returns tuple (x,y)
     except Exception as e:
         logging.exception(e)
         return -1
-    size = image.size # returns tuple (x,y)
-    image.close()
+    finally:
+        image.close()
     x = size[0]
     y = size[1]
     while x > 600 or y > 600:
@@ -58,59 +59,58 @@ def getRes(imagePath):
     
 def CSVparser(file):
     try:
-        fil = open(file, "r", encoding='utf-8-sig')
+        with open(file, "r", encoding='utf-8-sig') as fil:
+            firstnamePos = None
+            lastnamePos = None
+            contactPos = None
+            emailPos = None
+            addressPos = None
+            postalnoPos = None
+            cityPos = None
+            membertypePos = None
+            paperPos = None
+            paymentyearPos = None
+
+            i = 0
+            one = fil.readline().split(';')
+            logging.debug(one)
+            for item in one:
+                if one[i].lower().strip() == "etunimi":
+                    firstnamePos = i
+                elif one[i].lower().strip() == "sukunimi":
+                    lastnamePos = i
+                elif one[i].lower().strip() == "yhteystieto":
+                    contactPos = i
+                elif one[i].lower().strip() == "sähköpostiosoite":
+                    emailPos = i
+                elif one[i].lower().strip() == "lähiosoite":
+                    addressPos = i
+                elif one[i].lower().strip() == "postinumero":
+                    postalnoPos = i
+                elif one[i].lower().strip() == "postitoimipaikka":
+                    cityPos = i
+                elif one[i].lower().strip() == "jäsentyyppi":
+                    membertypePos = i
+                elif one[i].lower().strip() == "paperikirje":
+                    paperPos = i
+                elif one[i].lower().strip() == "maksuvuosi":
+                    paymentyearPos = i
+                i += 1
+
+            emails = []
+
+            line = fil.readline().split(';')
+            while len(line) > 1:
+                if line[paperPos].strip() == "":
+                    paper = False
+                else:
+                    paper = True
+                receiver = receiverClass(line[firstnamePos], line[lastnamePos], line[contactPos], line[emailPos], line[addressPos], line[postalnoPos], line[cityPos], line[paymentyearPos], line[membertypePos], paper)
+                emails.append(receiver)
+                line = fil.readline().split(';')
     except Exception as e:
         logging.exception(e)
         return None
-
-    firstnamePos = None
-    lastnamePos = None
-    contactPos = None
-    emailPos = None
-    addressPos = None
-    postalnoPos = None
-    cityPos = None
-    membertypePos = None
-    paperPos = None
-    paymentyearPos = None
-
-    i = 0
-    one = fil.readline().split(';')
-    logging.debug(one)
-    for item in one:
-        if one[i].lower().strip() == "etunimi":
-            firstnamePos = i
-        elif one[i].lower().strip() == "sukunimi":
-            lastnamePos = i
-        elif one[i].lower().strip() == "yhteystieto":
-            contactPos = i
-        elif one[i].lower().strip() == "sähköpostiosoite":
-            emailPos = i
-        elif one[i].lower().strip() == "lähiosoite":
-            addressPos = i
-        elif one[i].lower().strip() == "postinumero":
-            postalnoPos = i
-        elif one[i].lower().strip() == "postitoimipaikka":
-            cityPos = i
-        elif one[i].lower().strip() == "jäsentyyppi":
-            membertypePos = i
-        elif one[i].lower().strip() == "paperikirje":
-            paperPos = i
-        elif one[i].lower().strip() == "maksuvuosi":
-            paymentyearPos = i
-        i += 1
-
-    emails = []
-
-    line = fil.readline().split(';')
-    while len(line) > 1:
-        if line[paperPos].strip() == "":
-            paper = False
-        else:
-            paper = True
-        receiver = receiverClass(line[firstnamePos], line[lastnamePos], line[contactPos], line[emailPos], line[addressPos], line[postalnoPos], line[cityPos], line[paymentyearPos], line[membertypePos], paper)
-        emails.append(receiver)
-        line = fil.readline().split(';')
 
     # i = 0
     # pos = None
