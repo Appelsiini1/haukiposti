@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import common
+import common, pdf, os, logging
 
 def stickersheet(configs):
 
@@ -11,16 +11,16 @@ def stickersheet(configs):
                 ["Tietoa", ["Apua", "Tietoa"]]]
 
     # -- The layout --
-    frame_layout = [[sg.Text("Tarroja leveyssuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,11)], size=(2,1))],
-                    [sg.Text("Tarroja korkeussuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,11)], size=(2,1))],
-                    [sg.Text("Tarraväli (mm)", font=("Verdana", 12)), sg.Slider(range=(0,10), default_value=0, resolution=(0.1), size=(20,15), orientation="horizontal", font=("Verdana", 9))],
+    frame_layout = [[sg.Text("Tarroja leveyssuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,11)], size=(2,1), key="x")],
+                    [sg.Text("Tarroja korkeussuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,11)], size=(2,1), key="y")],
+                    [sg.Text("Tarraväli (mm)", font=("Verdana", 12)), sg.Slider(range=(0,10), default_value=0, resolution=(0.1), size=(20,15), orientation="horizontal", font=("Verdana", 9), key="div")],
                     [sg.Text("", font=("Verdana", 4))]]
 
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti - tarra-arkki", font=("Verdana", 15, "bold"))],
-                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo jäsentiedot", file_types=(('CSV taulukot', '*.csv*'),))],
-                [sg.Checkbox("Vain ilman sähköpostia", font=("Verdana", 12))],
-                [sg.Text("Paperikoko", font=("Verdana", 12), pad=(1,25)), sg.Combo(["choice 1", "choice 2"])],
+                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo jäsentiedot", file_types=(('CSV taulukot', '*.csv'),))],
+                [sg.Checkbox("Vain ilman sähköpostia", font=("Verdana", 12), key="email")],
+                [sg.Text("Paperikoko", font=("Verdana", 12), pad=(1,25)), sg.Combo(["A4"], key="paper")],
                 [sg.Frame("Tarrakoko", frame_layout, font=("Verdana", 12))],
                 [sg.Text("")], # some space between stuff
                 [sg.Text("Kohdekansio:", font=("Verdana", 12)), sg.Input("", key="targetfolder"), sg.FolderBrowse("Selaa...", target="targetfolder")],
@@ -34,8 +34,20 @@ def stickersheet(configs):
 
         if event == "Peruuta":
             break
+        elif event == "Luo":
+            receivers = common.CSVparser(values['receivers'])
+            logging.debug("{0}, {1}, {2}, {3}".format(values['paper'], values['x'], values['y'], values['div']))
+            path = pdf.stickersheet(values['targetfolder'], receivers, values['paper'], values['x'], values['y'], values['div'])
+            if path == -1:
+                sg.PopupOK("Tiedostoa ei voitu luoda, tiedosto on jonkin toisen prosessin käytössä.")
+            elif path == -2:
+                sg.PopupOK("Jokin meni vikaan arkki luodessa.")
+            else:
+                command = 'cmd /c "start "" "' + path + '"'
+                os.system(command)
+                pass
         elif event == "Apua":
-            sg.PopupOK("Tarra-arkit.")
+            sg.PopupOK("Tarra-arkkien luonti. Määritä arkin koko, tarrojen lukumäärä (leveys- ja korkeussuunnassa)\nsekä anna vastaanottajat sisältävä CSV tiedosto. Tarra-arkit luodaan yhteen tiedostoon antamaasi kohdekansioon.", font=("Verdana", 12))
         elif event == "Tietoa":
             sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
         elif event in (None, "Poistu"):
