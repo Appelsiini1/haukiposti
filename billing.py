@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import pdf, common, datetime, logging, emailFunc
+import pdf, common, datetime, logging, emailFunc, os, time
 
 def billing(configs, service=None):
 
@@ -16,7 +16,7 @@ def billing(configs, service=None):
     message_frame_layout = [[sg.Text("Aihe", font=("Verdana", 12))],
                             [sg.InputText("", key="subject")],
                             [sg.Text("Viesti", font=("Verdana", 12))],
-                            [sg.Multiline(key=("messageText"), size=(60,9))],
+                            [sg.Multiline(key="messageText", size=(60,9))],
                             [sg.Text("Liitteet", font=("Verdana", 12)), sg.Input("", key="attachment"), sg.FilesBrowse("Selaa...", font=("Verdana", 12))]]
 
     bill_frame_layout = [[sg.Text("Eräpäivä", font=("Verdana", 12))],
@@ -30,7 +30,7 @@ def billing(configs, service=None):
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti - laskutus", font=("Verdana", 12, "bold"))],
                 [sg.Text("Vastaanottajat", font=("Verdana", 12))],
-                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat", font=("Verdana", 12), file_types=(('CSV taulukot', '*.csv*'),))],
+                [sg.Input("", key="receivers"), sg.FileBrowse("Tuo vastaanottajat", font=("Verdana", 12), file_types=(('CSV taulukot', '*.csv'),))],
                 [sg.Frame("Viesti", message_frame_layout, font=("Verdana", 12)), sg.Frame("Lasku", bill_frame_layout, font=("Verdana", 12))],
                 [sg.Button("Luo laskut", font=("Verdana", 12)), sg.Button("Lähetä", font=("Verdana", 12)), sg.Button("Esikatsele", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
@@ -43,12 +43,15 @@ def billing(configs, service=None):
     while True:
         event, values = window.read()
 
+        # Cancel
         if event == "Peruuta":
             break
         elif event == "invisible":
             date = values["invisible"]
             formattedDate = date[8:10] + "." + date[5:7] + "." + date[:4]
             window["duedate"].update(value=formattedDate)
+
+        # Create invoices
         elif event == "Luo laskut":
             receivers = common.CSVparser(values["receivers"])
             if receivers == None:
@@ -56,26 +59,30 @@ def billing(configs, service=None):
                 continue
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
 
+            # To one file
             if filesCombined == "Yhteen" and formattedDate and values['subject'] != "" and values['folder'] != "":
                 ret = pdf.createAllInvoices(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, values['paymentyear'], values['logo'])
                 if ret == -1:
                     sg.PopupOK("Tiedostoa ei voitu luoda")
-                    
+            
+            # To individual files
             elif filesCombined == "Erikseen" and formattedDate and values['subject'] != "" and values['folder'] != "":
+                # Progress bar window layout
                 limit = len(receivers)
                 layout2 = [[sg.Text("Luodaan laskuja...", font=("Verdana", 12))],
                         [sg.ProgressBar(limit, orientation='h', size=(30, 20), key='progressbar')],
                         [sg.Button('Peruuta', font=("Verdana", 12))]]
-
                 window2 = sg.Window('Laskujen luonti', layout2)
                 progress_bar = window['progressbar']
                 
+                # Loop for pdf creation
                 i = 0
                 k = 0
                 for receiver in receivers:
                     event, values = window2.read(timeout=1)
                     if event == 'Peruuta' or event is None:
                         break
+                    # If payment year is ignored or is not the current year
                     if (values['paymentyear'] != True) or (values['paymentyear'] == True and receivers[i].paymentyear != year):
                         ret = pdf.createInvoice(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, i, values['logo'])
                         if ret == -1:
@@ -88,32 +95,86 @@ def billing(configs, service=None):
                         continue
                     i += 1
                     progress_bar.UpdateBar(i)
+
+                # Error checking
                 if ret != -1 or event != 'Peruuta':
                     sg.PopupOK("{0} laskua luotu kohdekansioon. Ohitettiin {1} vastaanottajaa.".format(i, k))
                     logging.info("{0} invoices created to {1}. Skipped {2} receivers".format(i, values['folder'], k))
+
             else:
                 sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
 
+        # Send
         elif event == "Lähetä":
-            if service == None:
-                sg.PopupOK("Et ole kirjautunut. Sinut kirjataan nyt sisään.")
-                service = emailFunc.authenticate()
+            ok = sg.PopupOKCancel("Haluatko varmasti lähettää viestin?")
+            if ok.lower() == "ok":
+                if service == None:
+                    sg.PopupOK("Et ole kirjautunut. Sinut kirjataan nyt sisään.")
+                    service = emailFunc.authenticate()
 
-            receivers = common.CSVparser(values["receivers"])
-            if receivers == None:
-                sg.PopupOK("Tuo ensin CSV-tiedosto")
-                continue
+                receivers = common.CSVparser(values["receivers"])
+                if receivers == None:
+                    sg.PopupOK("Tuo ensin CSV-tiedosto")
+                    continue
 
-            limit = len(receivers)
-            layout2 = [[sg.Text("Luodaan laskut ja lähetetään viestit...", font=("Verdana", 12))],
-                    [sg.ProgressBar(limit, orientation='h', size=(30, 20), key='progressbar')],
-                    [sg.Button('Peruuta', font=("Verdana", 12))]]
+                # layout for progress bar window
+                limit = len(receivers)
+                layout2 = [[sg.Text("Luodaan laskut ja lähetetään viestit...", font=("Verdana", 12))],
+                        [sg.ProgressBar(limit, orientation='h', size=(30, 20), key='progressbar')],
+                        [sg.Button('Peruuta', font=("Verdana", 12))]]
+                window2 = sg.Window('Laskujen luonti & lähetys', layout2)
+                progress_bar = window['progressbar']
 
-            window2 = sg.Window('Laskujen luonti', layout2)
-            progress_bar = window['progressbar']
-            for receiver in receivers:
-                pass
-            
+                # loop for sending
+                for receiver in receivers:
+                    event, values = window2.read(timeout=1)
+                    if event == 'Peruuta' or event is None:
+                        break
+
+                    # If payment year is ignored or is not the current year
+                    if (values['paymentyear'] != True) or (values['paymentyear'] == True and receivers[i].paymentyear != year):
+                        ret = pdf.createInvoice(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, i, values['logo'])
+                        if ret == -1:
+                            sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
+                            break
+                        else:
+                            attachements = values["attachment"].split(';')
+                            size = 0
+                            attachements.append(ret) # add the invoice to attachments
+                            if attachements[0] != '':
+                                # size check
+                                for item in attachements:
+                                    size += os.path.getsize(item)
+                                if size > 24000000:
+                                    sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
+                                    ret = -1
+                                    break
+                                else:
+                                    # send message
+                                    htmlText = common.TagsToHTML(values["messageText"], attachements, preview=0)
+                                    encMsg = emailFunc.createMail(configs[1], receiver.email, values["subject"], htmlText, attachements)
+                                    if encMsg:
+                                        msg = emailFunc.sendMail(service, 'me', encMsg)
+                                        if msg:
+                                            sg.PopupOK("Viestin lähetys onnistui.")
+                                            logging.debug(msg)
+                                            logging.info("Message sent.")
+                                    else:
+                                        sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty. Keskeytetään.")
+                                        break
+                        logging.debug("yearbool == False or (== True paymentyear != year)")
+                    else:
+                        logging.debug("Skipping invoice creation on condition; yearbool:{0}, year:{1}, payer:{2}".format(values['paymentyear'], year, receiver.paymentyear))
+                        k += 1
+                        continue
+                    i += 1
+                    progress_bar.UpdateBar(i)
+                    time.sleep(0.1)
+
+                # error checking
+                if ret != -1 or event != 'Peruuta':
+                    sg.PopupOK("{0} laskua luotiin kohdekansioon ja lähetettiin. Ohitettiin {1} vastaanottajaa.".format(i, k))
+                    logging.info("{0} invoices created to {1}. Skipped {2} receivers".format(i, values['folder'], k))
 
         elif event == "Apua":
             apua = """Laskutus. Täältä voit lähettää laskuja.\n

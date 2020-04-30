@@ -2,6 +2,7 @@ try:
     import logging, common, barcode, os, random, datetime, time
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
     from reportlab.lib.units import inch
     from pubcode import Code128
     import PySimpleGUI as sg
@@ -255,6 +256,104 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
 
     # save document
     c.showPage()
+    try:
+        c.save()
+    except PermissionError as e:
+        logging.exception(e)
+        return -1
+
+    return pdfPath
+
+def sticker(c, name, address, postal, contact, x, y, fontsize):
+    textObject = c.beginText()
+    textObject.setTextOrigin(x, y)
+    textObject.setFont("Helvetica", fontsize)
+    textObject.textLine(name)
+    if contact != "":
+        textObject.textLine(contact)
+    textObject.textLine(address)
+    textObject.textLine(postal)
+
+    c.drawText(textObject)
+
+
+def stickersheet(path, receivers, paper, sx, sy, div):
+    """Makes a stickersheet.
+    Args:
+    path = Path to output folder
+    receivers = list of receiver objects
+    paper = paper size
+    sx = number of stickers in x direction
+    sy = number of stickers in y direction
+    div = amount of empty space between stickers in mm
+
+    Returns path to file on success, -1 if PermissionError, -2 if other error"""
+    
+    if paper == "A4":
+        page = A4
+        leveys, korkeus = A4
+        transSizeX = leveys / 210
+        transSizeY = korkeus / 297
+    else:
+        return -2
+
+    date = datetime.date.today().strftime("%d-%m-%Y")
+    clock = time.strftime("%H-%M-%S")
+    year = datetime.date.today().strftime("%Y")
+    name = "Tarra-arkki_" + date + "_" + clock + ".pdf"
+    pdfPath = os.path.join(path, name)
+    c = canvas.Canvas(pdfPath, pagesize=page)
+    # c.translate(leveys, korkeus)
+
+    c.setSubject("Tarra-arkit")
+    c.setCreator(("Haukiposti "+common.version()))
+
+    stickerx = ((210-(sx*div))/sx)*mm
+    stickery = ((297-(sy*div))/sy)*mm
+    totalPerPage = sx*sy
+    marginx = 5*mm
+    marginy = 4*mm
+
+    # font
+    if stickerx < 50 or stickery < 25:
+        fontsize = 10
+    elif stickerx < 70 or stickery < 37:
+        fontsize = 13
+    elif stickerx > 70 or stickery > 37:
+        fontsize = 14
+
+    logging.debug("{0}, {1}, {2}, {3}, {4}, {5}".format(stickerx, stickery, marginx, marginy, totalPerPage, mm))
+
+    i = 1
+    j = 1
+    k = 1
+    x = marginx + div
+    y = korkeus-(marginy + div)-3*mm
+    for receiver in receivers:
+        logging.debug("begin, {0}".format(k))
+        name = receiver.firstname + " " + receiver.lastname
+        postal = receiver.postalno + " " + receiver.city
+        sticker(c, name, receiver.address, postal, receiver.contact, x, y, fontsize)
+        k += 1
+
+        if j == sy and i == sx:
+            c.showPage()
+            i = 1
+            j = 1
+            x = marginx + div
+            y = korkeus-(marginy + div)-4*mm
+            logging.debug("j == sy, {0}, {1}".format(x, y))
+        elif i < sx:
+            x += stickerx + div
+            i += 1
+            logging.debug("i<sx, {0}".format(x))
+        elif i == sx:
+            x = marginx + div
+            y -= stickery + div
+            i = 1
+            j += 1
+            logging.debug("i == sx, {0}, {1}, {2}, {3}".format(x, y, j, sy))
+
     try:
         c.save()
     except PermissionError as e:
