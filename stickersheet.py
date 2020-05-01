@@ -11,8 +11,8 @@ def stickersheet(configs):
                 ["Tietoa", ["Apua", "Tietoa"]]]
 
     # -- The layout --
-    frame_layout = [[sg.Text("Tarroja leveyssuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,11)], size=(2,1), key="x")],
-                    [sg.Text("Tarroja korkeussuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,11)], size=(2,1), key="y")],
+    frame_layout = [[sg.Text("Tarroja leveyssuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,7)], size=(2,1), key="x")],
+                    [sg.Text("Tarroja korkeussuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,16)], size=(2,1), key="y")],
                     [sg.Text("Tarraväli (mm)", font=("Verdana", 12)), sg.Slider(range=(0,10), default_value=0, resolution=(0.1), size=(20,15), orientation="horizontal", font=("Verdana", 9), key="div")],
                     [sg.Text("", font=("Verdana", 4))]]
 
@@ -36,16 +36,21 @@ def stickersheet(configs):
             break
         elif event == "Luo":
             receivers = common.CSVparser(values['receivers'])
-            logging.debug("{0}, {1}, {2}, {3}".format(values['paper'], values['x'], values['y'], values['div']))
-            path = pdf.stickersheet(values['targetfolder'], receivers, values['paper'], values['x'], values['y'], values['div'])
-            if path == -1:
-                sg.PopupOK("Tiedostoa ei voitu luoda, tiedosto on jonkin toisen prosessin käytössä.")
-            elif path == -2:
-                sg.PopupOK("Jokin meni vikaan arkki luodessa.")
+            if receivers:
+                logging.debug("{0}, {1}, {2}, {3}".format(values['paper'], values['x'], values['y'], values['div']))
+                if values['targetfolder'] != "" and values['paper'] != "":
+                    path = pdf.stickersheet(values['targetfolder'], receivers, values['paper'], values['x'], values['y'], values['div'])
+                    if path == -1:
+                        sg.PopupOK("Tiedostoa ei voitu luoda, tiedosto on jonkin toisen prosessin käytössä.")
+                    elif path == -2:
+                        sg.PopupOK("Jokin meni vikaan arkkia luodessa.")
+                    else:
+                        command = 'cmd /c "start "" "' + path + '"'
+                        os.system(command)
+                else:
+                    sg.PopupOK("Tarkista, kaikki kentät on täytetty.")
             else:
-                command = 'cmd /c "start "" "' + path + '"'
-                os.system(command)
-                pass
+                sg.PopupOK("CSV-tiedoston lukemisessa tapahtui virhe.")
         elif event == "Apua":
             sg.PopupOK("Tarra-arkkien luonti. Määritä arkin koko, tarrojen lukumäärä (leveys- ja korkeussuunnassa)\nsekä anna vastaanottajat sisältävä CSV tiedosto. Tarra-arkit luodaan yhteen tiedostoon antamaasi kohdekansioon.", font=("Verdana", 12))
         elif event == "Tietoa":

@@ -128,6 +128,8 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     c.setFont("Helvetica", 11)
 
     # TODO Saate
+    message = c.beginText()
+    
 
     # Receiver information
     c.drawString(margin, getY(5), config[3]) # receiver account number
@@ -308,21 +310,22 @@ def stickersheet(path, receivers, paper, sx, sy, div):
     c.setSubject("Tarra-arkit")
     c.setCreator(("Haukiposti "+common.version()))
 
-    stickerx = ((210-(sx*div))/sx)*mm
-    stickery = ((297-(sy*div))/sy)*mm
+    stickerx = ((210-sx)/sx)*mm
+    stickery = ((297-sy)/sy)*mm
     totalPerPage = sx*sy
     marginx = 5*mm
     marginy = 4*mm
 
     # font
-    if stickerx < 50 or stickery < 25:
-        fontsize = 10
-    elif stickerx < 70 or stickery < 37:
+    if sx < 5:
         fontsize = 13
-    elif stickerx > 70 or stickery > 37:
-        fontsize = 14
+    elif sx < 6 :
+        fontsize = 9
+    elif sx < 7:
+        fontsize = 5
+    
 
-    logging.debug("{0}, {1}, {2}, {3}, {4}, {5}".format(stickerx, stickery, marginx, marginy, totalPerPage, mm))
+    logging.debug("{0}, {1}, {2}, {3}, {4}, {5}".format(stickerx, stickery, marginx, marginy, fontsize, mm))
 
     i = 1
     j = 1
@@ -340,16 +343,16 @@ def stickersheet(path, receivers, paper, sx, sy, div):
             c.showPage()
             i = 1
             j = 1
-            x = marginx + div
-            y = korkeus-(marginy + div)-4*mm
+            x = marginx
+            y = korkeus-marginy-4*mm
             logging.debug("j == sy, {0}, {1}".format(x, y))
         elif i < sx:
             x += stickerx + div
             i += 1
             logging.debug("i<sx, {0}".format(x))
         elif i == sx:
-            x = marginx + div
-            y -= stickery + div
+            x = marginx
+            y -= stickery
             i = 1
             j += 1
             logging.debug("i == sx, {0}, {1}, {2}, {3}".format(x, y, j, sy))
