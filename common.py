@@ -264,3 +264,74 @@ def TagsToHTML(text, paths, preview, *args):
 
     text = start + text + end
     return text
+
+def finder(text):
+
+    bold = text.find('**')
+    ital = text.find('__')
+    under = text.find('||')
+
+    if bold == -1:
+        bold = 9999999
+    if ital == -1:
+        ital = 9999999
+    if under == -1:
+        under = 9999999
+
+    if bold < ital and bold < under:
+        return ([True, False, False], bold)
+    elif ital < bold and ital < under:
+        return ([False, True, False], ital)
+    elif under < bold and under < ital:
+        return ([False, False, True], under)
+    else:
+        return None
+
+
+def TagsToPDF(text):
+    # **text** = <b></b> bolding
+    # __text__ = <i></i> italic
+    # ||text|| = <u></u> underlined
+
+    finalList = []
+
+    res = finder(text)
+    if res == None:
+        return [[False, False, False], text]
+    if res[1] > 0:
+        finalList.append(([False, False, False], text[:res[1]]))
+        text = text[res[1]:]
+
+    while res != -1:
+        res2 = finder(text[2:])
+
+        if res[0] == res2[0]:
+            finalList.append((res[0], text[2:res2[1]+2]))
+            text = text[res2[1]+4:]
+        else:
+            res3 = finder(text[res2[1]+4:])
+            tempBool = [False, False, False]
+            if res3[0] == res2[0]:
+                if res3[0][0] or res2[0][0] or res[0][0]:
+                    tempBool[0] = True
+                if res[0][1] or res2[0][1] or res3[0][1]:
+                    tempBool[1] = True
+                if res[0][2] or res2[0][2] or res3[0][2]:
+                    tempBool[2] = True
+                finalList.append((tempBool, text[4:res3[1]+4]))
+                text = text[res3[1]+8:]
+            else:
+                res4 = finder(text[res3[1]+6:])
+                finalList.append(([True, True, True], text[res3[1]+6:res4[1]+6]))
+                text = text[res4[1]+12:]
+        
+        res = finder(text)
+        if res == None:
+            finalList.append(([False, False, False], text))
+            break
+        elif res[1] > 0:
+            finalList.append(([False, False, False], text[:res[1]]))
+            text = text[res[1]:]
+            res = finder(text)
+
+    return finalList
