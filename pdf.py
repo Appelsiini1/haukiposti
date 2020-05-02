@@ -128,7 +128,25 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     c.setFont("Helvetica", 11)
 
     # TODO Saate
-    message = c.beginText()
+    m = c.beginText()
+    m.setTextOrigin(25, korkeus-125)
+    newLines = message.spli('\n')
+    for item in newLines:
+        line = common.markdownParserPDF(item)
+        if line == []:
+            break
+        for text in line:
+            if text[0] == [False, False, False]:
+                m.setFont("Helvetica", 12)
+            elif text[0] == [True, False, False]:
+                m.setFont("Helvetica-Bold", 12)
+            elif text[0] == [False, True, False]:
+                m.setFont("Helvetica-Oblique", 12)
+            elif text[0] == [True, True, False]:
+                m.setFont("Helvetica-BoldOblique", 12)
+            m.textOut(text[1])
+        m.moveCursor(0, 12)
+    c.drawText(m)
     
 
     # Receiver information
@@ -287,7 +305,7 @@ def stickersheet(path, receivers, paper, sx, sy, div):
     paper = paper size
     sx = number of stickers in x direction
     sy = number of stickers in y direction
-    div = amount of empty space between stickers in mm
+    div = amount of empty space between stickers in mm in x direction
 
     Returns path to file on success, -1 if PermissionError, -2 if other error"""
     
