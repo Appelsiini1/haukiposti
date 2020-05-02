@@ -131,6 +131,9 @@ def billing(configs, service=None):
                     if event == 'Peruuta' or event is None:
                         break
 
+                    if receiver.email == "":
+                        continue
+
                     # If payment year is ignored or is not the current year
                     if (values['paymentyear'] != True) or (values['paymentyear'] == True and receivers[i].paymentyear != year):
                         ret = pdf.createInvoice(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, i, values['logo'])
@@ -176,16 +179,20 @@ def billing(configs, service=None):
                     sg.PopupOK("{0} laskua luotiin kohdekansioon ja lähetettiin. Ohitettiin {1} vastaanottajaa.".format(i, k))
                     logging.info("{0} invoices created to {1}. Skipped {2} receivers".format(i, values['folder'], k))
 
+        elif event == "Esikatsele":
+            pass
+
         elif event == "Apua":
             apua = """Laskutus. Täältä voit lähettää laskuja.\n
     Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
     Tekstin erikoismerkit:\n
     **tekstiä** == Lihavoitu\n
-    __tekstiä__ == Kursivoitu\n
-    ||tekstiä|| == Alleviivattu\n
+    ||tekstiä|| == Kursivoitu\n
+    __tekstiä__ == Alleviivattu\n
     @@linkki@@tekstiä@@ == Tekstin seassa oleva linkki. Mikäli haluat linkin näkyvän linkkinä, kopioi linkki myös tekstin paikalle.\n
     $$img$$ == Tekstin seassa olevat kuvat määritetään tällä tagilla. Valitse kuvat liitteeksi. Liitteiden järjestyksellä ei ole väliä.\n
-    Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)"""
+    Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)\n
+    \nHUOM! Alleviivaus, linkit ja kuvat eivät toimi saatekirjeessä."""
             sg.PopupOK(apua, title="Apua", font=("Verdana", 12))
         elif event == "Tietoa":
             sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))

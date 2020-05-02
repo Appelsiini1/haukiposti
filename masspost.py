@@ -22,7 +22,7 @@ def preview(text, images):
             i += 1
             
     preview = 1
-    htmlText = common.TagsToHTML(text, images, preview, paths)
+    htmlText = common.markdownParserHTML(text, images, preview, paths)
     if htmlText == -1:
         return -1
     try:
@@ -81,7 +81,7 @@ def massPost(configs, service):
                         sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
                     else:
                         text = values["messageText"]
-                        htmlText = common.TagsToHTML(text, attachements, preview=0)
+                        htmlText = common.markdownParserHTML(text, attachements, preview=0)
                         receivers = common.CSVparser(values["receivers"])
                         emailString = ""
                         if receivers:
@@ -100,7 +100,7 @@ def massPost(configs, service):
                             sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
                 else:
                     text = values["messageText"]
-                    htmlText = common.TagsToHTML(text, attachements, preview=0)
+                    htmlText = common.markdownParserHTML(text, attachements, preview=0)
                     receivers = common.CSVparser(values["receivers"])
                     emailString = ""
                     if receivers:
@@ -123,8 +123,8 @@ def massPost(configs, service):
     Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
     Tekstin erikoismerkit:\n
     **tekstiä** == Lihavoitu\n
-    __tekstiä__ == Kursivoitu\n
-    ||tekstiä|| == Alleviivattu\n
+    ||tekstiä|| == Kursivoitu\n
+    __tekstiä__ == Alleviivattu\n
     @@linkki@@tekstiä@@ == Tekstin seassa oleva linkki. Mikäli haluat linkin näkyvän linkkinä, kopioi linkki myös tekstin paikalle.\n
     $$img$$ == Tekstin seassa olevat kuvat määritetään tällä tagilla. Valitse kuvat liitteeksi. Liitteiden järjestyksellä ei ole väliä.\n
     Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)"""

@@ -27,7 +27,7 @@ class receiverClass():
         print("Paper: ", self.paper)
 
 def version():
-    return "V0.7.0"
+    return "V0.9.0"
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -179,7 +179,7 @@ def CSVparser(file):
     # fil.close()
     return emails
 
-def TagsToHTML(text, paths, preview, *args):
+def markdownParserHTML(text, paths, preview, *args):
     # **text** = <b></b> bolding
     # __text__ = <i></i> italic
     # ||text|| = <u></u> underlined
@@ -214,8 +214,8 @@ def TagsToHTML(text, paths, preview, *args):
     #italic
     tempText = text
     while True:
-        text = text.replace('__', '<i>', 1)
-        text = text.replace('__', '</i>', 1)
+        text = text.replace('||', '<i>', 1)
+        text = text.replace('||', '</i>', 1)
         if text == tempText:
             break
         else:
@@ -224,8 +224,8 @@ def TagsToHTML(text, paths, preview, *args):
     #underlined
     tempText = text
     while True:
-        text = text.replace('||', '<u>', 1)
-        text = text.replace('||', '</u>', 1)
+        text = text.replace('__', '<u>', 1)
+        text = text.replace('__', '</u>', 1)
         if text == tempText:
             break
         else:
@@ -268,8 +268,8 @@ def TagsToHTML(text, paths, preview, *args):
 def finder(text):
 
     bold = text.find('**')
-    ital = text.find('__')
-    under = text.find('||')
+    ital = text.find('||')
+    under = text.find('__')
 
     if bold == -1:
         bold = 9999999
@@ -288,7 +288,7 @@ def finder(text):
         return None
 
 
-def TagsToPDF(text):
+def markdownParserPDF(text):
     # **text** = <b></b> bolding
     # __text__ = <i></i> italic
     # ||text|| = <u></u> underlined
