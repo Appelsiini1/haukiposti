@@ -154,7 +154,7 @@ def billing(configs, service=None):
                                     break
                                 else:
                                     # send message
-                                    htmlText = common.TagsToHTML(values["messageText"], attachements, preview=0)
+                                    htmlText = common.markdownParserHTML(values["messageText"], attachements, preview=0)
                                     encMsg = emailFunc.createMail(configs[1], receiver.email, values["subject"], htmlText, attachements)
                                     if encMsg:
                                         msg = emailFunc.sendMail(service, 'me', encMsg)
