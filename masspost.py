@@ -70,8 +70,8 @@ def massPost(configs, service):
             if preview(text, attachments) == -1:
                 sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
         elif event == "Lähetä":
-            ok = sg.PopupOKCancel("Haluatko varmasti lähettää viestin?")
-            if ok.lower() == "ok":
+            ok = sg.Popup("Haluatko varmasti lähettää viestin?", custom_text=("Kyllä", "Ei"))
+            if ok == "Kyllä":
                 attachments = values["attachment"].split(';')
                 size = 0
                 if attachments[0] != '':
