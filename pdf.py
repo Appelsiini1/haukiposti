@@ -1,5 +1,5 @@
 try:
-    import logging, common, barcode, os, random, datetime, time
+    import logging, common, barcode, os, random, datetime, time, csv
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import mm
@@ -39,6 +39,7 @@ def createBarcode(reference, account, amount, duedate, i):
     code = code + "000"
     while len(reference) < 20:
         reference = "0" + reference
+    code = code + reference
     due = duedate.split('.')
     code = code + due[2][2:]
     code = code + due[1]
@@ -48,7 +49,7 @@ def createBarcode(reference, account, amount, duedate, i):
     img = barcode.image()
 
     name = "barcode" + str(i) + ".png"
-    imgPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"+ "\\barcodes"), name)
+    imgPath = os.path.join(os.getenv("APPDATA"), "Haukiposti", "barcodes", name)
     img.save(imgPath, "PNG")
 
     return code, imgPath
@@ -86,7 +87,6 @@ def reference():
             k += 1
 
     ref = raw[::-1] + str(k)
-    ref = ref[:5] + " " + ref[5:]
         
     return ref
 
@@ -103,6 +103,9 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     i = index number for barcode
     logo = path to the logo file if spesified. Default None
     """
+
+    sg.theme(config[0])
+
     #measurements
     leveys, korkeus = A4
     transSizeX = leveys / 210
@@ -116,12 +119,12 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     c.setAuthor(config[2])
     c.setTitle(subject)
     c.setSubject(subject)
-    c.setCreator(("Haukiposti "+common.version))
+    c.setCreator(("Haukiposti "+common.version()))
 
     if logo != "":
         c.drawImage(logo, 25, korkeus-110, width=110, height=110, preserveAspectRatio=True)
     c.line(25, korkeus-100, leveys-25, korkeus-100)
-    c.drawImage(base, 0, 0, width=(transSizeX*210), height=(transSizeY*101.6), preserveAspectRatio=True) # bank transfer base
+    c.drawImage(base, 0, 10, width=(transSizeX*210), height=(transSizeY*101.6), preserveAspectRatio=True) # bank transfer base
     
     c.setFont("Helvetica-Bold", 18)
     c.drawString(250, korkeus-60, subject)
@@ -129,22 +132,37 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
 
     # TODO Saate
     m = c.beginText()
-    m.setTextOrigin(25, korkeus-125)
-    newLines = message.spli('\n')
+    m.setTextOrigin(25, korkeus-135)
+    newLines = message.split('\n')
     for item in newLines:
         line = common.markdownParserPDF(item)
+        if line == -1:
+            sg.PopupOK("Viallinen muotoilu saatteessa. Tarkista, että suljet ja aloita tagit oikein. Keskeytetään.")
+            return -1
+        logging.debug(line)
         if line == []:
             break
-        for text in line:
-            if text[0] == [False, False, False]:
+        elif len(line) == 2 and type(line[1]) == str:
+            if line[0] == [False, False, False] or line[0] == [False, False, True]:
                 m.setFont("Helvetica", 12)
-            elif text[0] == [True, False, False]:
+            elif line[0] == [True, False, False] or line[0] == [True, False, True]:
                 m.setFont("Helvetica-Bold", 12)
-            elif text[0] == [False, True, False]:
+            elif line[0] == [False, True, False] or line[0] == [False, True, True]:
                 m.setFont("Helvetica-Oblique", 12)
-            elif text[0] == [True, True, False]:
+            elif line[0] == [True, True, False] or line[0] == [True, True, True]:
                 m.setFont("Helvetica-BoldOblique", 12)
-            m.textOut(text[1])
+            m.textOut(line[1])
+        else:
+            for text in line:
+                if text[0] == [False, False, False] or text[0] == [False, False, True]:
+                    m.setFont("Helvetica", 12)
+                elif text[0] == [True, False, False] or text[0] == [True, False, True]:
+                    m.setFont("Helvetica-Bold", 12)
+                elif text[0] == [False, True, False] or text[0] == [False, True, True]:
+                    m.setFont("Helvetica-Oblique", 12)
+                elif text[0] == [True, True, False] or text[0] == [True, True, True]:
+                    m.setFont("Helvetica-BoldOblique", 12)
+                m.textOut(text[1])
         m.moveCursor(0, 12)
     c.drawText(m)
     
@@ -170,12 +188,23 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
 
     # Reference information
     c.drawString(margin2, getY(25), "Käytäthän maksaessasi viitenumeroa.")
-    c.drawString(margin3, getY(30), reference)
+    ref = reference[:5] + " " + reference[5:]
+    c.drawString(margin3, getY(30), ref)
     c.drawString(margin3, getY(34), duedate)
 
-    classes = config[4]
-    for item in classes:
-        cl = item.split(',')
+    # Amount
+    amount = None
+    memberList = [config[4]]
+    parser = csv.reader(memberList)
+    memberString = []
+    for fields in parser:
+        for field in fields:
+            string = field.split(",")
+            member = string[0] + ":" + string[1]
+            memberString.append(member)
+
+    for item in memberString:
+        cl = item.split(':')
         if cl[0].lower() == receiver.membertype.lower():
             if len(cl[1].split('.')) > 1:
                 amount = cl[1]
@@ -188,9 +217,11 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     c.drawString((margin3+transSizeX*40), getY(34), amount)
 
     virtualbc, bc_img = createBarcode(reference, config[3], amount, duedate, i)
-    c.setFontSize(9.5)
+    c.setFontSize(9.4)
     c.drawString(37, 22+transSizeY*12, virtualbc)
     c.drawImage(bc_img, 30, 17, transSizeX*105, transSizeY*12, preserveAspectRatio=False)
+
+    c.showPage()
 
 
 def createAllInvoices(config, receivers, subject, path, message, duedate, reference, yearbool, logo=None):
@@ -219,7 +250,7 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
 
     date = datetime.date.today().strftime("%d-%m-%Y")
     clock = time.strftime("%H-%M-%S")
-    year = datetime.date.today.strftime("%Y")
+    year = datetime.date.today().strftime("%Y")
     name = "Laskut_" + date + "_" + clock + ".pdf"
     pdfPath = os.path.join(path, name)
     c = canvas.Canvas(pdfPath, pagesize=A4)
@@ -230,16 +261,22 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
         if event == 'Peruuta' or event is None:
             return -2
         if yearbool != True:
-            definePage(c, config, receivers[i], path, message, duedate, subject, reference, i, logo)
+            ret = definePage(c, config, receivers[i], path, message, duedate, subject, reference, i, logo)
+            if ret == -1:
+                return -2
             logging.debug("yearbool == False")
         elif yearbool == True and receivers[i].paymentyear != year:
-            definePage(c, config, receivers[i], path, message, duedate, subject, reference, i, logo)
+            ret = definePage(c, config, receivers[i], path, message, duedate, subject, reference, i, logo)
+            if ret == -1:
+                return -2
             logging.debug("yearbool == True and paymentyear != year")
         else:
             logging.debug("Skipping invoice creation on condition; yearbool:{0}, year:{1}, payer:{2}".format(yearbool, year, receivers[i].paymentyear))
+            i += 1
             continue
         i += 1
         progress_bar.UpdateBar(i)
+        time.sleep(0.2)
 
     window.close()
 
@@ -266,16 +303,18 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
 
     Returns the path to the created pdf.
     Returns -1 if PermissionError (file opened in a another application)
+    Returns -2 if other error
     """
     #canvas settings
     name = receiver.firstname + "_" + receiver.lastname + ".pdf"
     pdfPath = os.path.join(path, name)
     c = canvas.Canvas(pdfPath, pagesize=A4)
 
-    definePage(c, config, receiver, path, message, duedate, subject, reference, i, logo)
+    ret = definePage(c, config, receiver, path, message, duedate, subject, reference, i, logo)
+    if ret == -1:
+        return -2
 
     # save document
-    c.showPage()
     try:
         c.save()
     except PermissionError as e:
