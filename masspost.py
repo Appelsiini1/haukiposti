@@ -65,29 +65,29 @@ def massPost(configs, service):
         if event == "Peruuta":
             break
         elif event == "Esikatsele":
-            attachements = values["attachment"].split(';')
+            attachments = values["attachment"].split(';')
             text = values["messageText"]
-            if preview(text, attachements) == -1:
+            if preview(text, attachments) == -1:
                 sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
         elif event == "Lähetä":
             ok = sg.PopupOKCancel("Haluatko varmasti lähettää viestin?")
             if ok.lower() == "ok":
-                attachements = values["attachment"].split(';')
+                attachments = values["attachment"].split(';')
                 size = 0
-                if attachements[0] != '':
-                    for item in attachements:
+                if attachments[0] != '':
+                    for item in attachments:
                         size += os.path.getsize(item)
                     if size > 24000000:
                         sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
                     else:
                         text = values["messageText"]
-                        htmlText = common.markdownParserHTML(text, attachements, preview=0)
+                        htmlText = common.markdownParserHTML(text, attachments, preview=0)
                         receivers = common.CSVparser(values["receivers"])
                         emailString = ""
                         if receivers:
                             for item in receivers:
                                 emailString = emailString + item.email + ";"
-                            encMsg = mail.createMail(configs[1], emailString, values["subject"], htmlText, attachements)
+                            encMsg = mail.createMail(configs[1], emailString, values["subject"], htmlText, attachments)
                             if encMsg:
                                 msg = mail.sendMail(service, 'me', encMsg)
                                 if msg:
@@ -100,13 +100,13 @@ def massPost(configs, service):
                             sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
                 else:
                     text = values["messageText"]
-                    htmlText = common.markdownParserHTML(text, attachements, preview=0)
+                    htmlText = common.markdownParserHTML(text, attachments, preview=0)
                     receivers = common.CSVparser(values["receivers"])
                     emailString = ""
                     if receivers:
                         for item in receivers:
                             emailString = emailString + item.email + ";"
-                        encMsg = mail.createMail(configs[1], emailString, values["subject"], htmlText, attachements)
+                        encMsg = mail.createMail(configs[1], emailString, values["subject"], htmlText, attachments)
                         if encMsg:
                             msg = mail.sendMail(service, 'me', encMsg)
                             if msg:

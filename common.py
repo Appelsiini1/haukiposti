@@ -185,7 +185,6 @@ def markdownParserHTML(text, paths, preview, *args):
     # ||text|| = <u></u> underlined
     # @@link@@text@@ = <a href="">*text*</a> link
     # $$img$$ = <p><img src="cid:0"></p> embedded image (cid:x number of image)
-    # TODO: Size option to images??
     # Font is spesified to 'Calibri'
 
     try:
