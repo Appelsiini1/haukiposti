@@ -303,12 +303,17 @@ def markdownParserPDF(text):
 
     while res != -1:
         res2 = finder(text[2:])
+        if res2 == None:
+            return -1
 
         if res[0] == res2[0]:
             finalList.append((res[0], text[2:res2[1]+2]))
             text = text[res2[1]+4:]
         else:
             res3 = finder(text[res2[1]+4:])
+            if res3 == None:
+                return -1
+
             tempBool = [False, False, False]
             if res3[0] == res2[0]:
                 if res3[0][0] or res2[0][0] or res[0][0]:
@@ -321,6 +326,8 @@ def markdownParserPDF(text):
                 text = text[res3[1]+8:]
             else:
                 res4 = finder(text[res3[1]+6:])
+                if res4 == None:
+                    return -1
                 finalList.append(([True, True, True], text[res3[1]+6:res4[1]+6]))
                 text = text[res4[1]+12:]
         
