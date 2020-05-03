@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import pdf, common, datetime, logging, emailFunc, os, time
+import pdf, common, datetime, logging, emailFunc, os, time, masspost
 
 def billing(configs, service=None):
 
@@ -141,12 +141,12 @@ def billing(configs, service=None):
                             sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
                             break
                         else:
-                            attachements = values["attachment"].split(';')
+                            attachments = values["attachment"].split(';')
                             size = 0
-                            attachements.append(ret) # add the invoice to attachments
-                            if attachements[0] != '':
+                            attachments.append(ret) # add the invoice to attachments
+                            if attachments[0] != '':
                                 # size check
-                                for item in attachements:
+                                for item in attachments:
                                     size += os.path.getsize(item)
                                 if size > 24000000:
                                     sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
@@ -154,8 +154,8 @@ def billing(configs, service=None):
                                     break
                                 else:
                                     # send message
-                                    htmlText = common.markdownParserHTML(values["messageText"], attachements, preview=0)
-                                    encMsg = emailFunc.createMail(configs[1], receiver.email, values["subject"], htmlText, attachements)
+                                    htmlText = common.markdownParserHTML(values["messageText"], attachments, preview=0)
+                                    encMsg = emailFunc.createMail(configs[1], receiver.email, values["subject"], htmlText, attachments)
                                     if encMsg:
                                         msg = emailFunc.sendMail(service, 'me', encMsg)
                                         if msg:
@@ -180,7 +180,24 @@ def billing(configs, service=None):
                     logging.info("{0} invoices created to {1}. Skipped {2} receivers".format(i, values['folder'], k))
 
         elif event == "Esikatsele":
-            pass
+            receivers = common.CSVparser(values["receivers"])
+            if receivers == None:
+                sg.PopupOK("Tuo ensin CSV-tiedosto")
+                continue
+            if (values['paymentyear'] != True) or (values['paymentyear'] == True and receivers[i].paymentyear != year):
+                ret = pdf.createInvoice(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, i, values['logo'])
+                if ret == -1:
+                    sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
+                    continue
+                else:
+                    command = 'cmd /c "start "" "' + ret + '"'
+                    os.system(command)
+
+                attachments = values["attachment"].split(';')
+                text = values["messageText"]
+                if masspost.preview(text, attachments) == -1:
+                    sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
+                
 
         elif event == "Apua":
             apua = """Laskutus. Täältä voit lähettää laskuja.\n
