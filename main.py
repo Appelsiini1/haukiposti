@@ -142,6 +142,7 @@ def main():
                 os.remove(folderpath+ "/"+i)
             os.rmdir(folderpath)
         window1.close()
+        exit(0)
     except Exception as e:
         logging.exception(e)
 
