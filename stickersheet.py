@@ -18,6 +18,7 @@ def stickersheet(configs):
 
     layout = [ [sg.Menu(menu_def)],
                 [sg.Text("Haukiposti - tarra-arkki", font=("Verdana", 15, "bold"))],
+                [sg.Text("Jäsentiedot", font=("Verdana", 12))],
                 [sg.Input("", key="receivers"), sg.FileBrowse("Tuo jäsentiedot", file_types=(('CSV taulukot', '*.csv'),))],
                 [sg.Checkbox("Vain ilman sähköpostia", font=("Verdana", 12), key="email")],
                 [sg.Text("Paperikoko", font=("Verdana", 12), pad=(1,25)), sg.Combo(["A4"], key="paper")],
