@@ -87,7 +87,7 @@ def massPost(configs, service):
                         if receivers:
                             for item in receivers:
                                 emailString = emailString + item.email + ";"
-                            encMsg = mail.createMail(configs[1], emailString, values["subject"], htmlText, attachments)
+                            encMsg = mail.createMail("", emailString, values["subject"], htmlText, attachments)
                             if encMsg:
                                 msg = mail.sendMail(service, 'me', encMsg)
                                 if msg:
