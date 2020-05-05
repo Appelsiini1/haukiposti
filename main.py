@@ -116,6 +116,9 @@ def main():
                 window1.Hide()
                 settings.settings(configs)
                 configs = updateConfig(configs)
+                if os.path.exists(os.getenv("APPDATA") + "\\Haukiposti\\token.pickle") == False:
+                    window1["login"].update("Kirjaudu", disabled=False)
+                    service = None
                 window1.UnHide()
             elif event == "login":
                 service = mail.authenticate()
