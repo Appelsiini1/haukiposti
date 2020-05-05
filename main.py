@@ -99,10 +99,7 @@ def main():
 
             if event == "Massaposti":
                 window1.Hide()
-                if service:
-                    masspost.massPost(configs, service)
-                else:
-                    sg.PopupOK("Et ole kirjautunut. Ole hyvä ja kirjaudu ensin.", font=("Verdana", 12))
+                masspost.massPost(configs, service)
                 window1.UnHide()
             elif event == "Laskutus":
                 window1.Hide()

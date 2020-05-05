@@ -70,15 +70,40 @@ def massPost(configs, service):
             if preview(text, attachments) == -1:
                 sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
         elif event == "Lähetä":
-            ok = sg.Popup("Haluatko varmasti lähettää viestin?", custom_text=("Kyllä", "Ei"))
-            if ok == "Kyllä":
-                attachments = values["attachment"].split(';')
-                size = 0
-                if attachments[0] != '':
-                    for item in attachments:
-                        size += os.path.getsize(item)
-                    if size > 24000000:
-                        sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
+            if service == None:
+                yesno = sg.Popup("Et ole kirjautunut sisään. Haluatko kirjautua sisään nyt?", custom_text=("Kyllä", "Ei"))
+                if yesno == "Kyllä":
+                    service = mail.authenticate()
+                else:
+                    continue
+                ok = sg.Popup("Haluatko varmasti lähettää viestin?", custom_text=("Kyllä", "Ei"))
+                if ok == "Kyllä":
+                    attachments = values["attachment"].split(';')
+                    size = 0
+                    if attachments[0] != '':
+                        for item in attachments:
+                            size += os.path.getsize(item)
+                        if size > 24000000:
+                            sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
+                        else:
+                            text = values["messageText"]
+                            htmlText = common.markdownParserHTML(text, attachments, preview=0)
+                            receivers = common.CSVparser(values["receivers"])
+                            emailString = ""
+                            if receivers:
+                                for item in receivers:
+                                    emailString = emailString + item.email + ";"
+                                encMsg = mail.createMail("", emailString, values["subject"], htmlText, attachments)
+                                if encMsg:
+                                    msg = mail.sendMail(service, 'me', encMsg)
+                                    if msg:
+                                        sg.PopupOK("Viestin lähetys onnistui.")
+                                        logging.debug(msg)
+                                        logging.info("Message sent.")
+                                else:
+                                    sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
+                            else:
+                                sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
                     else:
                         text = values["messageText"]
                         htmlText = common.markdownParserHTML(text, attachments, preview=0)
@@ -87,7 +112,7 @@ def massPost(configs, service):
                         if receivers:
                             for item in receivers:
                                 emailString = emailString + item.email + ";"
-                            encMsg = mail.createMail("", emailString, values["subject"], htmlText, attachments)
+                            encMsg = mail.createMail(configs[1], emailString, values["subject"], htmlText, attachments)
                             if encMsg:
                                 msg = mail.sendMail(service, 'me', encMsg)
                                 if msg:
@@ -98,25 +123,6 @@ def massPost(configs, service):
                                 sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
                         else:
                             sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
-                else:
-                    text = values["messageText"]
-                    htmlText = common.markdownParserHTML(text, attachments, preview=0)
-                    receivers = common.CSVparser(values["receivers"])
-                    emailString = ""
-                    if receivers:
-                        for item in receivers:
-                            emailString = emailString + item.email + ";"
-                        encMsg = mail.createMail(configs[1], emailString, values["subject"], htmlText, attachments)
-                        if encMsg:
-                            msg = mail.sendMail(service, 'me', encMsg)
-                            if msg:
-                                sg.PopupOK("Viestin lähetys onnistui.")
-                                logging.debug(msg)
-                                logging.info("Message sent.")
-                        else:
-                            sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
-                    else:
-                        sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
 
         elif event == "Apua":
             apua = """Massaposti. Täältä voit lähettää massapostia.\n
