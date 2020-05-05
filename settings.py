@@ -3,10 +3,10 @@ import csv, os, configparser, common
 from pathlib import Path
 
 # (Re)writes the config file to /AppData/Roaming/Haukiposti (Haukiposti folder is created if needed)
-def createSettingFile(theme, email, paymentreceiver, accnum, writeString, bankBIC):
+def createSettingFile(theme, paymentreceiver, accnum, writeString, bankBIC):
     config = configparser.ConfigParser()
     config["haukiposti"] = {"theme": theme,
-                            "email": email,
+                            "email": "",
                             "paymentreceiver": paymentreceiver,
                             "accountnumber": accnum,
                             "memberclasses": writeString,
@@ -19,6 +19,15 @@ def createSettingFile(theme, email, paymentreceiver, accnum, writeString, bankBI
     with open(completeName, "w") as configfile:
         config.write(configfile)
     configfile.close()
+
+def deleteLogin():
+    path = os.getenv("APPDATA") + "\\Haukiposti"
+
+    if os.path.exists(path + "\\token.pickle"):
+        os.remove(path + "\\token.pickle")
+        sg.PopupOK("Kirjautumistiedot poistettu.")
+    else:
+        sg.PopupOK("Kirjautumistietoja ei ole olemassa")
 
 def bankToBIC(bank):
     if bank == "Aktia":
@@ -98,8 +107,7 @@ def settings(configs):
                 [sg.Text("Haukiposti - asetukset", font=("Verdana", 14, "bold"))],
                 [sg.Text("Teema", font=("Verdana", 12)), sg.Radio("Vaalea", "THEME", key="themelight", font=("Verdana", 12), default=light), sg.Radio("Tumma", "THEME", key="themedark", font=("Verdana", 12), default=dark)],
                 [sg.Text("Huom! Vaatii uudelleenkäynnistyksen", font=("Verdana", 12))],
-                [sg.Text("")], # some space between stuff
-                [sg.Text("Lähettäjän sähköposti", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[1], key="senderemail")],
+                [sg.Button("Poista kirjautumistiedot", font=("Verdana", 12), pad=(0, 20))],
                 [sg.Text("Maksunsaaja", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[2], key="paymentreceiver")],
                 [sg.Text("Pankki", font=("Verdana", 12), size=(20,1)), sg.Combo(["Aktia", "POP", "Danske Bank", "Handelsbanken", "Nordea", "OP", "SEB", "S-Pankki", "Säästöpankki", "Ålandsbanken"], key="bank", default_value=BICToBank(configs[5]))],
                 [sg.Text("Tilinumero", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[3], key="accnum")],
@@ -122,6 +130,9 @@ def settings(configs):
         if event == "Peruuta":
             break
 
+        elif event == "Poista kirjautumistiedot":
+            deleteLogin()
+
         elif event == "Tallenna":
             try:
                 if values["themelight"]:
@@ -142,7 +153,7 @@ def settings(configs):
                         writeString = writeString + ','
                 
                 bankBIC = bankToBIC(values["bank"])
-                createSettingFile(theme, values["senderemail"], values["paymentreceiver"], values["accnum"], writeString, bankBIC)
+                createSettingFile(theme, values["paymentreceiver"], values["accnum"], writeString, bankBIC)
                 sg.PopupOK("Tallennettu", font=("Verdana", 12))
                 break
             except:
