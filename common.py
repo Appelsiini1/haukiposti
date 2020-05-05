@@ -29,6 +29,31 @@ class receiverClass():
 def version():
     return "V0.9.0"
 
+def licenses():
+    litania = """Python 3.8.1, PSF License\n
+https://docs.python.org/3/license.html\n
+\n
+PySimpleGUI, GNU Lesser General Public License (LGPL 3)\n
+https://www.gnu.org/licenses/lgpl-3.0.en.html\n
+\n
+ReportLab PDF-library: BSD license\n
+https://www.reportlab.com/documentation/faq/#1.3\n
+\n
+Pillow, PIL: PIL Software License\n
+http://www.pythonware.com/products/pil/license.htm\n
+\n
+PubCode: MIT License\n
+https://opensource.org/licenses/MIT\n
+\n
+Google API Client, google-auth-httplib2, google-auth-oauthlib\n
+Apache Software License (Apache 2.0),\n
+http://apache.org/licenses/LICENSE-2.0.html\n
+\n
+Sovelluksessa ja käyttöohjeessä käytetyt kuvakkeet\n
+https://icons8.com"""
+
+    return litania
+
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
