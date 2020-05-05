@@ -168,7 +168,10 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     
 
     # Receiver information
-    c.drawString(margin, getY(5), config[3]) # receiver account number
+    account = config[3].replace(' ', '')
+    account = account[:4] + " " + account[4:8] + " " + account[8:12] + " " + account[12:16] + " " + account[16:]
+
+    c.drawString(margin, getY(5), account) # receiver account number
     c.drawString(margin, getY(11), config[2]) # payment receiver
     c.setFontSize(15)
     c.drawString(margin2, getY(5), config[5])
