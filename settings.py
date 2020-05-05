@@ -140,6 +140,10 @@ def settings(configs):
                 else:
                     theme = "darkblue14"
                 
+                if values["accnum"][2:].replace(' ', '').isdigit() == False or len(values["accnum"].replace(' ', '')) != 18:
+                    sg.PopupOK("Tarkista tilinumero.")
+                    continue
+
                 #Parses the member classes input field and creates a string to be written to the configs file,
                 #passing the string to createSettingFile
                 writeString = ''
