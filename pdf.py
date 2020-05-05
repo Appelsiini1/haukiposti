@@ -313,7 +313,7 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     if preview == False:
         name = receiver.firstname + "_" + receiver.lastname + ".pdf"
     else:
-        path = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.pdf")
+        path = os.path.join(os.getenv("APPDATA") + "\\Haukiposti")
         name = "preview.pdf"
     pdfPath = os.path.join(path, name)
     c = canvas.Canvas(pdfPath, pagesize=A4)
@@ -375,11 +375,12 @@ def stickersheet(path, receivers, paper, sx, sy, div):
     c.setSubject("Tarra-arkit")
     c.setCreator(("Haukiposti "+common.version()))
 
-    stickerx = ((210-sx)/sx)*mm
+    stickerx = ((210-((sx-1)*div))/sx)*mm
     stickery = ((297-sy)/sy)*mm
     totalPerPage = sx*sy
     marginx = 5*mm
     marginy = 4*mm
+    div = div*mm
 
     # font
     if sx < 5:
@@ -395,8 +396,8 @@ def stickersheet(path, receivers, paper, sx, sy, div):
     i = 1
     j = 1
     k = 1
-    x = marginx + div
-    y = korkeus-(marginy + div)-3*mm
+    x = marginx
+    y = korkeus-marginy-3*mm
     for receiver in receivers:
         logging.debug("begin, {0}".format(k))
         name = receiver.firstname + " " + receiver.lastname
