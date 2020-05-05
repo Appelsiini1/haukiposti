@@ -8,7 +8,7 @@ def stickersheet(configs):
 
     # -- Menu definition --
     menu_def = [["Tiedosto", ["Poistu"]],
-                ["Tietoa", ["Apua", "Tietoa"]]]
+                ["Tietoa", ["Apua", "Tietoa", "Lisenssit"]]]
 
     # -- The layout --
     frame_layout = [[sg.Text("Tarroja leveyssuunnassa", size=(22,1), font=("Verdana", 12)), sg.Spin([i for i in range(1,7)], size=(2,1), key="x")],
@@ -56,6 +56,8 @@ def stickersheet(configs):
             sg.PopupOK("Tarra-arkkien luonti. Määritä arkin koko, tarrojen lukumäärä (leveys- ja korkeussuunnassa)\nsekä anna vastaanottajat sisältävä CSV tiedosto. Tarra-arkit luodaan yhteen tiedostoon antamaasi kohdekansioon.", font=("Verdana", 12))
         elif event == "Tietoa":
             sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
+        elif event == "Lisenssit":
+            sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
             exit()
 

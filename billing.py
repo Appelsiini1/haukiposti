@@ -18,7 +18,7 @@ def billing(configs, service=None):
 
     # -- Menu definition --
     menu_def = [["Tiedosto", ["Poistu"]],
-                ["Tietoa", ["Apua", "Tietoa"]]]
+                ["Tietoa", ["Apua", "Tietoa", "Lisenssit"]]]
 
     # -- The layout --
     message_frame_layout = [[sg.Text("Aihe", font=("Verdana", 12))],
@@ -231,6 +231,8 @@ def billing(configs, service=None):
             sg.PopupOK(apua, title="Apua", font=("Verdana", 12))
         elif event == "Tietoa":
             sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
+        elif event == "Lisenssit":
+            sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
             exit()
 

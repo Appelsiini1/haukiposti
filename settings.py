@@ -100,7 +100,7 @@ def settings(configs):
 
     # -- Menu definition --
     menu_def = [["Tiedosto", ["Poistu"]],
-                ["Tietoa", ["Apua", "Tietoa"]]]
+                ["Tietoa", ["Apua", "Tietoa", "Lisenssit"]]]
 
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
@@ -163,6 +163,8 @@ def settings(configs):
             sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nErota jäsenlajit toisistaan rivin vaihdolla (enter)\nEsim\nPerusjäsen: 10.00\nErikoisjäsen: 20.00\nKäytä senttierottimena pistettä! Senttejä ei ole kuitenkaan pakko merkitä.", font=("Verdana", 10))
         elif event == "Tietoa":
             sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
+        elif event == "Lisenssit":
+            sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
             exit()
 

@@ -42,7 +42,7 @@ def massPost(configs, service):
 
     # -- Menu definition --
     menu_def = [["Tiedosto", ["Poistu"]],
-                ["Tietoa", ["Apua", "Tietoa"]]]
+                ["Tietoa", ["Apua", "Tietoa", "Lisenssit"]]]
 
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
@@ -131,6 +131,8 @@ def massPost(configs, service):
             sg.PopupOK(apua, title="Apua", font=("Verdana", 12))
         elif event == "Tietoa":
             sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
+        elif event == "Lisenssit":
+            sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
             exit()
 
