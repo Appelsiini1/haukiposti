@@ -48,6 +48,7 @@ def billing(configs, service=None):
     ref = pdf.reference()
 
     # -- Window functionality --
+    formattedDate = None
     while True:
         event, values = window.read()
 
@@ -68,13 +69,13 @@ def billing(configs, service=None):
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
 
             # To one file
-            if filesCombined == "Yhteen" and formattedDate and values['subject'] != "" and values['folder'] != "":
+            if filesCombined == "Yhteen" and formattedDate != None and values['subject'] != "" and values['folder'] != "":
                 ret = pdf.createAllInvoices(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, values['paymentyear'], values['logo'])
                 if ret == -1 or ret  == -2:
                     sg.PopupOK("Tiedostoa ei voitu luoda")
             
             # To individual files
-            elif filesCombined == "Erikseen" and formattedDate and values['subject'] != "" and values['folder'] != "":
+            elif filesCombined == "Erikseen" and formattedDate != None and values['subject'] != "" and values['folder'] != "":
                 # Progress bar window layout
                 limit = len(receivers)
                 layout2 = [[sg.Text("Luodaan laskuja...", font=("Verdana", 12))],
@@ -118,7 +119,7 @@ def billing(configs, service=None):
 
         # Send
         elif event == "Lähetä":
-            if formattedDate and values['subject'] != "" and values['folder'] != "":
+            if formattedDate != None and values['subject'] != "" and values['folder'] != "":
                 ok = sg.Popup("Haluatko varmasti lähettää viestin?", custom_text=("Kyllä", "Ei"))
                 if ok == "Kyllä":
                     if service == None:
@@ -201,7 +202,7 @@ def billing(configs, service=None):
                 sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
 
         elif event == "Esikatsele":
-            if formattedDate:
+            if formattedDate != None:
                 receivers = common.CSVparser(values["receivers"])
                 if receivers == None:
                     sg.PopupOK("Tuo ensin CSV-tiedosto")
