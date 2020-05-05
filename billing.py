@@ -219,15 +219,19 @@ def billing(configs, service=None):
 
         elif event == "Apua":
             apua = """Laskutus. Täältä voit lähettää laskuja.\n
-    Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
-    Tekstin erikoismerkit:\n
-    **tekstiä** == Lihavoitu\n
-    ||tekstiä|| == Kursivoitu\n
-    __tekstiä__ == Alleviivattu\n
-    @@linkki@@tekstiä@@ == Tekstin seassa oleva linkki. Mikäli haluat linkin näkyvän linkkinä, kopioi linkki myös tekstin paikalle.\n
-    $$img$$ == Tekstin seassa olevat kuvat määritetään tällä tagilla. Valitse kuvat liitteeksi. Liitteiden järjestyksellä ei ole väliä.\n
-    Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)\n
-    \nHUOM! Alleviivaus, linkit ja kuvat eivät toimi saatekirjeessä."""
+Valitse vastaanottajat sisältävä CSV tiedosto ja kirjoita aihe.\n
+Kirjoita viesti (ei ole pakko) ja tuo viestin mahdolliset liitteet.\n
+Kirjoita laskun eräpäivä muodossa pp.mm.vvvv, tai valitse se napista aukeavasta kalenterista.\n
+Logo on vapaaehtoinen.\n
+Valitse laskujen kohdekansio.\n\n
+Tekstin erikoismerkit:\n
+**tekstiä** == Lihavoitu\n
+||tekstiä|| == Kursivoitu\n
+__tekstiä__ == Alleviivattu\n
+@@linkki@@tekstiä@@ == Tekstin seassa oleva linkki. Mikäli haluat linkin näkyvän linkkinä, kopioi linkki myös tekstin paikalle.\n
+$$img$$ == Tekstin seassa olevat kuvat määritetään tällä tagilla. Valitse kuvat liitteeksi. Liitteiden järjestyksellä ei ole väliä.\n
+Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)\n
+\nHUOM! Alleviivaus, linkit ja kuvat eivät toimi saatekirjeessä."""
             sg.PopupOK(apua, title="Apua", font=("Verdana", 12))
         elif event == "Tietoa":
             sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
