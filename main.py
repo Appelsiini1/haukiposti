@@ -144,6 +144,8 @@ def main():
             for i in os.listdir(folderpath):
                 os.remove(folderpath+ "/"+i)
             os.rmdir(folderpath)
+        if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.pdf")):
+            os.remove(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.pdf"))
         window1.close()
         exit(0)
     except Exception as e:

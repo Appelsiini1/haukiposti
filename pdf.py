@@ -291,7 +291,7 @@ def createAllInvoices(config, receivers, subject, path, message, duedate, refere
 
     return pdfPath
 
-def createInvoice(config, receiver, path, message, duedate, subject, reference, i, logo=None):
+def createInvoice(config, receiver, path, message, duedate, subject, reference, i, logo=None, preview=False):
     """Create invoices for single receiver.
     Args:
     config = config list,
@@ -303,13 +303,18 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
     reference = Reference number for the invoice
     i = index number for barcode
     logo = path to the logo file if spesified. Default None
+    preview = Wheter the created file should be named preview, default False
 
     Returns the path to the created pdf.
     Returns -1 if PermissionError (file opened in a another application)
     Returns -2 if other error
     """
     #canvas settings
-    name = receiver.firstname + "_" + receiver.lastname + ".pdf"
+    if preview == False:
+        name = receiver.firstname + "_" + receiver.lastname + ".pdf"
+    else:
+        path = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.pdf")
+        name = "preview.pdf"
     pdfPath = os.path.join(path, name)
     c = canvas.Canvas(pdfPath, pagesize=A4)
 
