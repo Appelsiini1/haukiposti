@@ -27,7 +27,7 @@ class receiverClass():
         print("Paper: ", self.paper)
 
 def version():
-    return "V0.9.0"
+    return "V1.0.0"
 
 def licenses():
     litania = """Haukiposti V1.0
@@ -333,53 +333,55 @@ def markdownParserPDF(text):
     # **text** = <b></b> bolding
     # __text__ = <i></i> italic
     # ||text|| = <u></u> underlined
+    try:
+        finalList = []
 
-    finalList = []
-
-    res = finder(text)
-    if res == None:
-        return [[False, False, False], text]
-    if res[1] > 0:
-        finalList.append(([False, False, False], text[:res[1]]))
-        text = text[res[1]:]
-
-    while res != -1:
-        res2 = finder(text[2:])
-        if res2 == None:
-            return -1
-
-        if res[0] == res2[0]:
-            finalList.append((res[0], text[2:res2[1]+2]))
-            text = text[res2[1]+4:]
-        else:
-            res3 = finder(text[res2[1]+4:])
-            if res3 == None:
-                return -1
-
-            tempBool = [False, False, False]
-            if res3[0] == res2[0]:
-                if res3[0][0] or res2[0][0] or res[0][0]:
-                    tempBool[0] = True
-                if res[0][1] or res2[0][1] or res3[0][1]:
-                    tempBool[1] = True
-                if res[0][2] or res2[0][2] or res3[0][2]:
-                    tempBool[2] = True
-                finalList.append((tempBool, text[4:res3[1]+4]))
-                text = text[res3[1]+8:]
-            else:
-                res4 = finder(text[res3[1]+6:])
-                if res4 == None:
-                    return -1
-                finalList.append(([True, True, True], text[res3[1]+6:res4[1]+6]))
-                text = text[res4[1]+12:]
-        
         res = finder(text)
         if res == None:
-            finalList.append(([False, False, False], text))
-            break
-        elif res[1] > 0:
+            return [[False, False, False], text]
+        if res[1] > 0:
             finalList.append(([False, False, False], text[:res[1]]))
             text = text[res[1]:]
+
+        while res != -1:
+            res2 = finder(text[2:])
+            if res2 == None:
+                return -1
+
+            if res[0] == res2[0]:
+                finalList.append((res[0], text[2:res2[1]+2]))
+                text = text[res2[1]+4:]
+            else:
+                res3 = finder(text[res2[1]+4:])
+                if res3 == None:
+                    return -1
+
+                tempBool = [False, False, False]
+                if res3[0] == res2[0]:
+                    if res3[0][0] or res2[0][0] or res[0][0]:
+                        tempBool[0] = True
+                    if res[0][1] or res2[0][1] or res3[0][1]:
+                        tempBool[1] = True
+                    if res[0][2] or res2[0][2] or res3[0][2]:
+                        tempBool[2] = True
+                    finalList.append((tempBool, text[4:res3[1]+4]))
+                    text = text[res3[1]+8:]
+                else:
+                    res4 = finder(text[res3[1]+6:])
+                    if res4 == None:
+                        return -1
+                    finalList.append(([True, True, True], text[res3[1]+6:res4[1]+6]))
+                    text = text[res4[1]+12:]
+            
             res = finder(text)
+            if res == None:
+                finalList.append(([False, False, False], text))
+                break
+            elif res[1] > 0:
+                finalList.append(([False, False, False], text[:res[1]]))
+                text = text[res[1]:]
+                res = finder(text)
+    except Exception as e:
+        logging.exception(e)
 
     return finalList
