@@ -30,26 +30,43 @@ def version():
     return "V0.9.0"
 
 def licenses():
-    litania = """Python 3.8.1, PSF License\n
-https://docs.python.org/3/license.html\n
-\n
-PySimpleGUI, GNU Lesser General Public License (LGPL 3)\n
-https://www.gnu.org/licenses/lgpl-3.0.en.html\n
-\n
-ReportLab PDF-library: BSD license\n
-https://www.reportlab.com/documentation/faq/#1.3\n
-\n
-Pillow, PIL: PIL Software License\n
-http://www.pythonware.com/products/pil/license.htm\n
-\n
-PubCode: MIT License\n
-https://opensource.org/licenses/MIT\n
-\n
-Google API Client, google-auth-httplib2, google-auth-oauthlib\n
-Apache Software License (Apache 2.0),\n
-http://apache.org/licenses/LICENSE-2.0.html\n
-\n
-Sovelluksessa ja käyttöohjeessä käytetyt kuvakkeet\n
+    litania = """Haukiposti V1.0
+Copyright (C) 2020  Rami Saarivuori & Aarne Savolainen
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+\n\n
+Kolmannen osapuolen lisenssit:\n
+Python 3.8.1, PSF License
+https://docs.python.org/3/license.html
+
+PySimpleGUI, GNU Lesser General Public License (LGPL 3)
+https://www.gnu.org/licenses/lgpl-3.0.en.html
+
+ReportLab PDF-library: BSD license
+https://www.reportlab.com/documentation/faq/#1.3
+
+Pillow, PIL: PIL Software License
+http://www.pythonware.com/products/pil/license.htm
+
+PubCode: MIT License
+https://opensource.org/licenses/MIT
+
+Google API Client, google-auth-httplib2, google-auth-oauthlib
+Apache Software License (Apache 2.0),
+http://apache.org/licenses/LICENSE-2.0.html
+
+Sovelluksessa ja käyttöohjeessä käytetyt kuvakkeet
 https://icons8.com"""
 
     return litania
