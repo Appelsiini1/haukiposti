@@ -65,11 +65,13 @@ def massPost(configs, service):
         if event == "Peruuta":
             break
         elif event == "Esikatsele":
+            logging.info("Preview")
             attachments = values["attachment"].split(';')
             text = values["messageText"]
             if preview(text, attachments) == -1:
                 sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
         elif event == "Lähetä":
+            logging.info("Send messages")
             if service == None:
                 yesno = sg.Popup("Et ole kirjautunut sisään. Haluatko kirjautua sisään nyt?", custom_text=("Kyllä", "Ei"))
                 if yesno == "Kyllä":
@@ -85,6 +87,7 @@ def massPost(configs, service):
                             size += os.path.getsize(item)
                         if size > 24000000:
                             sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
+                            logging.error("Attachments too big")
                         else:
                             text = values["messageText"]
                             htmlText = common.markdownParserHTML(text, attachments, preview=0)
@@ -102,8 +105,10 @@ def massPost(configs, service):
                                         logging.info("Message sent.")
                                 else:
                                     sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
+                                    logging.error("Error in message creation")
                             else:
                                 sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
+                                logging.error("CSV read error")
                     else:
                         text = values["messageText"]
                         htmlText = common.markdownParserHTML(text, attachments, preview=0)
@@ -121,8 +126,10 @@ def massPost(configs, service):
                                     logging.info("Message sent.")
                             else:
                                 sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty.")
+                                logging.error("Error in message creation")
                         else:
                             sg.PopupOK("CSV tiedostoa lukiessa tapahtui virhe.")
+                            logging.error("CSV read error")
 
         elif event == "Apua":
             apua = """Massaposti. Täältä voit lähettää massapostia.\n

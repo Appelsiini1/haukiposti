@@ -47,6 +47,8 @@ def billing(configs, service=None):
     # reference number generation
     ref = pdf.reference()
 
+    logging.info("Billing {0}, {1}".format(year, ref))
+
     # -- Window functionality --
     formattedDate = None
     while True:
@@ -62,9 +64,11 @@ def billing(configs, service=None):
 
         # Create invoices
         elif event == "Luo laskut":
+            logging.info("Create standalone invoices")
             receivers = common.CSVparser(values["receivers"])
             if receivers == None:
                 sg.PopupOK("Tuo ensin CSV-tiedosto")
+                logging.info("No CSV given")
                 continue
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
 
@@ -73,6 +77,7 @@ def billing(configs, service=None):
                 ret = pdf.createAllInvoices(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, values['paymentyear'], values['logo'])
                 if ret == -1 or ret  == -2:
                     sg.PopupOK("Tiedostoa ei voitu luoda")
+                    logging.error("Cannot create pdf")
             
             # To individual files
             elif filesCombined == "Erikseen" and formattedDate != None and values['subject'] != "" and values['folder'] != "":
@@ -98,6 +103,7 @@ def billing(configs, service=None):
                         ret = pdf.createInvoice(configs, receiver, values['folder'], values['billText'], formattedDate, values['subject'], ref, i, values['logo'])
                         if ret == -1 or ret  == -2:
                             sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
+                            logging.error("Aborting pdf creation due to error")
                             break
                         logging.debug("yearbool == False or (== True paymentyear != year)")
                     else:
@@ -116,9 +122,11 @@ def billing(configs, service=None):
 
             else:
                 sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
+                logging.info("Some fields empty")
 
         # Send
         elif event == "Lähetä":
+            logging.info("Send invoices")
             if formattedDate != None and values['subject'] != "" and values['folder'] != "":
                 ok = sg.Popup("Haluatko varmasti lähettää viestin?", custom_text=("Kyllä", "Ei"))
                 if ok == "Kyllä":
@@ -132,6 +140,7 @@ def billing(configs, service=None):
                     receivers = common.CSVparser(values["receivers"])
                     if receivers == None:
                         sg.PopupOK("Tuo ensin CSV-tiedosto")
+                        logging.info("No CSV given")
                         continue
 
                     # layout for progress bar window
@@ -159,6 +168,7 @@ def billing(configs, service=None):
                             ret = pdf.createInvoice(configs, receiver, values['folder'], values['billText'], formattedDate, values['subject'], ref, 0, values['logo'])
                             if ret == -1 or ret  == -2:
                                 sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
+                                logging.error("Aborting pdf creation due to error")
                                 break
                             else:
                                 attachments = values["attachment"].split(';')
@@ -197,20 +207,24 @@ def billing(configs, service=None):
                     if ret != -1 and ret != -2 and event != 'Peruuta':
                         window2.close()
                         sg.PopupOK("{0} laskua luotiin kohdekansioon ja lähetettiin. Ohitettiin {1} vastaanottajaa.".format(i, k))
-                        logging.info("{0} invoices created to {1}. Skipped {2} receivers".format(i, values['folder'], k))
+                        logging.info("{0} invoices created to {1}. Sent {0} invoices. Skipped {2} receivers".format(i, values['folder'], k))
             else:
                 sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
+                logging.info("Some fields empty")
 
         elif event == "Esikatsele":
+            logging.info("Preview invoices")
             if formattedDate != None:
                 receivers = common.CSVparser(values["receivers"])
                 if receivers == None:
                     sg.PopupOK("Tuo ensin CSV-tiedosto")
+                    logging.info("No CSV given")
                     continue
                 if (values['paymentyear'] != True) or (values['paymentyear'] == True):
                     ret = pdf.createInvoice(configs, receivers[0], "", values['billText'], formattedDate, values['subject'], ref, 0, values['logo'], preview=True)
                     if ret == -1 or ret  == -2:
                         sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
+                        logging.error("Cannot create pdf, aborting")
                         continue
                     else:
                         command = 'cmd /c "start "" "' + ret + '"'
@@ -220,6 +234,7 @@ def billing(configs, service=None):
                     text = values["messageText"]
                     if masspost.preview(text, attachments) == -1:
                         sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
+                        logging.info("Preview failed")
             else:
                 sg.PopupOK("Eräpäivä ei voi olla tyhjä.")
                 

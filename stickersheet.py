@@ -36,22 +36,26 @@ def stickersheet(configs):
         if event == "Peruuta":
             break
         elif event == "Luo":
-            receivers = common.CSVparser(values['receivers'])
-            if receivers:
-                logging.debug("{0}, {1}, {2}, {3}".format(values['paper'], values['x'], values['y'], values['div']))
-                if values['targetfolder'] != "" and values['paper'] != "":
-                    path = pdf.stickersheet(values['targetfolder'], receivers, values['paper'], values['x'], values['y'], values['div'])
-                    if path == -1:
-                        sg.PopupOK("Tiedostoa ei voitu luoda, tiedosto on jonkin toisen prosessin käytössä.")
-                    elif path == -2:
-                        sg.PopupOK("Jokin meni vikaan arkkia luodessa.")
+            try:
+                receivers = common.CSVparser(values['receivers'])
+                if receivers:
+                    if values['targetfolder'] != "" and values['paper'] != "":
+                        path = pdf.stickersheet(values['targetfolder'], receivers, values['paper'], values['x'], values['y'], values['div'])
+                        if path == -1:
+                            sg.PopupOK("Tiedostoa ei voitu luoda, tiedosto on jonkin toisen prosessin käytössä.")
+                        elif path == -2:
+                            sg.PopupOK("Jokin meni vikaan arkkia luodessa.")
+                        else:
+                            command = 'cmd /c "start "" "' + path + '"'
+                            os.system(command)
                     else:
-                        command = 'cmd /c "start "" "' + path + '"'
-                        os.system(command)
+                        sg.PopupOK("Tarkista, kaikki kentät on täytetty.")
+                        logging.info("Some fields empty")
                 else:
-                    sg.PopupOK("Tarkista, kaikki kentät on täytetty.")
-            else:
-                sg.PopupOK("CSV-tiedoston lukemisessa tapahtui virhe.")
+                    sg.PopupOK("CSV-tiedoston lukemisessa tapahtui virhe.")
+                    logging.error("CSV read error")
+            except Exception as e:
+                logging.exception(e)
         elif event == "Apua":
             sg.PopupOK("Tarra-arkkien luonti. Määritä arkin koko, tarrojen lukumäärä (leveys- ja korkeussuunnassa)\nsekä anna vastaanottajat sisältävä CSV tiedosto. Tarra-arkit luodaan yhteen tiedostoon antamaasi kohdekansioon.", font=("Verdana", 12))
         elif event == "Tietoa":

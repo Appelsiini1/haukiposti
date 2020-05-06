@@ -3,7 +3,7 @@
 # (c) Rami Saarivuori & Aarne Savolainen
 
 try:
-    import logging, os, configparser, masspost, settings, common, billing, stickersheet
+    import logging, os, configparser, masspost, settings, common, billing, stickersheet, sys
     import emailFunc as mail
     import PySimpleGUI as sg
 except Exception:
@@ -80,7 +80,7 @@ def main():
 
         # -- The layout --
         layout = [ [sg.Menu(menu_def)],
-                    [sg.Image(common.resource_path(r"assets/haukiposti_small.png"), pad=(26,0))],
+                    [sg.Image(common.resource_path(r"haukiposti_small.png"), pad=(26,0))],
                     [sg.Text("Haukiposti", font=("Verdana", 15, "bold"), size=(10,1), justification="center")],
                     [sg.Button("Kirjaudu", font=("Verdana", 12), size=(15, 1), key="login")],
                     [sg.Button("Massaposti", font=("Verdana", 12), size=(15, 1))],
@@ -99,18 +99,22 @@ def main():
 
             if event == "Massaposti":
                 window1.Hide()
+                logging.info("Masspost")
                 masspost.massPost(configs, service)
                 window1.UnHide()
             elif event == "Laskutus":
                 window1.Hide()
+                logging.info("Billing")
                 billing.billing(configs, service)
                 window1.UnHide()
             elif event == "Tarra-arkit":
                 window1.Hide()
+                logging.info("Stickerheet")
                 stickersheet.stickersheet(configs)
                 window1.UnHide()
             elif event == "Asetukset":
                 window1.Hide()
+                logging.info("Settings")
                 settings.settings(configs)
                 configs = updateConfig(configs)
                 if os.path.exists(os.getenv("APPDATA") + "\\Haukiposti\\token.pickle") == False:
@@ -122,8 +126,10 @@ def main():
                 if service:
                     sg.PopupOK("Todennus onnistui.", font=("Verdana", 12))
                     window1["login"].update("Kirjauduttu", disabled=True)
+                    logging.info("Login succesful")
                 else:
                     sg.PopupOK("Todennus epäonnistui.", font=("Verdana", 12))
+                    logging.error("Login unsuccesful")
             elif event == "Apua":
                 sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.", font=("Verdana", 12))
             elif event == "Tietoa":
@@ -138,15 +144,19 @@ def main():
             for i in os.listdir(folderpath):
                 os.remove(folderpath+ "/"+i)
             os.rmdir(folderpath)
+            logging.info("Message previews deleted.")
         if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "barcodes")):
             folderpath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "barcodes")
             for i in os.listdir(folderpath):
                 os.remove(folderpath+ "/"+i)
             os.rmdir(folderpath)
+            logging.info("Barcodes deleted.")
         if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.pdf")):
             os.remove(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.pdf"))
+            logging.info("Invoice preview deleted.")
         window1.close()
-        exit(0)
+        logging.info("Exit, Code 0")
+        sys.exit(0)
     except Exception as e:
         logging.exception(e)
 
