@@ -47,7 +47,10 @@ def billing(configs, service=None):
     # reference number generation
     ref = pdf.reference()
 
+    logging.info("Billing {0}, {1}".format(year, ref))
+
     # -- Window functionality --
+    formattedDate = None
     while True:
         event, values = window.read()
 
@@ -61,20 +64,23 @@ def billing(configs, service=None):
 
         # Create invoices
         elif event == "Luo laskut":
+            logging.info("Create standalone invoices")
             receivers = common.CSVparser(values["receivers"])
             if receivers == None:
                 sg.PopupOK("Tuo ensin CSV-tiedosto")
+                logging.info("No CSV given")
                 continue
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
 
             # To one file
-            if filesCombined == "Yhteen" and formattedDate and values['subject'] != "" and values['folder'] != "":
+            if filesCombined == "Yhteen" and formattedDate != None and values['subject'] != "" and values['folder'] != "":
                 ret = pdf.createAllInvoices(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, values['paymentyear'], values['logo'])
                 if ret == -1 or ret  == -2:
                     sg.PopupOK("Tiedostoa ei voitu luoda")
+                    logging.error("Cannot create pdf")
             
             # To individual files
-            elif filesCombined == "Erikseen" and formattedDate and values['subject'] != "" and values['folder'] != "":
+            elif filesCombined == "Erikseen" and formattedDate != None and values['subject'] != "" and values['folder'] != "":
                 # Progress bar window layout
                 limit = len(receivers)
                 layout2 = [[sg.Text("Luodaan laskuja...", font=("Verdana", 12))],
@@ -97,6 +103,7 @@ def billing(configs, service=None):
                         ret = pdf.createInvoice(configs, receiver, values['folder'], values['billText'], formattedDate, values['subject'], ref, i, values['logo'])
                         if ret == -1 or ret  == -2:
                             sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
+                            logging.error("Aborting pdf creation due to error")
                             break
                         logging.debug("yearbool == False or (== True paymentyear != year)")
                     else:
@@ -115,106 +122,121 @@ def billing(configs, service=None):
 
             else:
                 sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
+                logging.info("Some fields empty")
 
         # Send
         elif event == "Lähetä":
-            ok = sg.Popup("Haluatko varmasti lähettää viestin?", custom_text=("Kyllä", "Ei"))
-            if ok == "Kyllä":
-                if service == None:
-                    yesno = sg.Popup("Et ole kirjautunut sisään. Haluatko kirjautua sisään nyt?", custom_text=("Kyllä", "Ei"))
-                    if yesno == "Kyllä":
-                        service = emailFunc.authenticate()
-                    else:
+            logging.info("Send invoices")
+            if formattedDate != None and values['subject'] != "" and values['folder'] != "":
+                ok = sg.Popup("Haluatko varmasti lähettää viestin?", custom_text=("Kyllä", "Ei"))
+                if ok == "Kyllä":
+                    if service == None:
+                        yesno = sg.Popup("Et ole kirjautunut sisään. Haluatko kirjautua sisään nyt?", custom_text=("Kyllä", "Ei"))
+                        if yesno == "Kyllä":
+                            service = emailFunc.authenticate()
+                        else:
+                            continue
+
+                    receivers = common.CSVparser(values["receivers"])
+                    if receivers == None:
+                        sg.PopupOK("Tuo ensin CSV-tiedosto")
+                        logging.info("No CSV given")
                         continue
 
+                    # layout for progress bar window
+                    limit = len(receivers)
+                    layout2 = [[sg.Text("Luodaan laskut ja lähetetään viestit...", font=("Verdana", 12))],
+                            [sg.ProgressBar(limit, orientation='h', size=(30, 20), key='progressbar')],
+                            [sg.Button('Peruuta', font=("Verdana", 12))]]
+                    window2 = sg.Window('Laskujen luonti & lähetys', layout2)
+                    progress_bar = window2['progressbar']
+
+                    # loop for sending
+                    i = 0
+                    k = 0
+                    ret = 0
+                    for receiver in receivers:
+                        event, values2 = window2.read(timeout=1)
+                        if event == 'Peruuta' or event is None:
+                            break
+
+                        if receiver.email == "":
+                            continue
+
+                        # If payment year is ignored or is not the current year
+                        if (values['paymentyear'] != True) or (values['paymentyear'] == True and receiver.paymentyear != year):
+                            ret = pdf.createInvoice(configs, receiver, values['folder'], values['billText'], formattedDate, values['subject'], ref, 0, values['logo'])
+                            if ret == -1 or ret  == -2:
+                                sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
+                                logging.error("Aborting pdf creation due to error")
+                                break
+                            else:
+                                attachments = values["attachment"].split(';')
+                                size = 0
+                                attachments.append(ret) # add the invoice to attachments
+                                if attachments[0] != '':
+                                    # size check
+                                    for item in attachments:
+                                        size += os.path.getsize(item)
+                                    if size > 24000000:
+                                        sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
+                                        ret = -1
+                                        break
+                                    else:
+                                        # send message
+                                        htmlText = common.markdownParserHTML(values["messageText"], attachments, preview=0)
+                                        encMsg = emailFunc.createMail(configs[1], receiver.email, values["subject"], htmlText, attachments)
+                                        if encMsg:
+                                            msg = emailFunc.sendMail(service, 'me', encMsg)
+                                            if msg:
+                                                logging.debug(msg)
+                                                logging.info("Message sent.")
+                                        else:
+                                            sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty. Keskeytetään.")
+                                            break
+                            logging.debug("yearbool == False or (== True paymentyear != year)")
+                        else:
+                            logging.debug("Skipping invoice creation on condition; yearbool:{0}, year:{1}, payer:{2}".format(values['paymentyear'], year, receiver.paymentyear))
+                            k += 1
+                            continue
+                        i += 1
+                        progress_bar.UpdateBar(i)
+                        time.sleep(0.2)
+
+                    # error checking
+                    if ret != -1 and ret != -2 and event != 'Peruuta':
+                        window2.close()
+                        sg.PopupOK("{0} laskua luotiin kohdekansioon ja lähetettiin. Ohitettiin {1} vastaanottajaa.".format(i, k))
+                        logging.info("{0} invoices created to {1}. Sent {0} invoices. Skipped {2} receivers".format(i, values['folder'], k))
+            else:
+                sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
+                logging.info("Some fields empty")
+
+        elif event == "Esikatsele":
+            logging.info("Preview invoices")
+            if formattedDate != None:
                 receivers = common.CSVparser(values["receivers"])
                 if receivers == None:
                     sg.PopupOK("Tuo ensin CSV-tiedosto")
+                    logging.info("No CSV given")
                     continue
-
-                # layout for progress bar window
-                limit = len(receivers)
-                layout2 = [[sg.Text("Luodaan laskut ja lähetetään viestit...", font=("Verdana", 12))],
-                        [sg.ProgressBar(limit, orientation='h', size=(30, 20), key='progressbar')],
-                        [sg.Button('Peruuta', font=("Verdana", 12))]]
-                window2 = sg.Window('Laskujen luonti & lähetys', layout2)
-                progress_bar = window2['progressbar']
-
-                # loop for sending
-                i = 0
-                k = 0
-                ret = 0
-                for receiver in receivers:
-                    event, values2 = window2.read(timeout=1)
-                    if event == 'Peruuta' or event is None:
-                        break
-
-                    if receiver.email == "":
+                if (values['paymentyear'] != True) or (values['paymentyear'] == True):
+                    ret = pdf.createInvoice(configs, receivers[0], "", values['billText'], formattedDate, values['subject'], ref, 0, values['logo'], preview=True)
+                    if ret == -1 or ret  == -2:
+                        sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
+                        logging.error("Cannot create pdf, aborting")
                         continue
-
-                    # If payment year is ignored or is not the current year
-                    if (values['paymentyear'] != True) or (values['paymentyear'] == True and receiver.paymentyear != year):
-                        ret = pdf.createInvoice(configs, receiver, values['folder'], values['billText'], formattedDate, values['subject'], ref, 0, values['logo'])
-                        if ret == -1 or ret  == -2:
-                            sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
-                            break
-                        else:
-                            attachments = values["attachment"].split(';')
-                            size = 0
-                            attachments.append(ret) # add the invoice to attachments
-                            if attachments[0] != '':
-                                # size check
-                                for item in attachments:
-                                    size += os.path.getsize(item)
-                                if size > 24000000:
-                                    sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
-                                    ret = -1
-                                    break
-                                else:
-                                    # send message
-                                    htmlText = common.markdownParserHTML(values["messageText"], attachments, preview=0)
-                                    encMsg = emailFunc.createMail(configs[1], receiver.email, values["subject"], htmlText, attachments)
-                                    if encMsg:
-                                        msg = emailFunc.sendMail(service, 'me', encMsg)
-                                        if msg:
-                                            logging.debug(msg)
-                                            logging.info("Message sent.")
-                                    else:
-                                        sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty. Keskeytetään.")
-                                        break
-                        logging.debug("yearbool == False or (== True paymentyear != year)")
                     else:
-                        logging.debug("Skipping invoice creation on condition; yearbool:{0}, year:{1}, payer:{2}".format(values['paymentyear'], year, receiver.paymentyear))
-                        k += 1
-                        continue
-                    i += 1
-                    progress_bar.UpdateBar(i)
-                    time.sleep(0.2)
+                        command = 'cmd /c "start "" "' + ret + '"'
+                        os.system(command)
 
-                # error checking
-                if ret != -1 and ret != -2 and event != 'Peruuta':
-                    window2.close()
-                    sg.PopupOK("{0} laskua luotiin kohdekansioon ja lähetettiin. Ohitettiin {1} vastaanottajaa.".format(i, k))
-                    logging.info("{0} invoices created to {1}. Skipped {2} receivers".format(i, values['folder'], k))
-
-        elif event == "Esikatsele":
-            receivers = common.CSVparser(values["receivers"])
-            if receivers == None:
-                sg.PopupOK("Tuo ensin CSV-tiedosto")
-                continue
-            if (values['paymentyear'] != True) or (values['paymentyear'] == True):
-                ret = pdf.createInvoice(configs, receivers[0], values['folder'], values['billText'], formattedDate, values['subject'], ref, 0, values['logo'])
-                if ret == -1 or ret  == -2:
-                    sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
-                    continue
-                else:
-                    command = 'cmd /c "start "" "' + ret + '"'
-                    os.system(command)
-
-                attachments = values["attachment"].split(';')
-                text = values["messageText"]
-                if masspost.preview(text, attachments) == -1:
-                    sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
+                    attachments = values["attachment"].split(';')
+                    text = values["messageText"]
+                    if masspost.preview(text, attachments) == -1:
+                        sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
+                        logging.info("Preview failed")
+            else:
+                sg.PopupOK("Eräpäivä ei voi olla tyhjä.")
                 
 
         elif event == "Apua":

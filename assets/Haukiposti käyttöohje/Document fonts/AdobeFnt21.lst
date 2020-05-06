@@ -1,3 +1,164 @@
 %!Adobe-FontList 1.20
 %Locale:0x40b
 
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Calibri
+FamilyName:Calibri
+StyleName:Regular
+FullName:Calibri
+MenuName:Calibri
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:C:\Users\Rami Saarivuori\Documents\GitHub\haukiposti\assets\Haukiposti käyttöohje\Document fonts\calibri.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:1648120
+FileModTime:1552974249
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Calibri
+NameArray:0,Win,1,Calibri
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Calibri-Bold
+FamilyName:Calibri
+StyleName:Bold
+FullName:Calibri Bold
+MenuName:Calibri
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:C:\Users\Rami Saarivuori\Documents\GitHub\haukiposti\assets\Haukiposti käyttöohje\Document fonts\calibrib.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:1613668
+FileModTime:1552974249
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Calibri Bold
+NameArray:0,Win,1,Calibri
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Calibri-Italic
+FamilyName:Calibri
+StyleName:Italic
+FullName:Calibri Italic
+MenuName:Calibri
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:C:\Users\Rami Saarivuori\Documents\GitHub\haukiposti\assets\Haukiposti käyttöohje\Document fonts\calibrii.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:1196672
+FileModTime:1552974249
+WeightClass:400
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,Calibri Italic
+NameArray:0,Win,1,Calibri
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Calibri-BoldItalic
+FamilyName:Calibri
+StyleName:Bold Italic
+FullName:Calibri Bold Italic
+MenuName:Calibri
+StyleBits:3
+WritingScript:Roman
+OutlineFileName:C:\Users\Rami Saarivuori\Documents\GitHub\haukiposti\assets\Haukiposti käyttöohje\Document fonts\calibriz.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:1159032
+FileModTime:1552974249
+WeightClass:700
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,Calibri Bold Italic
+NameArray:0,Win,1,Calibri
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Verdana-Bold
+FamilyName:Verdana
+StyleName:Bold
+FullName:Verdana Bold
+MenuName:Verdana
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:C:\Users\Rami Saarivuori\Documents\GitHub\haukiposti\assets\Haukiposti käyttöohje\Document fonts\verdanab.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:211260
+FileModTime:1552974251
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Verdana Bold
+NameArray:0,Win,1,Verdana
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Verdana-Italic
+FamilyName:Verdana
+StyleName:Italic
+FullName:Verdana Italic
+MenuName:Verdana
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:C:\Users\Rami Saarivuori\Documents\GitHub\haukiposti\assets\Haukiposti käyttöohje\Document fonts\verdanai.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:223268
+FileModTime:1552974251
+WeightClass:400
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,Verdana Italic
+NameArray:0,Win,1,Verdana
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Verdana-BoldItalic
+FamilyName:Verdana
+StyleName:Bold Italic
+FullName:Verdana Bold Italic
+MenuName:Verdana
+StyleBits:3
+WritingScript:Roman
+OutlineFileName:C:\Users\Rami Saarivuori\Documents\GitHub\haukiposti\assets\Haukiposti käyttöohje\Document fonts\verdanaz.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:229800
+FileModTime:1552974251
+WeightClass:700
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,Verdana Bold Italic
+NameArray:0,Win,1,Verdana
+%EndFont
+

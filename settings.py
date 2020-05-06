@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import csv, os, configparser, common
+import csv, os, configparser, common, logging
 from pathlib import Path
 
 # (Re)writes the config file to /AppData/Roaming/Haukiposti (Haukiposti folder is created if needed)
@@ -16,16 +16,21 @@ def createSettingFile(theme, paymentreceiver, accnum, writeString, bankBIC):
     Path(save_path).mkdir(exist_ok=True)
     completeName = os.path.join(save_path, "haukiposticonfig.ini")
     
-    with open(completeName, "w") as configfile:
-        config.write(configfile)
-    configfile.close()
+    try:
+        with open(completeName, "w") as configfile:
+            config.write(configfile)
+        configfile.close()
+    except Exception as e:
+        logging.exception(e)
 
 def deleteLogin():
+    
     path = os.getenv("APPDATA") + "\\Haukiposti"
 
     if os.path.exists(path + "\\token.pickle"):
         os.remove(path + "\\token.pickle")
         sg.PopupOK("Kirjautumistiedot poistettu.")
+        logging.info("Login info deleted.")
     else:
         sg.PopupOK("Kirjautumistietoja ei ole olemassa")
 
@@ -140,6 +145,10 @@ def settings(configs):
                 else:
                     theme = "darkblue14"
                 
+                if values["accnum"][2:].replace(' ', '').isdigit() == False or len(values["accnum"].replace(' ', '')) != 18:
+                    sg.PopupOK("Tarkista tilinumero.")
+                    continue
+
                 #Parses the member classes input field and creates a string to be written to the configs file,
                 #passing the string to createSettingFile
                 writeString = ''
@@ -158,6 +167,7 @@ def settings(configs):
                 break
             except:
                 sg.PopupOK("Jokin meni pieleen tallennettaessa, todennäköisesti jäsenluokissa.\nTarkista, että ne ovat kirjoitettu oikeassa muodossa.", font=("Verdana", 10))
+                logging.error("Error in memberclass parsing")
 
         elif event == "Apua":
             sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nErota jäsenlajit toisistaan rivin vaihdolla (enter)\nEsim\nPerusjäsen: 10.00\nErikoisjäsen: 20.00\nKäytä senttierottimena pistettä! Senttejä ei ole kuitenkaan pakko merkitä.", font=("Verdana", 10))

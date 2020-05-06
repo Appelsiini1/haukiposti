@@ -27,29 +27,46 @@ class receiverClass():
         print("Paper: ", self.paper)
 
 def version():
-    return "V0.9.0"
+    return "V1.0.0"
 
 def licenses():
-    litania = """Python 3.8.1, PSF License\n
-https://docs.python.org/3/license.html\n
-\n
-PySimpleGUI, GNU Lesser General Public License (LGPL 3)\n
-https://www.gnu.org/licenses/lgpl-3.0.en.html\n
-\n
-ReportLab PDF-library: BSD license\n
-https://www.reportlab.com/documentation/faq/#1.3\n
-\n
-Pillow, PIL: PIL Software License\n
-http://www.pythonware.com/products/pil/license.htm\n
-\n
-PubCode: MIT License\n
-https://opensource.org/licenses/MIT\n
-\n
-Google API Client, google-auth-httplib2, google-auth-oauthlib\n
-Apache Software License (Apache 2.0),\n
-http://apache.org/licenses/LICENSE-2.0.html\n
-\n
-Sovelluksessa ja käyttöohjeessä käytetyt kuvakkeet\n
+    litania = """Haukiposti V1.0
+Copyright (C) 2020  Rami Saarivuori & Aarne Savolainen
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+\n\n
+Kolmannen osapuolen lisenssit:\n
+Python 3.8.1, PSF License
+https://docs.python.org/3/license.html
+
+PySimpleGUI, GNU Lesser General Public License (LGPL 3)
+https://www.gnu.org/licenses/lgpl-3.0.en.html
+
+ReportLab PDF-library: BSD license
+https://www.reportlab.com/documentation/faq/#1.3
+
+Pillow, PIL: PIL Software License
+http://www.pythonware.com/products/pil/license.htm
+
+PubCode: MIT License
+https://opensource.org/licenses/MIT
+
+Google API Client, google-auth-httplib2, google-auth-oauthlib
+Apache Software License (Apache 2.0),
+http://apache.org/licenses/LICENSE-2.0.html
+
+Sovelluksessa ja käyttöohjeessä käytetyt kuvakkeet
 https://icons8.com"""
 
     return litania
@@ -316,53 +333,55 @@ def markdownParserPDF(text):
     # **text** = <b></b> bolding
     # __text__ = <i></i> italic
     # ||text|| = <u></u> underlined
+    try:
+        finalList = []
 
-    finalList = []
-
-    res = finder(text)
-    if res == None:
-        return [[False, False, False], text]
-    if res[1] > 0:
-        finalList.append(([False, False, False], text[:res[1]]))
-        text = text[res[1]:]
-
-    while res != -1:
-        res2 = finder(text[2:])
-        if res2 == None:
-            return -1
-
-        if res[0] == res2[0]:
-            finalList.append((res[0], text[2:res2[1]+2]))
-            text = text[res2[1]+4:]
-        else:
-            res3 = finder(text[res2[1]+4:])
-            if res3 == None:
-                return -1
-
-            tempBool = [False, False, False]
-            if res3[0] == res2[0]:
-                if res3[0][0] or res2[0][0] or res[0][0]:
-                    tempBool[0] = True
-                if res[0][1] or res2[0][1] or res3[0][1]:
-                    tempBool[1] = True
-                if res[0][2] or res2[0][2] or res3[0][2]:
-                    tempBool[2] = True
-                finalList.append((tempBool, text[4:res3[1]+4]))
-                text = text[res3[1]+8:]
-            else:
-                res4 = finder(text[res3[1]+6:])
-                if res4 == None:
-                    return -1
-                finalList.append(([True, True, True], text[res3[1]+6:res4[1]+6]))
-                text = text[res4[1]+12:]
-        
         res = finder(text)
         if res == None:
-            finalList.append(([False, False, False], text))
-            break
-        elif res[1] > 0:
+            return [[False, False, False], text]
+        if res[1] > 0:
             finalList.append(([False, False, False], text[:res[1]]))
             text = text[res[1]:]
+
+        while res != -1:
+            res2 = finder(text[2:])
+            if res2 == None:
+                return -1
+
+            if res[0] == res2[0]:
+                finalList.append((res[0], text[2:res2[1]+2]))
+                text = text[res2[1]+4:]
+            else:
+                res3 = finder(text[res2[1]+4:])
+                if res3 == None:
+                    return -1
+
+                tempBool = [False, False, False]
+                if res3[0] == res2[0]:
+                    if res3[0][0] or res2[0][0] or res[0][0]:
+                        tempBool[0] = True
+                    if res[0][1] or res2[0][1] or res3[0][1]:
+                        tempBool[1] = True
+                    if res[0][2] or res2[0][2] or res3[0][2]:
+                        tempBool[2] = True
+                    finalList.append((tempBool, text[4:res3[1]+4]))
+                    text = text[res3[1]+8:]
+                else:
+                    res4 = finder(text[res3[1]+6:])
+                    if res4 == None:
+                        return -1
+                    finalList.append(([True, True, True], text[res3[1]+6:res4[1]+6]))
+                    text = text[res4[1]+12:]
+            
             res = finder(text)
+            if res == None:
+                finalList.append(([False, False, False], text))
+                break
+            elif res[1] > 0:
+                finalList.append(([False, False, False], text[:res[1]]))
+                text = text[res[1]:]
+                res = finder(text)
+    except Exception as e:
+        logging.exception(e)
 
     return finalList
