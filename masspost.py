@@ -42,7 +42,7 @@ def massPost(configs, service):
 
     # -- Menu definition --
     menu_def = [["Tiedosto", ["Poistu"]],
-                ["Tietoa", ["Apua", "Tietoa"]]]
+                ["Tietoa", ["Apua", "Tietoa", "Lisenssit"]]]
 
     # -- The layout --
     layout = [ [sg.Menu(menu_def)],
@@ -126,17 +126,19 @@ def massPost(configs, service):
 
         elif event == "Apua":
             apua = """Massaposti. Täältä voit lähettää massapostia.\n
-    Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
-    Tekstin erikoismerkit:\n
-    **tekstiä** == Lihavoitu\n
-    ||tekstiä|| == Kursivoitu\n
-    __tekstiä__ == Alleviivattu\n
-    @@linkki@@tekstiä@@ == Tekstin seassa oleva linkki. Mikäli haluat linkin näkyvän linkkinä, kopioi linkki myös tekstin paikalle.\n
-    $$img$$ == Tekstin seassa olevat kuvat määritetään tällä tagilla. Valitse kuvat liitteeksi. Liitteiden järjestyksellä ei ole väliä.\n
-    Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)"""
+Valitse vastaanottajat sisältävä CSV tiedosto, mahdolliset liitteet, kirjoita heille viesti ja lähetä.\n\n
+Tekstin erikoismerkit:\n
+**tekstiä** == Lihavoitu\n
+||tekstiä|| == Kursivoitu\n
+__tekstiä__ == Alleviivattu\n
+@@linkki@@tekstiä@@ == Tekstin seassa oleva linkki. Mikäli haluat linkin näkyvän linkkinä, kopioi linkki myös tekstin paikalle.\n
+$$img$$ == Tekstin seassa olevat kuvat määritetään tällä tagilla. Valitse kuvat liitteeksi. Liitteiden järjestyksellä ei ole väliä.\n
+Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägissä. (eli @@linkki@@$$img$$@@)"""
             sg.PopupOK(apua, title="Apua", font=("Verdana", 12))
         elif event == "Tietoa":
             sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
+        elif event == "Lisenssit":
+            sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
             exit()
 

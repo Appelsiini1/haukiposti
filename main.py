@@ -76,7 +76,7 @@ def main():
 
         # -- Menu definition --
         menu_def = [["Tiedosto", ["Poistu"]],
-                    ["Tietoa", ["Apua", "Tietoa"]]]
+                    ["Tietoa", ["Apua", "Tietoa", "Lisenssit"]]]
 
         # -- The layout --
         layout = [ [sg.Menu(menu_def)],
@@ -128,6 +128,8 @@ def main():
                 sg.PopupOK("Tämä on päänäkymä. Valitse mitä haluat tehdä painamalla nappia.", font=("Verdana", 12))
             elif event == "Tietoa":
                 sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
+            elif event == "Lisenssit":
+                sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
             elif event in (None, "Poistu"):
                 break
         if os.path.exists(os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html")):
