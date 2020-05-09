@@ -63,11 +63,7 @@ def massPost(configs, service):
         event, values = window.read()
 
         if event == "Peruuta":
-            #break
-
-            debugList = common.CSVparser(values["receivers"])
-            for item in debugList:
-                item.debugPrint()
+            break
         elif event == "Esikatsele":
             logging.info("Preview")
             attachments = values["attachment"].split(';')
@@ -151,6 +147,6 @@ Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägi
         elif event == "Lisenssit":
             sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
-            exit()
+            exit(0)
 
     window.close()

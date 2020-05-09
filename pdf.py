@@ -119,7 +119,7 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
         leveys, korkeus = A4
         transSizeX = leveys / 210
         transSizeY = korkeus / 297
-        base = common.resource_path("assets/Tilisiirto_pohja.jpg")
+        base = common.resource_path("Tilisiirto_pohja.jpg")
         margin = transSizeX*27
         margin2 = transSizeX*119
         margin3 = margin2+transSizeX*18
@@ -146,7 +146,7 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
         for item in newLines:
             line = common.markdownParserPDF(item)
             if line == -1:
-                sg.PopupOK("Viallinen muotoilu saatteessa. Tarkista, että suljet ja aloita tagit oikein. Keskeytetään.")
+                sg.PopupOK("Viallinen muotoilu saatteessa. Tarkista, että suljet ja aloitat tagit oikein. Keskeytetään.")
                 return -1
             logging.debug(line)
             if line == []:
@@ -352,11 +352,16 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
 
     return pdfPath
 
-def sticker(c, name, address, postal, contact, x, y, fontsize):
+def sticker(c, fname, lname, address, postal, contact, x, y, fontsize):
     textObject = c.beginText()
     textObject.setTextOrigin(x, y)
     textObject.setFont("Helvetica", fontsize)
-    textObject.textLine(name)
+    name = fname + " " + lname
+    if len(name) > 20:
+        textObject.textLine(fname)
+        textObject.textLine(lname)
+    else:
+        textObject.textLine(name)
     if contact != "":
         textObject.textLine(contact)
     textObject.textLine(address)
@@ -365,7 +370,7 @@ def sticker(c, name, address, postal, contact, x, y, fontsize):
     c.drawText(textObject)
 
 
-def stickersheet(path, receivers, paper, sx, sy, div):
+def stickersheet(path, receivers, paper, sx, sy, div, emailBool):
     """Makes a stickersheet.
     Args:
     path = Path to output folder
@@ -406,7 +411,7 @@ def stickersheet(path, receivers, paper, sx, sy, div):
 
     # font
     if sx < 5:
-        fontsize = 13
+        fontsize = 12
     elif sx < 6 :
         fontsize = 9
     elif sx < 7:
@@ -419,10 +424,11 @@ def stickersheet(path, receivers, paper, sx, sy, div):
     x = marginx
     y = korkeus-marginy-3*mm
     for receiver in receivers:
+        if emailBool == True and receiver.email != "":
+            continue
         logging.debug("begin, {0}".format(k))
-        name = receiver.firstname + " " + receiver.lastname
         postal = receiver.postalno + " " + receiver.city
-        sticker(c, name, receiver.address, postal, receiver.contact, x, y, fontsize)
+        sticker(c, receiver.firstname, receiver.lastname, receiver.address, postal, receiver.contact, x, y, fontsize)
         k += 1
 
         if j == sy and i == sx:

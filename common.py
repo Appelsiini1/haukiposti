@@ -33,10 +33,10 @@ class receiverClass():
         print("Company: ", self.company)
 
 def version():
-    return "V1.0.0"
+    return "V1.0.2"
 
 def licenses():
-    litania = """Haukiposti V1.0
+    litania = """Haukiposti {0}
 Copyright (C) 2020  Rami Saarivuori & Aarne Savolainen
 
 This program is free software: you can redistribute it and/or modify
@@ -73,7 +73,7 @@ Apache Software License (Apache 2.0),
 http://apache.org/licenses/LICENSE-2.0.html
 
 Sovelluksessa ja käyttöohjeessä käytetyt kuvakkeet
-https://icons8.com"""
+https://icons8.com""".format(version())
 
     return litania
 
