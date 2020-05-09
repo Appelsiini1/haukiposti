@@ -70,6 +70,18 @@ def billing(configs, service=None):
                 sg.PopupOK("Tuo ensin CSV-tiedosto")
                 logging.info("No CSV given")
                 continue
+            if values['logo'] != "":
+                if values['logo'][-4:].lower() == 'jpeg': 
+                    pass
+                elif values['logo'][-4:].lower() == '.png':
+                    pass
+                elif values['logo'][-4:].lower() == '.jpg':
+                    pass
+                elif values['logo'][-4:].lower() == '.gif':
+                    pass
+                else:
+                    sg.PopupOK("Logon sallitut tiedostotyypit ovat .jpg .jpeg .png ja .gif")
+                    continue
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
 
             # To one file
@@ -131,6 +143,18 @@ def billing(configs, service=None):
         elif event == "Lähetä":
             logging.info("Send invoices")
             if formattedDate != None and values['subject'] != "" and values['folder'] != "":
+                if values['logo'] != "":
+                    if values['logo'][-4:].lower() == 'jpeg': 
+                        pass
+                    elif values['logo'][-4:].lower() == '.png':
+                        pass
+                    elif values['logo'][-4:].lower() == '.jpg':
+                        pass
+                    elif values['logo'][-4:].lower() == '.gif':
+                        pass
+                    else:
+                        sg.PopupOK("Logon sallitut tiedostotyypit ovat .jpg .jpeg .png ja .gif")
+                        continue
                 ok = sg.Popup("Haluatko varmasti lähettää viestin?", custom_text=("Kyllä", "Ei"))
                 if ok == "Kyllä":
                     if service == None:
@@ -227,6 +251,18 @@ def billing(configs, service=None):
                     sg.PopupOK("Tuo ensin CSV-tiedosto")
                     logging.info("No CSV given")
                     continue
+                if values['logo'] != "":
+                    if values['logo'][-4:].lower() == 'jpeg': 
+                        pass
+                    elif values['logo'][-4:].lower() == '.png':
+                        pass
+                    elif values['logo'][-4:].lower() == '.jpg':
+                        pass
+                    elif values['logo'][-4:].lower() == '.gif':
+                        pass
+                    else:
+                        sg.PopupOK("Logon sallitut tiedostotyypit ovat .jpg .jpeg .png ja .gif")
+                        continue
                 if (values['paymentyear'] != True) or (values['paymentyear'] == True):
                     ret = pdf.createInvoice(configs, receivers[0], "", values['billText'], formattedDate, values['subject'], ref, 0, values['logo'], preview=True)
                     if ret == -1 or ret  == -2:
@@ -267,6 +303,6 @@ Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägi
         elif event == "Lisenssit":
             sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
-            exit()
+            exit(0)
 
     window.close()

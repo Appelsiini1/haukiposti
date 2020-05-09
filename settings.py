@@ -177,6 +177,6 @@ def settings(configs):
         elif event == "Lisenssit":
             sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
-            exit()
+            exit(0)
 
     window.close()
