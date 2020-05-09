@@ -85,8 +85,8 @@ def billing(configs, service=None):
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
 
             # To one file
-            if filesCombined == "Yhteen" and formattedDate != None and values['subject'] != "" and values['folder'] != "":
-                ret = pdf.createAllInvoices(configs, receivers, values['subject'], values['folder'], values['billText'], formattedDate, ref, values['paymentyear'], values['logo'])
+            if filesCombined == "Yhteen" and values['duedate'] != None and values['subject'] != "" and values['folder'] != "":
+                ret = pdf.createAllInvoices(configs, receivers, values['subject'], values['folder'], values['billText'], values['duedate'], ref, values['paymentyear'], values['logo'])
                 if ret == -1 or ret  == -2:
                     sg.PopupOK("Tiedostoa ei voitu luoda")
                     logging.error("Cannot create pdf")
@@ -95,7 +95,7 @@ def billing(configs, service=None):
                 
             
             # To individual files
-            elif filesCombined == "Erikseen" and formattedDate != None and values['subject'] != "" and values['folder'] != "":
+            elif filesCombined == "Erikseen" and values['duedate'] != None and values['subject'] != "" and values['folder'] != "":
                 # Progress bar window layout
                 limit = len(receivers)
                 layout2 = [[sg.Text("Luodaan laskuja...", font=("Verdana", 12))],
@@ -115,7 +115,7 @@ def billing(configs, service=None):
                         break
                     # If payment year is ignored or is not the current year
                     if (payyear != True) or (payyear == True and receiver.paymentyear != year):
-                        ret = pdf.createInvoice(configs, receiver, values['folder'], values['billText'], formattedDate, values['subject'], ref, i, values['logo'])
+                        ret = pdf.createInvoice(configs, receiver, values['folder'], values['billText'], values['duedate'], values['subject'], ref, i, values['logo'])
                         if ret == -1 or ret  == -2:
                             sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
                             logging.error("Aborting pdf creation due to error")
@@ -142,7 +142,7 @@ def billing(configs, service=None):
         # Send
         elif event == "Lähetä":
             logging.info("Send invoices")
-            if formattedDate != None and values['subject'] != "" and values['folder'] != "":
+            if values['duedate'] != None and values['subject'] != "" and values['folder'] != "":
                 if values['logo'] != "":
                     if values['logo'][-4:].lower() == 'jpeg': 
                         pass
@@ -192,7 +192,7 @@ def billing(configs, service=None):
 
                         # If payment year is ignored or is not the current year
                         if (values['paymentyear'] != True) or (values['paymentyear'] == True and receiver.paymentyear != year):
-                            ret = pdf.createInvoice(configs, receiver, values['folder'], values['billText'], formattedDate, values['subject'], ref, 0, values['logo'])
+                            ret = pdf.createInvoice(configs, receiver, values['folder'], values['billText'], values['duedate'], values['subject'], ref, 0, values['logo'])
                             if ret == -1 or ret  == -2:
                                 sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
                                 logging.error("Aborting pdf creation due to error")
@@ -245,7 +245,7 @@ def billing(configs, service=None):
 
         elif event == "Esikatsele":
             logging.info("Preview invoices")
-            if formattedDate != None:
+            if values['duedate'] != None:
                 receivers = common.CSVparser(values["receivers"])
                 if receivers == None:
                     sg.PopupOK("Tuo ensin CSV-tiedosto")
@@ -264,7 +264,7 @@ def billing(configs, service=None):
                         sg.PopupOK("Logon sallitut tiedostotyypit ovat .jpg .jpeg .png ja .gif")
                         continue
                 if (values['paymentyear'] != True) or (values['paymentyear'] == True):
-                    ret = pdf.createInvoice(configs, receivers[0], "", values['billText'], formattedDate, values['subject'], ref, 0, values['logo'], preview=True)
+                    ret = pdf.createInvoice(configs, receivers[0], "", values['billText'], values['duedate'], values['subject'], ref, 0, values['logo'], preview=True)
                     if ret == -1 or ret  == -2:
                         sg.PopupOK("Tiedostoa ei voitu luoda, keskeytetään.")
                         logging.error("Cannot create pdf, aborting")
