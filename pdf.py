@@ -119,7 +119,7 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
         leveys, korkeus = A4
         transSizeX = leveys / 210
         transSizeY = korkeus / 297
-        base = common.resource_path("Tilisiirto_pohja.jpg")
+        base = common.resource_path("assets/Tilisiirto_pohja.jpg")
         margin = transSizeX*27
         margin2 = transSizeX*119
         margin3 = margin2+transSizeX*18

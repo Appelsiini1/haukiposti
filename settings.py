@@ -118,12 +118,13 @@ def settings(configs):
                 [sg.Text("Tilinumero", font=("Verdana", 12), size=(20,1)), sg.InputText(configs[3], key="accnum")],
                 [sg.Text("Jäsenlajit", font=("Verdana", 12))],
                 [sg.Multiline(memberString, key="memberClasses", size=(60,6))],
-                [sg.Text("Kirjoita jäsenlajit muodossa (jäsenlaji): (hinta)", font=("Verdana", 12))],
-                [sg.Text("Erota jäsenlajit toisistaan rivin vaihdolla (enter)", font=("Verdana", 12))],
-                [sg.Text("Esim.", font=("Verdana", 12))],
-                [sg.Text("Perusjäsen: 10.00", font=("Verdana", 12))],
-                [sg.Text("Erikoisjäsen: 20", font=("Verdana", 12))],
-                [sg.Text("Käytä senttierottimena pistettä! Senttejä ei ole kuitenkaan pakko merkitä.", font=("Verdana", 12))],
+                [sg.Text("Kirjoita jäsenlajit muodossa (jäsenlaji): (hinta)", font=("Verdana", 9))],
+                [sg.Text("Kirjoita yhteisöjäsenet muodossa Yhteisöjäsen.(laji): (hinta)", font=("Verdana", 9))],
+                [sg.Text("Erota jäsenlajit toisistaan rivin vaihdolla (enter)", font=("Verdana", 9))],
+                [sg.Text("Esim.", font=("Verdana", 9))],
+                [sg.Text("Perusjäsen: 10.00", font=("Verdana", 9))],
+                [sg.Text("Yhteisöjäsen.kunnat: 50", font=("Verdana", 9))],
+                [sg.Text("Käytä senttierottimena pistettä! Senttejä ei ole kuitenkaan pakko merkitä.", font=("Verdana", 9))],
                 [sg.Button("Tallenna", font=("Verdana", 12)), sg.Button("Peruuta", font=("Verdana", 12))]]
 
     window = sg.Window("Haukiposti - asetukset", layout)
@@ -170,7 +171,7 @@ def settings(configs):
                 logging.error("Error in memberclass parsing")
 
         elif event == "Apua":
-            sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nErota jäsenlajit toisistaan rivin vaihdolla (enter)\nEsim\nPerusjäsen: 10.00\nErikoisjäsen: 20.00\nKäytä senttierottimena pistettä! Senttejä ei ole kuitenkaan pakko merkitä.", font=("Verdana", 10))
+            sg.PopupOK("Asetukset. Muokkaa sovelluksen asetuksia.\n\nKirjoita jäsenlajit muodossa (jäsenlaji): (hinta)\nKirjoita yhteisöjäsenet muodossa Yhteisöjäsen.(laji): (hinta)\nErota jäsenlajit toisistaan rivin vaihdolla (enter)\nEsim\nPerusjäsen: 10.00\nYhteisöjäsen.kunnat: 50\nKäytä senttierottimena pistettä! Senttejä ei ole kuitenkaan pakko merkitä.", font=("Verdana", 10))
         elif event == "Tietoa":
             sg.PopupOK("Haukiposti {0}\n\nRami Saarivuori\nAarne Savolainen\n(c) 2020".format(common.version()), font=("Verdana", 12))
         elif event == "Lisenssit":

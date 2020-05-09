@@ -80,7 +80,7 @@ def main():
 
         # -- The layout --
         layout = [ [sg.Menu(menu_def)],
-                    [sg.Image(common.resource_path(r"haukiposti_small.png"), pad=(26,0))],
+                    [sg.Image(common.resource_path(r"assets/haukiposti_small.png"), pad=(26,0))],
                     [sg.Text("Haukiposti", font=("Verdana", 15, "bold"), size=(10,1), justification="center")],
                     [sg.Button("Kirjaudu", font=("Verdana", 12), size=(15, 1), key="login")],
                     [sg.Button("Massaposti", font=("Verdana", 12), size=(15, 1))],
