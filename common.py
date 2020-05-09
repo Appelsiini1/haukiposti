@@ -282,7 +282,7 @@ def markdownParserHTML(text, paths, preview, *args):
 
     # newline
     text = "<p>" + text
-    text = text.replace('\n', '</p><p>')
+    text = text.replace('\n', '<br>')
     text = "</p>" + text
 
     #bolding
