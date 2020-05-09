@@ -63,7 +63,11 @@ def massPost(configs, service):
         event, values = window.read()
 
         if event == "Peruuta":
-            break
+            #break
+
+            debugList = common.CSVparser(values["receivers"])
+            for item in debugList:
+                item.debugPrint()
         elif event == "Esikatsele":
             logging.info("Preview")
             attachments = values["attachment"].split(';')
