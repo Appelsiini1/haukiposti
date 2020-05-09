@@ -9,7 +9,7 @@ try:
     from email.mime.base import MIMEBase
     from email.mime.audio import MIMEAudio
     from email.mime.image import MIMEImage
-    import PySimpleGUI as sg
+    from email.mime.application import MIMEApplication
 
 except Exception:
     exit(-1)
@@ -18,7 +18,7 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 #SCOPES should be gmail.readonly for debugging, otherwise gmail.send
 
 
-def authenticate(theme):
+def authenticate():
     """Authenticate user. Returns authorized service object.
     On first run, this will copy the credentials to working directory for future use.
 
@@ -29,7 +29,6 @@ def authenticate(theme):
     credPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "credentials.json")
     tokenPath = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "token.pickle")
     creds = None
-    sg.theme(theme)
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -58,21 +57,11 @@ def authenticate(theme):
             with open(tokenPath, 'wb') as token:
                 pickle.dump(creds, token)
         except Exception as e:
-            logging.error(e)
+            logging.exception(e)
             return
         logging.info("Credentials saved.")
 
     service = build('gmail', 'v1', credentials=creds)
-
-    # results = service.users().labels().list(userId='me').execute()
-    # labels = results.get('labels', [])
-
-    # if not labels:
-    #     print('No labels found.')
-    # else:
-    #     print('Labels:')
-    #     for label in labels:
-    #         print(label['name'])
 
     return service
 
@@ -105,7 +94,7 @@ def createMail(sender, to, subject, message_html, files):
                     content_type = 'application/octet-stream'
                 main_type, sub_type = content_type.split('/', 1)
                 if main_type == 'text':
-                    fp = open(file, 'r')
+                    fp = open(file, 'rb')
                     msg = MIMEText(fp.read(), _subtype=sub_type)
                     fp.close()
                 elif main_type == 'image':
@@ -116,6 +105,10 @@ def createMail(sender, to, subject, message_html, files):
                     fp = open(file, 'rb')
                     msg = MIMEAudio(fp.read(), _subtype=sub_type)
                     fp.close()
+                elif main_type == 'application':
+                    fp = open(file, 'rb')
+                    msg = MIMEApplication(fp.read(), _subtype=sub_type)
+                    fp.close()
                 else:
                     fp = open(file, 'rb')
                     msg = MIMEBase(main_type, sub_type)
@@ -125,7 +118,7 @@ def createMail(sender, to, subject, message_html, files):
                 msg.add_header('Content-Disposition', 'attachment', filename=filename)
                 message.attach(msg)
     except Exception as e:
-        logging.error(e)
+        logging.exception(e)
         return -1
 
     message_as_bytes = message.as_bytes() # the message should converted from string to bytes.
@@ -151,5 +144,5 @@ def sendMail(service, user_id, message):
         logging.info('Message Id: %s' % message['id'])
         return message
     except Exception as e:
-        logging.error("Error: " +e)
+        logging.exception("Error: " +e)
         return None
