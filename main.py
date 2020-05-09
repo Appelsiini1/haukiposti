@@ -66,7 +66,7 @@ def main():
         logpath = (os.getenv("APPDATA") + "\\Haukiposti")
         if os.path.exists(logpath) == False:
             os.mkdir(logpath)
-        logging.basicConfig(filename=logname, level=logging.DEBUG, format='%(asctime)s %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+        logging.basicConfig(filename=logname, level=logging.INFO, format='%(asctime)s %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
         logging.info("HaukiPosti {0} - Rami Saarivuori & Aarne Savolainen (c) 2020".format(common.version()))
         configs = configParsing()

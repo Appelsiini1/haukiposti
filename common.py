@@ -2,7 +2,7 @@ import sys, os, logging
 from PIL import Image
 
 class receiverClass():
-    def __init__(self, firstname, lastname, contact, email, address, postalno, city, paymentyear, membertype, paper):
+    def __init__(self, firstname, lastname, contact, email, address, postalno, city, paymentyear, membertype, paper, municipality, nonprofit, company):
         self.firstname = firstname
         self.lastname = lastname
         self.contact = contact
@@ -13,6 +13,9 @@ class receiverClass():
         self.paymentyear = paymentyear
         self.membertype = membertype
         self.paper = paper
+        self.municipality = municipality
+        self.nonprofit = nonprofit
+        self.company = company
 
     def debugPrint(self):
         print("Firstname: ", self.firstname)
@@ -25,12 +28,15 @@ class receiverClass():
         print("Payment year: ", self.paymentyear)
         print("Membertype: ", self.membertype)
         print("Paper: ", self.paper)
+        print("Municipality: ", self.municipality)
+        print("Nonprofit: ", self.nonprofit)
+        print("Company: ", self.company)
 
 def version():
-    return "V1.0.0"
+    return "V1.0.2"
 
 def licenses():
-    litania = """Haukiposti V1.0
+    litania = """Haukiposti {0}
 Copyright (C) 2020  Rami Saarivuori & Aarne Savolainen
 
 This program is free software: you can redistribute it and/or modify
@@ -67,7 +73,7 @@ Apache Software License (Apache 2.0),
 http://apache.org/licenses/LICENSE-2.0.html
 
 Sovelluksessa ja käyttöohjeessä käytetyt kuvakkeet
-https://icons8.com"""
+https://icons8.com""".format(version())
 
     return litania
 
@@ -112,6 +118,9 @@ def CSVparser(file):
             membertypePos = None
             paperPos = None
             paymentyearPos = None
+            municipalityPos = None
+            nonprofitPos = None
+            companyPos = None
 
             # Check the positions of information from the header row
             i = 0
@@ -137,6 +146,12 @@ def CSVparser(file):
                     paperPos = i
                 elif one[i].lower().strip() == "maksuvuosi":
                     paymentyearPos = i
+                elif one[i].lower().strip() == "kunnat":
+                    municipalityPos = i
+                elif one[i].lower().strip() == "yhdistykset":
+                    nonprofitPos = i
+                elif one[i].lower().strip() == "yritykset":
+                    companyPos = i
                 i += 1
             emails = []
 
@@ -173,10 +188,6 @@ def CSVparser(file):
                     city = line[cityPos]
                 else:
                     city = ""
-                if membertypePos != None:
-                    membertype = line[membertypePos]
-                else:
-                    membertype = ""
                 if paymentyearPos != None:
                     paymentyear = line[paymentyearPos]
                 else:
@@ -188,9 +199,41 @@ def CSVparser(file):
                         paper = False
                 else:
                     paper = False
+                if municipalityPos != None:
+                    if line[municipalityPos].strip() != "":
+                        municipality = True
+                    else:
+                        municipality = False
+                else:
+                    municipality = False
+                if nonprofitPos != None:
+                    if line[nonprofitPos].strip() != "":
+                        nonprofit = True
+                    else:
+                        nonprofit = False
+                else:
+                    nonprofit = False
+                if companyPos != None:
+                    if line[companyPos].strip() != "":
+                        company = True
+                    else:
+                        company = False
+                else:
+                    company = False
+                if membertypePos != None:
+                    membertype = line[membertypePos]
+                    if membertype.lower() == "yhteisöjäsen":
+                        if municipality:
+                            membertype = membertype + ".kunnat"
+                        elif nonprofit:
+                            membertype = membertype + ".yhdistykset"
+                        elif company:
+                            membertype = membertype + ".yritykset"
+                else:
+                    membertype = ""
 
                 # Create an instance of receiverClass with read information and append it to a list
-                receiver = receiverClass(firstname, lastname, contact, email, address, postalno, city, paymentyear, membertype, paper)
+                receiver = receiverClass(firstname, lastname, contact, email, address, postalno, city, paymentyear, membertype, paper, municipality, nonprofit, company)
                 emails.append(receiver)
                 line = fil.readline().split(';')
     except Exception as e:

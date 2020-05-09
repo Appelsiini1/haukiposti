@@ -70,6 +70,18 @@ def billing(configs, service=None):
                 sg.PopupOK("Tuo ensin CSV-tiedosto")
                 logging.info("No CSV given")
                 continue
+            if values['logo'] != "":
+                if values['logo'][-4:].lower() == 'jpeg': 
+                    pass
+                elif values['logo'][-4:].lower() == '.png':
+                    pass
+                elif values['logo'][-4:].lower() == '.jpg':
+                    pass
+                elif values['logo'][-4:].lower() == '.gif':
+                    pass
+                else:
+                    sg.PopupOK("Logon sallitut tiedostotyypit ovat .jpg .jpeg .png ja .gif")
+                    continue
             filesCombined = sg.Popup("Luo laskut erikseen vai yhteen tiedostoon?", custom_text=("Yhteen", "Erikseen"))
 
             # To one file
@@ -78,6 +90,9 @@ def billing(configs, service=None):
                 if ret == -1 or ret  == -2:
                     sg.PopupOK("Tiedostoa ei voitu luoda")
                     logging.error("Cannot create pdf")
+                else:
+                    sg.PopupOK("Laskut luotu yhteen tiedostoon kohdekansioon. Laskujen viitenumero on {0} {1}.".format(ref[:5], ref[5:]))
+                
             
             # To individual files
             elif filesCombined == "Erikseen" and formattedDate != None and values['subject'] != "" and values['folder'] != "":
@@ -117,17 +132,29 @@ def billing(configs, service=None):
                 # Error checking
                 if ret != -1 and ret != -2 and event != 'Peruuta':
                     window2.close()
-                    sg.PopupOK("{0} laskua luotu kohdekansioon. Ohitettiin {1} vastaanottajaa.".format(i, k))
+                    sg.PopupOK("{0} laskua luotu kohdekansioon. Ohitettiin {1} vastaanottajaa.\nLaskujen viitenumero on {2} {3}.".format(i, k, ref[:5], ref[5:]))
                     logging.info("{0} invoices created to {1}. Skipped {2} receivers".format(i, values['folder'], k))
 
             else:
-                sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
+                sg.PopupOK("Jotkin kohdat ovat tyhjiä tai virheellisiä. Varmista, että seuraavat kentät ovat täytetty ja oikeassa muodossa: Aihe, Laskujen kohdekansio & Eräpäivä.")
                 logging.info("Some fields empty")
 
         # Send
         elif event == "Lähetä":
             logging.info("Send invoices")
             if formattedDate != None and values['subject'] != "" and values['folder'] != "":
+                if values['logo'] != "":
+                    if values['logo'][-4:].lower() == 'jpeg': 
+                        pass
+                    elif values['logo'][-4:].lower() == '.png':
+                        pass
+                    elif values['logo'][-4:].lower() == '.jpg':
+                        pass
+                    elif values['logo'][-4:].lower() == '.gif':
+                        pass
+                    else:
+                        sg.PopupOK("Logon sallitut tiedostotyypit ovat .jpg .jpeg .png ja .gif")
+                        continue
                 ok = sg.Popup("Haluatko varmasti lähettää viestin?", custom_text=("Kyllä", "Ei"))
                 if ok == "Kyllä":
                     if service == None:
@@ -174,26 +201,30 @@ def billing(configs, service=None):
                                 attachments = values["attachment"].split(';')
                                 size = 0
                                 attachments.append(ret) # add the invoice to attachments
-                                if attachments[0] != '':
-                                    # size check
-                                    for item in attachments:
-                                        size += os.path.getsize(item)
-                                    if size > 24000000:
-                                        sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
-                                        ret = -1
-                                        break
+                                # size check
+                                i = 0
+                                for item in attachments:
+                                    if item == '':
+                                        attachments.pop(i)
+                                        continue
+                                    size += os.path.getsize(item)
+                                    i += 1
+                                if size > 24000000:
+                                    sg.PopupOK("Liitteiden koko on suurempi kuin salittu 23 Mt.")
+                                    ret = -1
+                                    break
+                                else:
+                                    # send message
+                                    htmlText = common.markdownParserHTML(values["messageText"], attachments, preview=0)
+                                    encMsg = emailFunc.createMail(configs[1], receiver.email, values["subject"], htmlText, attachments)
+                                    if encMsg:
+                                        msg = emailFunc.sendMail(service, 'me', encMsg)
+                                        if msg:
+                                            logging.debug(msg)
+                                            logging.info("Message sent.")
                                     else:
-                                        # send message
-                                        htmlText = common.markdownParserHTML(values["messageText"], attachments, preview=0)
-                                        encMsg = emailFunc.createMail(configs[1], receiver.email, values["subject"], htmlText, attachments)
-                                        if encMsg:
-                                            msg = emailFunc.sendMail(service, 'me', encMsg)
-                                            if msg:
-                                                logging.debug(msg)
-                                                logging.info("Message sent.")
-                                        else:
-                                            sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty. Keskeytetään.")
-                                            break
+                                        sg.PopupOK("Jokin meni vikaan viestiä luotaessa. Viestiä ei lähetetty. Keskeytetään.")
+                                        break
                             logging.debug("yearbool == False or (== True paymentyear != year)")
                         else:
                             logging.debug("Skipping invoice creation on condition; yearbool:{0}, year:{1}, payer:{2}".format(values['paymentyear'], year, receiver.paymentyear))
@@ -206,10 +237,10 @@ def billing(configs, service=None):
                     # error checking
                     if ret != -1 and ret != -2 and event != 'Peruuta':
                         window2.close()
-                        sg.PopupOK("{0} laskua luotiin kohdekansioon ja lähetettiin. Ohitettiin {1} vastaanottajaa.".format(i, k))
+                        sg.PopupOK("{0} laskua luotiin kohdekansioon ja lähetettiin. Ohitettiin {1} vastaanottajaa.\nLaskujen viitenumero on {2} {3}.".format(i, k, ref[:5], ref[5:]))
                         logging.info("{0} invoices created to {1}. Sent {0} invoices. Skipped {2} receivers".format(i, values['folder'], k))
             else:
-                sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
+                sg.PopupOK("Jotkin kohdat ovat tyhjiä tai virheellisiä. Varmista, että seuraavat kentät ovat täytetty ja oikeassa muodossa: Aihe, Laskujen kohdekansio & Eräpäivä.")
                 logging.info("Some fields empty")
 
         elif event == "Esikatsele":
@@ -220,6 +251,18 @@ def billing(configs, service=None):
                     sg.PopupOK("Tuo ensin CSV-tiedosto")
                     logging.info("No CSV given")
                     continue
+                if values['logo'] != "":
+                    if values['logo'][-4:].lower() == 'jpeg': 
+                        pass
+                    elif values['logo'][-4:].lower() == '.png':
+                        pass
+                    elif values['logo'][-4:].lower() == '.jpg':
+                        pass
+                    elif values['logo'][-4:].lower() == '.gif':
+                        pass
+                    else:
+                        sg.PopupOK("Logon sallitut tiedostotyypit ovat .jpg .jpeg .png ja .gif")
+                        continue
                 if (values['paymentyear'] != True) or (values['paymentyear'] == True):
                     ret = pdf.createInvoice(configs, receivers[0], "", values['billText'], formattedDate, values['subject'], ref, 0, values['logo'], preview=True)
                     if ret == -1 or ret  == -2:
@@ -236,7 +279,7 @@ def billing(configs, service=None):
                         sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
                         logging.info("Preview failed")
             else:
-                sg.PopupOK("Eräpäivä ei voi olla tyhjä.")
+                sg.PopupOK("Eräpäivä ei voi olla tyhjä tai se on virheellinen. Tarkista, että eräpäivä on muodossa pp.mm.vvvv")
                 
 
         elif event == "Apua":
@@ -260,6 +303,6 @@ Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägi
         elif event == "Lisenssit":
             sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
-            exit()
+            exit(0)
 
     window.close()
