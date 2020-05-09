@@ -411,7 +411,7 @@ def stickersheet(path, receivers, paper, sx, sy, div, emailBool):
 
     # font
     if sx < 5:
-        fontsize = 13
+        fontsize = 12
     elif sx < 6 :
         fontsize = 9
     elif sx < 7:
