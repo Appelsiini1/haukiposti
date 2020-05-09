@@ -33,7 +33,7 @@ class receiverClass():
         print("Company: ", self.company)
 
 def version():
-    return "V1.0.2"
+    return "V1.0.3"
 
 def licenses():
     litania = """Haukiposti {0}
@@ -282,7 +282,7 @@ def markdownParserHTML(text, paths, preview, *args):
 
     # newline
     text = "<p>" + text
-    text = text.replace('\n', '</p><p>')
+    text = text.replace('\n', '<br>')
     text = "</p>" + text
 
     #bolding
