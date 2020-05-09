@@ -33,10 +33,10 @@ class receiverClass():
         print("Company: ", self.company)
 
 def version():
-    return "V1.0.0"
+    return "V1.0.1"
 
 def licenses():
-    litania = """Haukiposti V1.0
+    litania = """Haukiposti V1.0.1
 Copyright (C) 2020  Rami Saarivuori & Aarne Savolainen
 
 This program is free software: you can redistribute it and/or modify
