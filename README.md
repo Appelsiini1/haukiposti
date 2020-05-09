@@ -16,4 +16,5 @@ ReportLab PDF library,
 Pillow/PIL,
 PubCode,
 Google API Client, google-auth-httplib2, google-auth-oauthlib
+
 *May also need PyInstaller to be installed*
