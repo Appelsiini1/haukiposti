@@ -119,7 +119,7 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
         leveys, korkeus = A4
         transSizeX = leveys / 210
         transSizeY = korkeus / 297
-        base = common.resource_path("assets/Tilisiirto_pohja.jpg")
+        base = common.resource_path("Tilisiirto_pohja.jpg")
         margin = transSizeX*27
         margin2 = transSizeX*119
         margin3 = margin2+transSizeX*18
@@ -146,7 +146,7 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
         for item in newLines:
             line = common.markdownParserPDF(item)
             if line == -1:
-                sg.PopupOK("Viallinen muotoilu saatteessa. Tarkista, että suljet ja aloita tagit oikein. Keskeytetään.")
+                sg.PopupOK("Viallinen muotoilu saatteessa. Tarkista, että suljet ja aloitat tagit oikein. Keskeytetään.")
                 return -1
             logging.debug(line)
             if line == []:
