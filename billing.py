@@ -121,7 +121,7 @@ def billing(configs, service=None):
                     logging.info("{0} invoices created to {1}. Skipped {2} receivers".format(i, values['folder'], k))
 
             else:
-                sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
+                sg.PopupOK("Jotkin kohdat ovat tyhjiä tai virheellisiä. Varmista, että seuraavat kentät ovat täytetty ja oikeassa muodossa: Aihe, Laskujen kohdekansio & Eräpäivä.")
                 logging.info("Some fields empty")
 
         # Send
@@ -209,7 +209,7 @@ def billing(configs, service=None):
                         sg.PopupOK("{0} laskua luotiin kohdekansioon ja lähetettiin. Ohitettiin {1} vastaanottajaa.".format(i, k))
                         logging.info("{0} invoices created to {1}. Sent {0} invoices. Skipped {2} receivers".format(i, values['folder'], k))
             else:
-                sg.PopupOK("Jotkin kohdat ovat tyhjiä. Varmista, että seuraavat kentät ovat täytetty: Aihe, Laskujen kohdekansio & Eräpäivä.")
+                sg.PopupOK("Jotkin kohdat ovat tyhjiä tai virheellisiä. Varmista, että seuraavat kentät ovat täytetty ja oikeassa muodossa: Aihe, Laskujen kohdekansio & Eräpäivä.")
                 logging.info("Some fields empty")
 
         elif event == "Esikatsele":
@@ -236,7 +236,7 @@ def billing(configs, service=None):
                         sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
                         logging.info("Preview failed")
             else:
-                sg.PopupOK("Eräpäivä ei voi olla tyhjä.")
+                sg.PopupOK("Eräpäivä ei voi olla tyhjä tai se on virheellinen. Tarkista, että eräpäivä on muodossa pp.mm.vvvv")
                 
 
         elif event == "Apua":
