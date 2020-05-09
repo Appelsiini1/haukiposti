@@ -4,6 +4,7 @@ A custom masspost & invoice creation program made with Python. Originally made f
 Includes UI made with PySimpleGUI, invoice & stickerheet functions made with the open-source ReportLab PDF & PubCode libraries. Email sending & authentication is made via Gmail API with Google Authentication libraries.
 
 *Currently UI is ONLY IN Finnish. Source code is mostly English*
+
 *Requires Gmail API credentials to work!*
 
 This program allows you to send CC emails to multiple people at once, and personalized invoices as an attachment.
