@@ -40,7 +40,7 @@ def stickersheet(configs):
                 receivers = common.CSVparser(values['receivers'])
                 if receivers:
                     if values['targetfolder'] != "" and values['paper'] != "":
-                        path = pdf.stickersheet(values['targetfolder'], receivers, values['paper'], values['x'], values['y'], values['div'])
+                        path = pdf.stickersheet(values['targetfolder'], receivers, values['paper'], int(values['x']), int(values['y']), values['div'], values['email'])
                         if path == -1:
                             sg.PopupOK("Tiedostoa ei voitu luoda, tiedosto on jonkin toisen prosessin käytössä.")
                         elif path == -2:

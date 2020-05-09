@@ -352,11 +352,16 @@ def createInvoice(config, receiver, path, message, duedate, subject, reference, 
 
     return pdfPath
 
-def sticker(c, name, address, postal, contact, x, y, fontsize):
+def sticker(c, fname, lname, address, postal, contact, x, y, fontsize):
     textObject = c.beginText()
     textObject.setTextOrigin(x, y)
     textObject.setFont("Helvetica", fontsize)
-    textObject.textLine(name)
+    name = fname + " " + lname
+    if len(name) > 20:
+        textObject.textLine(fname)
+        textObject.textLine(lname)
+    else:
+        textObject.textLine(name)
     if contact != "":
         textObject.textLine(contact)
     textObject.textLine(address)
@@ -365,7 +370,7 @@ def sticker(c, name, address, postal, contact, x, y, fontsize):
     c.drawText(textObject)
 
 
-def stickersheet(path, receivers, paper, sx, sy, div):
+def stickersheet(path, receivers, paper, sx, sy, div, emailBool):
     """Makes a stickersheet.
     Args:
     path = Path to output folder
@@ -419,10 +424,11 @@ def stickersheet(path, receivers, paper, sx, sy, div):
     x = marginx
     y = korkeus-marginy-3*mm
     for receiver in receivers:
+        if emailBool == True and receiver.email != "":
+            continue
         logging.debug("begin, {0}".format(k))
-        name = receiver.firstname + " " + receiver.lastname
         postal = receiver.postalno + " " + receiver.city
-        sticker(c, name, receiver.address, postal, receiver.contact, x, y, fontsize)
+        sticker(c, receiver.firstname, receiver.lastname, receiver.address, postal, receiver.contact, x, y, fontsize)
         k += 1
 
         if j == sy and i == sx:
