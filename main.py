@@ -1,5 +1,5 @@
-#Haukiposti V1.0.0
-#06.05.2020
+#Haukiposti V1.0.4
+#14.09.2020
 # (c) Rami Saarivuori & Aarne Savolainen
 
 try:
