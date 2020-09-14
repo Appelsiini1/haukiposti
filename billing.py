@@ -215,7 +215,7 @@ def billing(configs, service=None):
                                     break
                                 else:
                                     # send message
-                                    htmlText = common.markdownParserHTML(values["messageText"], attachments, preview=0)
+                                    htmlText = common.markdownParserHTML(values["messageText"], attachments, receiver, preview=0)
                                     encMsg = emailFunc.createMail(configs[1], receiver.email, values["subject"], htmlText, attachments)
                                     if encMsg:
                                         msg = emailFunc.sendMail(service, 'me', encMsg)
@@ -275,7 +275,7 @@ def billing(configs, service=None):
 
                     attachments = values["attachment"].split(';')
                     text = values["messageText"]
-                    if masspost.preview(text, attachments) == -1:
+                    if masspost.preview(text, attachments, receivers[0]) == -1:
                         sg.PopupOK("Tekstin muunnos epäonnistui. Todennäköisesti jotakin tiedostoa ei voitu avata.")
                         logging.info("Preview failed")
             else:
@@ -290,6 +290,7 @@ Kirjoita laskun eräpäivä muodossa pp.mm.vvvv, tai valitse se napista aukeavas
 Logo on vapaaehtoinen.\n
 Valitse laskujen kohdekansio.\n\n
 Tekstin erikoismerkit:\n
+%nimi%      == Saajan nimi
 **tekstiä** == Lihavoitu\n
 ||tekstiä|| == Kursivoitu\n
 __tekstiä__ == Alleviivattu\n

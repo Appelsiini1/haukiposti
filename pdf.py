@@ -101,7 +101,7 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
     """
     Args:
     config = config list,
-    receivers = list of receiver objects
+    receiver = invoice receiver object
     path = path to output folder
     message = message to be attached to the invoice
     duedate = due date of the invoice as a string
@@ -144,7 +144,7 @@ def definePage(c, config, receiver, path, message, duedate, subject, reference, 
         m.setTextOrigin(25, korkeus-135)
         newLines = message.split('\n')
         for item in newLines:
-            line = common.markdownParserPDF(item)
+            line = common.markdownParserPDF(item, receiver)
             if line == -1:
                 sg.PopupOK("Viallinen muotoilu saatteessa. Tarkista, että suljet ja aloitat tagit oikein. Keskeytetään.")
                 return -1

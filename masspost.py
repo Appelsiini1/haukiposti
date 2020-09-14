@@ -3,7 +3,7 @@ import emailFunc as mail
 import logging, os, shutil, common
 
 
-def preview(text, images):
+def preview(text, images, receiver = None):
     folder = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "images")
     path = os.path.join((os.getenv("APPDATA") + "\\Haukiposti"), "preview.html")
     paths = []
@@ -22,7 +22,7 @@ def preview(text, images):
             i += 1
             
     preview = 1
-    htmlText = common.markdownParserHTML(text, images, preview, paths)
+    htmlText = common.markdownParserHTML(text, images, receiver, preview, paths)
     if htmlText == -1:
         return -1
     try:
@@ -90,7 +90,7 @@ def massPost(configs, service):
                         logging.error("Attachments too big")
                     else:
                         text = values["messageText"]
-                        htmlText = common.markdownParserHTML(text, attachments, preview=0)
+                        htmlText = common.markdownParserHTML(text, attachments,receiver=None, preview=0)
                         receivers = common.CSVparser(values["receivers"])
                         emailString = ""
                         if receivers:
@@ -111,7 +111,7 @@ def massPost(configs, service):
                             logging.error("CSV read error")
                 else:
                     text = values["messageText"]
-                    htmlText = common.markdownParserHTML(text, attachments, preview=0)
+                    htmlText = common.markdownParserHTML(text, attachments, receiver=None, preview=0)
                     receivers = common.CSVparser(values["receivers"])
                     emailString = ""
                     if receivers:

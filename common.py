@@ -264,7 +264,7 @@ def CSVparser(file):
     # fil.close()
     return emails
 
-def markdownParserHTML(text, paths, preview, *args):
+def markdownParserHTML(text, paths, receiver, preview, *args):
     # **text** = <b></b> bolding
     # __text__ = <i></i> italic
     # ||text|| = <u></u> underlined
@@ -279,6 +279,10 @@ def markdownParserHTML(text, paths, preview, *args):
     
     start = '<html><body><font face="Calibri">'
     end = '</font></body></html>'
+
+    #receiver
+    if receiver != None:
+        text = text.replace("%nimi%", (receiver.firstname + " " + receiver.lastname))
 
     # newline
     text = "<p>" + text
@@ -372,12 +376,13 @@ def finder(text):
         return None
 
 
-def markdownParserPDF(text):
+def markdownParserPDF(text, receiver):
     # **text** = <b></b> bolding
     # __text__ = <i></i> italic
     # ||text|| = <u></u> underlined
     try:
         finalList = []
+        text = text.replace("%nimi%", (receiver.firstname + " " + receiver.lastname))
 
         res = finder(text)
         if res == None:
