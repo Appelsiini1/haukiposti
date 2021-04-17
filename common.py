@@ -33,7 +33,7 @@ class receiverClass():
         print("Company: ", self.company)
 
 def version():
-    return "V1.0.4"
+    return "V1.0.5"
 
 def licenses():
     litania = """Haukiposti {0}
