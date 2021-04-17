@@ -33,7 +33,7 @@ class receiverClass():
         print("Company: ", self.company)
 
 def version():
-    return "V1.0.5"
+    return "V1.0.6"
 
 def licenses():
     litania = """Haukiposti {0}
@@ -94,8 +94,7 @@ def getRes(imagePath):
     except Exception as e:
         logging.exception(e)
         return -1
-    finally:
-        image.close()
+    image.close()
     x = size[0]
     y = size[1]
     while x > 600 or y > 600:
@@ -271,11 +270,14 @@ def markdownParserHTML(text, paths, receiver, preview, *args):
     # @@link@@text@@ = <a href="">*text*</a> link
     # $$img$$ = <p><img src="cid:0"></p> embedded image (cid:x number of image)
     # Font is spesified to 'Calibri'
-
+    img = 0
     try:
         images = args[0]
+        img = 1
     except IndexError as identifier:
         pass
+        img = -1
+
     
     start = '<html><body><font face="Calibri">'
     end = '</font></body></html>'
@@ -338,7 +340,7 @@ def markdownParserHTML(text, paths, receiver, preview, *args):
             resolution = getRes(paths[i])
             if resolution == -1:
                 continue
-            if preview == 1:
+            if preview == 1 and img == 1:
                 text = text.replace('$$img$$', ('<img src="'+images[i]+'" alt="image" height="' + str(resolution[1]) + '" width="'+ str(resolution[0])+'">'), 1)
             else:
                 kuva = j.split('/')
