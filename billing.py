@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import pdf, common, datetime, logging, emailFunc, os, time, masspost
+import pdf, common, datetime, logging, emailFunc, os, time, masspost, sys
 
 def billing(configs, service=None):
 
@@ -304,6 +304,6 @@ Jos haluat kuvan olevan linkki, laita $$img$$ tägi tekstin paikalle linkkitägi
         elif event == "Lisenssit":
             sg.popup_scrolled(common.licenses(), font=("Verdana", 12), title="Haukiposti - Lisenssit")
         elif event in (None, "Poistu"):
-            exit(0)
+            sys.exit(0)
 
     window.close()

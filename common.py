@@ -33,7 +33,7 @@ class receiverClass():
         print("Company: ", self.company)
 
 def version():
-    return "V1.0.4"
+    return "V1.0.5"
 
 def licenses():
     litania = """Haukiposti {0}
@@ -337,7 +337,7 @@ def markdownParserHTML(text, paths, receiver, preview, *args):
         for j in paths:
             resolution = getRes(paths[i])
             if resolution == -1:
-                return
+                continue
             if preview == 1:
                 text = text.replace('$$img$$', ('<img src="'+images[i]+'" alt="image" height="' + str(resolution[1]) + '" width="'+ str(resolution[0])+'">'), 1)
             else:
